@@ -3,12 +3,12 @@ import { PutCommand, DeleteCommand, GetCommand, DynamoDBDocumentClient } from "@
 import { v4 as uuidv4 } from 'uuid';
 import 'dotenv/config'
 
-export const put = async () => {
+export const put = async (tableName: string) => {
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client);
 
   const command = new PutCommand({
-    TableName: process.env.TABLE_NAME,
+    TableName: tableName,
     Item: {
       id :  uuidv4(),
       name: "Timmy",
@@ -21,12 +21,14 @@ export const put = async () => {
   return response;
 }
 
-export const get = async (itemId, itemName) => {
+export const get = async (tableName: string,
+    itemId: string,
+    itemName: string) => {
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client);
 
   const command = new GetCommand({
-    TableName: process.env.TABLE_NAME,
+    TableName: tableName,
     Key: {
       id : itemId,
       name: itemName
@@ -42,12 +44,12 @@ export const update = async () => {
 
 }
 
-export const remove = async (itemId) => {
+export const remove = async (tableName: string, itemId: string) => {
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client);
 
   const command = new DeleteCommand({
-    TableName: process.env.TABLE_NAME,
+    TableName: tableName,
     Key: {
       id: itemId,
     },
