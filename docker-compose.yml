@@ -1,0 +1,6 @@
+version: '3'
+services:
+  serverless:
+    image: amaysim/serverless:3.36.0
+    volumes:
+      - .:/opt/app

@@ -1,4 +1,4 @@
-import { put, remove, get } from './lib/items';
+import { put, remove, get } from './src/items';
 
 // get('weight','522d0926-5476-403b-adf4-96b3e9d18c3c', 'Timmy')
 // put();

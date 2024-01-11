@@ -4,6 +4,7 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-offline
+
 provider:
   name: aws
   runtime: nodejs16.x
@@ -15,5 +16,5 @@ functions:
     handler: handler.hello
     events:
       - http:
-          path: /
+          path: /babies/{id}/weight
           method: get
