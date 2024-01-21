@@ -4,10 +4,12 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "adapters/**/*",
-    "domains/**/*"
+    "libs/adapters/**/*",
+    "libs/domains/**/*",
+    "libs/clients/**/*"
   ],
   "devDependencies": {
+    "jest": "^29.7.0",
     "serverless": "^3.38.0",
     "serverless-offline": "^13.3.2"
   }

@@ -63,3 +63,8 @@ proxy-from-env@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
   integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
+
+type-safe-validator@^1.0.32:
+  version "1.0.32"
+  resolved "https://registry.yarnpkg.com/type-safe-validator/-/type-safe-validator-1.0.32.tgz#ffe6f4712f115a75dbba9ff873dcc9856ad78bbb"
+  integrity sha512-QTvb6+Jlmin1p6xyX8ExTxC6EgP4hDcC67ZqahmcAuSy9e9NknnZwBXuMxw1k9OwGDgn+MwrR2sv/tixBAlVgA==
