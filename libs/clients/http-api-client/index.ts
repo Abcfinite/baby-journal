@@ -8,10 +8,10 @@ export default class HttpApiClient {
   async get(
     baseUrl: string,
     path?: string,
-    accessToken?: string,
-    header?: object,
-    query: object = {},
+    headers?: object,
+    params: object = {},
   ):  Promise<HttpResponse> {
+    let axiosResponse: AxiosResponse
 
     let response: HttpResponse = {
       value: null,
@@ -21,6 +21,8 @@ export default class HttpApiClient {
       hasError: false,
       errorText: null,
     }
+
+    axiosResponse = await axios.get(baseUrl+path,{ headers, params })
 
 
     return response
