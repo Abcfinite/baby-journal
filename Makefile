@@ -1,7 +1,9 @@
+ENVFILE?=.env
 BASEWORKDIR=/opt/app
 WORKDIR=$(BASEWORKDIR)/domains/$(DOMAIN)/$(SERVICE)
+NODE_MODULES_DIR=node_modules
 
-shell:
+shell: $(ENVFILE) $(NODE_MODULES_DIR)
 	docker-compose run -p 3000:3000 --rm serverless bash
 
 deps:
