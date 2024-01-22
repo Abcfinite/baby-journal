@@ -1,4 +1,4 @@
-import { HttpResponse } from './src/types/http-response';
+import { HttpResponse, Value } from './src/types/http-response';
 import axios, { AxiosResponse } from 'axios'
 
 export default class HttpApiClient {
@@ -22,8 +22,14 @@ export default class HttpApiClient {
       errorText: null,
     }
 
-    axiosResponse = await axios.get(baseUrl+path,{ headers, params })
+    axiosResponse = await axios.get(
+      baseUrl+path,
+      { headers, params }
+    )
 
+    response.status = axiosResponse.status
+    response.value = axiosResponse.data
+    response.hasValue = axiosResponse.data !== undefined && axiosResponse.data !== null
 
     return response
   }
