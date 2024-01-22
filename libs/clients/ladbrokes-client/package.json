@@ -4,7 +4,6 @@
     "author": "abraham cole finite <abrahamfinite@gmail.com>",
     "type": "module",
     "dependencies": {
-        "dotenv": "^16.3.1"
     },
     "scripts": {
         "tsc": "tsc"
