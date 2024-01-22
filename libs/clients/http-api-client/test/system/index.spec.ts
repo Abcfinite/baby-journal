@@ -10,8 +10,8 @@ describe('HttpService', () => {
       }
       const httpApiClient = new HttpApiClient()
       const result = await httpApiClient.get(
-        'https://api.ladbrokes.com.au',
-        '/v2/client/PendingBetCount',
+        process.env.LADBROKES_HOST!,
+        process.env.LADBROKES_PENDING_BETS_PATH,
         headers,
       )
 

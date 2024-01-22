@@ -1,11 +1,43 @@
 {
-    "name": "ladbrokes-client",
-    "version": "1.0.0",
-    "author": "abraham cole finite <abrahamfinite@gmail.com>",
-    "type": "module",
-    "dependencies": {
+  "name": "ladbrokes-client",
+  "version": "1.0.0",
+  "author": "abraham cole finite <abrahamfinite@gmail.com>",
+  "type": "module",
+  "dependencies": {
+      "lodash.get": "^4.4.2"
+  },
+  "jest": {
+    "verbose": true,
+    "transform": {
+      "^.+\\.(t|j)sx?$": [
+        "@swc/jest"
+      ]
     },
-    "scripts": {
-        "tsc": "tsc"
-    }
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>"
+    ],
+    "collectCoverageFrom": [
+      "<rootDir>/lib/**/*.{js,ts}",
+      "<rootDir>/index.ts"
+    ],
+    "testMatch": [
+      "<rootDir>/test/**/?(*.)(spec|test).{js,ts}"
+    ],
+    "coverageDirectory": "<rootDir>/coverage",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "rootDir": ".",
+    "moduleDirectories": [
+      "node_modules",
+      "test",
+      "src"
+    ]
+  },
+  "scripts": {
+      "tsc": "tsc"
+  }
 }
