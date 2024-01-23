@@ -1,6 +1,8 @@
 import HttpApiClient from '../http-api-client'
+import BetParser from './src/parsers/betCollectionParser'
 import PendingBetsParser from './src/parsers/pendingBetsParser'
-import { PendingBets } from './src/types/responses'
+import Socket from './src/services/socket'
+import { Bet, PendingBets } from './src/types/responses';
 
 export default class LadbrokesClient {
 
@@ -22,5 +24,11 @@ export default class LadbrokesClient {
     const pendingBets = PendingBetsParser.parse(result.value as any)
 
     return pendingBets
+  }
+
+  async getPendingBetsDetail() : Promise<Array<Bet>> {
+    const PendingBets = await new Socket().getPendingBetDetails()
+
+    return PendingBets
   }
 }
