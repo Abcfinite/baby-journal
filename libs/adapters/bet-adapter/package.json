@@ -38,6 +38,6 @@
     ]
   },
   "scripts": {
-      "tsc": "tsc"
+    "build": "tsc"
   }
 }

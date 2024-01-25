@@ -1,4 +1,4 @@
-import HttpApiClient from '../../../http-api-client'
+import HttpApiClient from 'http-api-client'
 import EventParser from '../parsers/eventParser'
 import { Bet, Event } from '../types/responses'
 

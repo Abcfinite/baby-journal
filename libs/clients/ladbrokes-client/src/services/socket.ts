@@ -1,4 +1,4 @@
-import HttpApiClient from '../../../http-api-client'
+import HttpApiClient from 'http-api-client'
 import BetCollectionParser from '../parsers/betCollectionParser'
 import { Bet } from '../types/responses'
 
@@ -27,7 +27,7 @@ export default class Socket {
       params,
     )
 
-    const pendingBets = BetCollectionParser.parse(result.value['data'] as any)
+    const pendingBets = BetCollectionParser.parse(result.value!['data'] as any)
 
     return pendingBets
   }
