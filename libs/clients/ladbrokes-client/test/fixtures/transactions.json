@@ -1,0 +1,717 @@
+{
+    "status": 200,
+    "data": {
+        "transactions": [
+            {
+                "id": "6a59e5ee-dbbc-4e4c-9dbd-72c2f04b188a",
+                "client_id": "c0616a90-07cd-435c-ac7f-4476857c6c1e",
+                "created": {
+                    "seconds": 1706138630,
+                    "nanos": 857657361
+                },
+                "transaction_type_id": "3a71227e-727c-4180-984d-87bf92f0f456",
+                "currency_code": "AUD",
+                "request_amount": 0.5,
+                "accept_amount": 0.5,
+                "balance_effect": -0.5,
+                "account_balance": 2.66,
+                "device_id": "02fcd4eb-a4e4-4dfd-baa5-602616ce4de5",
+                "transaction_type_reference_id": "d9953e94-aa0b-4b88-b74d-cbc8acddcdff"
+            },
+            {
+                "id": "fce56806-06ad-4741-8481-8510d7dd7765",
+                "client_id": "c0616a90-07cd-435c-ac7f-4476857c6c1e",
+                "created": {
+                    "seconds": 1706138630,
+                    "nanos": 855158959
+                },
+                "transaction_type_id": "3a71227e-727c-4180-984d-87bf92f0f456",
+                "currency_code": "AUD",
+                "request_amount": 0.5,
+                "accept_amount": 0.5,
+                "balance_effect": -0.5,
+                "account_balance": 3.16,
+                "device_id": "02fcd4eb-a4e4-4dfd-baa5-602616ce4de5",
+                "transaction_type_reference_id": "ccc80901-9991-4058-8533-e187fe0b6f36"
+            },
+            {
+                "id": "47db08b0-d264-4985-9287-5f01e96a220f",
+                "client_id": "c0616a90-07cd-435c-ac7f-4476857c6c1e",
+                "created": {
+                    "seconds": 1706138630,
+                    "nanos": 848612510
+                },
+                "transaction_type_id": "3a71227e-727c-4180-984d-87bf92f0f456",
+                "currency_code": "AUD",
+                "request_amount": 0.5,
+                "accept_amount": 0.5,
+                "balance_effect": -0.5,
+                "account_balance": 3.66,
+                "device_id": "02fcd4eb-a4e4-4dfd-baa5-602616ce4de5",
+                "transaction_type_reference_id": "cda0686d-f8d2-44e3-b431-d11289be9add"
+            },
+            {
+                "id": "244866cb-0220-4221-936c-4a7796eb09f7",
+                "client_id": "c0616a90-07cd-435c-ac7f-4476857c6c1e",
+                "created": {
+                    "seconds": 1706138630,
+                    "nanos": 832863408
+                },
+                "transaction_type_id": "3a71227e-727c-4180-984d-87bf92f0f456",
+                "currency_code": "AUD",
+                "request_amount": 0.5,
+                "accept_amount": 0.5,
+                "balance_effect": -0.5,
+                "account_balance": 4.16,
+                "device_id": "02fcd4eb-a4e4-4dfd-baa5-602616ce4de5",
+                "transaction_type_reference_id": "cb82c08c-2456-450d-9c19-f5af1d909cc8"
+            },
+            {
+                "id": "2dba58b2-4a83-4917-be0b-d1a001603abc",
+                "client_id": "c0616a90-07cd-435c-ac7f-4476857c6c1e",
+                "created": {
+                    "seconds": 1706138630,
+                    "nanos": 828686699
+                },
+                "transaction_type_id": "3a71227e-727c-4180-984d-87bf92f0f456",
+                "currency_code": "AUD",
+                "request_amount": 0.5,
+                "accept_amount": 0.5,
+                "balance_effect": -0.5,
+                "account_balance": 4.66,
+                "device_id": "02fcd4eb-a4e4-4dfd-baa5-602616ce4de5",
+                "transaction_type_reference_id": "06e48cb2-b960-4d8e-a96d-d9c6b6cceaed"
+            }
+        ],
+        "bet_collections": {
+            "06e48cb2-b960-4d8e-a96d-d9c6b6cceaed": {
+                "id": "06e48cb2-b960-4d8e-a96d-d9c6b6cceaed",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            },
+            "cb82c08c-2456-450d-9c19-f5af1d909cc8": {
+                "id": "cb82c08c-2456-450d-9c19-f5af1d909cc8",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            },
+            "ccc80901-9991-4058-8533-e187fe0b6f36": {
+                "id": "ccc80901-9991-4058-8533-e187fe0b6f36",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            },
+            "cda0686d-f8d2-44e3-b431-d11289be9add": {
+                "id": "cda0686d-f8d2-44e3-b431-d11289be9add",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            },
+            "d9953e94-aa0b-4b88-b74d-cbc8acddcdff": {
+                "id": "d9953e94-aa0b-4b88-b74d-cbc8acddcdff",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            }
+        },
+        "bets": {
+            "3beb40b4-1406-429a-bedb-7783fa699d38": {
+                "id": "3beb40b4-1406-429a-bedb-7783fa699d38",
+                "transaction_id": "244866cb-0220-4221-936c-4a7796eb09f7",
+                "bet_status_id": "6d91cb72-215e-47d1-93d0-e2105db3165c",
+                "bet_collection_id": "cb82c08c-2456-450d-9c19-f5af1d909cc8",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            },
+            "9db2030b-ee18-4c25-87ad-bd209bdbdef5": {
+                "id": "9db2030b-ee18-4c25-87ad-bd209bdbdef5",
+                "transaction_id": "2dba58b2-4a83-4917-be0b-d1a001603abc",
+                "bet_status_id": "6d91cb72-215e-47d1-93d0-e2105db3165c",
+                "bet_collection_id": "06e48cb2-b960-4d8e-a96d-d9c6b6cceaed",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            },
+            "caaa286f-18e9-4657-b80a-945e536c2aa8": {
+                "id": "caaa286f-18e9-4657-b80a-945e536c2aa8",
+                "transaction_id": "6a59e5ee-dbbc-4e4c-9dbd-72c2f04b188a",
+                "bet_status_id": "6d91cb72-215e-47d1-93d0-e2105db3165c",
+                "bet_collection_id": "d9953e94-aa0b-4b88-b74d-cbc8acddcdff",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            },
+            "d086a055-d280-42da-bf36-de2f95fe618d": {
+                "id": "d086a055-d280-42da-bf36-de2f95fe618d",
+                "transaction_id": "fce56806-06ad-4741-8481-8510d7dd7765",
+                "bet_status_id": "6d91cb72-215e-47d1-93d0-e2105db3165c",
+                "bet_collection_id": "ccc80901-9991-4058-8533-e187fe0b6f36",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            },
+            "e452bbaf-2e7e-43f9-8932-cedb7e2b1384": {
+                "id": "e452bbaf-2e7e-43f9-8932-cedb7e2b1384",
+                "transaction_id": "47db08b0-d264-4985-9287-5f01e96a220f",
+                "bet_status_id": "6d91cb72-215e-47d1-93d0-e2105db3165c",
+                "bet_collection_id": "cda0686d-f8d2-44e3-b431-d11289be9add",
+                "stake": 0.5,
+                "currency_code": "AUD"
+            }
+        },
+        "bet_allows_cashout": null,
+        "bet_legs": {
+            "19fe2841-f8c2-4c13-8ca6-869ff7be0ca8": {
+                "id": "19fe2841-f8c2-4c13-8ca6-869ff7be0ca8",
+                "bet_id": "9db2030b-ee18-4c25-87ad-bd209bdbdef5",
+                "product_type_id": "940b8704-e497-4a76-b390-00918ff7d282",
+                "root_category_id": "4d54ccd1-17b0-40c3-a7e2-be08ced1e7d0",
+                "placed": {
+                    "numerator": 11,
+                    "denominator": 100,
+                    "decimal": 1.11
+                },
+                "market_advertised_date": {
+                    "seconds": 1706138630,
+                    "nanos": 827857699
+                },
+                "bet_leg_status_id": "efa66878-0c8e-4fdf-94a8-864c46ea8a52",
+                "market_id": "6fa3c40a-e1de-41e3-8a67-f1c9e3230260"
+            },
+            "2636fa86-b10d-422f-a4c3-99471030afbb": {
+                "id": "2636fa86-b10d-422f-a4c3-99471030afbb",
+                "bet_id": "e452bbaf-2e7e-43f9-8932-cedb7e2b1384",
+                "product_type_id": "940b8704-e497-4a76-b390-00918ff7d282",
+                "root_category_id": "4d54ccd1-17b0-40c3-a7e2-be08ced1e7d0",
+                "placed": {
+                    "numerator": 9,
+                    "denominator": 100,
+                    "decimal": 1.09
+                },
+                "market_advertised_date": {
+                    "seconds": 1706138630,
+                    "nanos": 847736146
+                },
+                "bet_leg_status_id": "efa66878-0c8e-4fdf-94a8-864c46ea8a52",
+                "market_id": "e222fc70-cb5a-4231-a898-9ca6f10c8907"
+            },
+            "82a74f1a-0be8-44d6-a770-6d823c836362": {
+                "id": "82a74f1a-0be8-44d6-a770-6d823c836362",
+                "bet_id": "3beb40b4-1406-429a-bedb-7783fa699d38",
+                "product_type_id": "940b8704-e497-4a76-b390-00918ff7d282",
+                "root_category_id": "4d54ccd1-17b0-40c3-a7e2-be08ced1e7d0",
+                "placed": {
+                    "numerator": 13,
+                    "denominator": 100,
+                    "decimal": 1.13
+                },
+                "market_advertised_date": {
+                    "seconds": 1706138630,
+                    "nanos": 831799686
+                },
+                "bet_leg_status_id": "efa66878-0c8e-4fdf-94a8-864c46ea8a52",
+                "market_id": "7d4458a7-3c05-4f63-a56a-f95f5d69a084"
+            },
+            "8adaa4c8-fb87-44c3-809d-e3b900a53666": {
+                "id": "8adaa4c8-fb87-44c3-809d-e3b900a53666",
+                "bet_id": "d086a055-d280-42da-bf36-de2f95fe618d",
+                "product_type_id": "940b8704-e497-4a76-b390-00918ff7d282",
+                "root_category_id": "4d54ccd1-17b0-40c3-a7e2-be08ced1e7d0",
+                "placed": {
+                    "numerator": 17,
+                    "denominator": 100,
+                    "decimal": 1.17
+                },
+                "market_advertised_date": {
+                    "seconds": 1706138630,
+                    "nanos": 854394553
+                },
+                "bet_leg_status_id": "efa66878-0c8e-4fdf-94a8-864c46ea8a52",
+                "market_id": "39542140-ca36-4307-87e0-2a6298c04914"
+            },
+            "c239f762-cc43-4176-8867-c7bddcd0d776": {
+                "id": "c239f762-cc43-4176-8867-c7bddcd0d776",
+                "bet_id": "caaa286f-18e9-4657-b80a-945e536c2aa8",
+                "product_type_id": "940b8704-e497-4a76-b390-00918ff7d282",
+                "root_category_id": "4d54ccd1-17b0-40c3-a7e2-be08ced1e7d0",
+                "placed": {
+                    "numerator": 11,
+                    "denominator": 100,
+                    "decimal": 1.11
+                },
+                "market_advertised_date": {
+                    "seconds": 1706138630,
+                    "nanos": 856883697
+                },
+                "bet_leg_status_id": "efa66878-0c8e-4fdf-94a8-864c46ea8a52",
+                "market_id": "9e52d0b3-c7af-4afb-94cf-da003e58c6d2"
+            }
+        },
+        "bet_leg_selections": {
+            "21bf45da-3837-416d-b48e-ad652d3d2f56": {
+                "id": "21bf45da-3837-416d-b48e-ad652d3d2f56",
+                "bet_leg_id": "82a74f1a-0be8-44d6-a770-6d823c836362",
+                "position": 1,
+                "event_id": "1b76cee5-ddb0-40cb-9915-3ef4c8c64a60",
+                "market_id": "7d4458a7-3c05-4f63-a56a-f95f5d69a084",
+                "entrant_id": "d6bf46d4-7138-48eb-be24-b4232a698202"
+            },
+            "37045b41-4586-47f4-8e22-535f7a9620c4": {
+                "id": "37045b41-4586-47f4-8e22-535f7a9620c4",
+                "bet_leg_id": "2636fa86-b10d-422f-a4c3-99471030afbb",
+                "position": 1,
+                "event_id": "0220b1f6-7a84-47a4-a83f-26401fd97fea",
+                "market_id": "e222fc70-cb5a-4231-a898-9ca6f10c8907",
+                "entrant_id": "8f8b155d-9283-43bb-b71c-0011c6bf4e00"
+            },
+            "502af7ce-d10e-4a42-9f00-3b3edd9428c0": {
+                "id": "502af7ce-d10e-4a42-9f00-3b3edd9428c0",
+                "bet_leg_id": "8adaa4c8-fb87-44c3-809d-e3b900a53666",
+                "position": 1,
+                "event_id": "9ab081f9-3102-429d-8d2b-dfd2c3b42e5d",
+                "market_id": "39542140-ca36-4307-87e0-2a6298c04914",
+                "entrant_id": "eb775c56-008c-476e-bf78-34ccfff2488e"
+            },
+            "72435281-0a98-4f9c-9305-02968a388281": {
+                "id": "72435281-0a98-4f9c-9305-02968a388281",
+                "bet_leg_id": "c239f762-cc43-4176-8867-c7bddcd0d776",
+                "position": 1,
+                "event_id": "b5991067-09a5-4851-b435-0d1a716fb824",
+                "market_id": "9e52d0b3-c7af-4afb-94cf-da003e58c6d2",
+                "entrant_id": "9eb1744f-09e3-4fe4-ad92-30f144caccc3"
+            },
+            "d87b70d7-9132-4eb3-a62f-de12efe847ee": {
+                "id": "d87b70d7-9132-4eb3-a62f-de12efe847ee",
+                "bet_leg_id": "19fe2841-f8c2-4c13-8ca6-869ff7be0ca8",
+                "position": 1,
+                "event_id": "3caeabd6-e9c9-4218-8c37-188c7491b80f",
+                "market_id": "6fa3c40a-e1de-41e3-8a67-f1c9e3230260",
+                "entrant_id": "26708682-4cf9-4608-a1ae-30aaf7383fe6"
+            }
+        },
+        "racing_events": {},
+        "racing_markets": {},
+        "racing_entrants": {},
+        "racing_meetings": {},
+        "racing_compounds": {},
+        "sports_events": {
+            "0220b1f6-7a84-47a4-a83f-26401fd97fea": {
+                "id": "0220b1f6-7a84-47a4-a83f-26401fd97fea",
+                "name": "Eric Vanshelboim vs Ranjeet Virali-Murugesan",
+                "advertised_start": {
+                    "seconds": 1706155906
+                },
+                "actual_start": {
+                    "seconds": 1706155906
+                },
+                "slug": "eric-vanshelboim-vs-ranjeet-virali-murugesan",
+                "match_status": "BettingOpen",
+                "event_type": {
+                    "id": "6bfa0efc-05df-4ae1-9b1e-152365290cfd",
+                    "name": "Match"
+                },
+                "category_id": "a0b910b8-85f0-4f6e-821d-c9fd9e3bdf93",
+                "visible": true,
+                "competition_id": "afd4086b-3495-4e99-b936-98b512fe1106",
+                "feed_revision": "6922",
+                "feed_metadata": {
+                    "feed_id": "lclkafka-243305649",
+                    "provider_id": "lclkafka"
+                }
+            },
+            "1b76cee5-ddb0-40cb-9915-3ef4c8c64a60": {
+                "id": "1b76cee5-ddb0-40cb-9915-3ef4c8c64a60",
+                "name": "Zeel Desai vs Alexandra Eala",
+                "advertised_start": {
+                    "seconds": 1706165100
+                },
+                "actual_start": {
+                    "seconds": 1706165100
+                },
+                "slug": "zeel-desai-vs-alexandra-eala",
+                "match_status": "BettingOpen",
+                "event_type": {
+                    "id": "6bfa0efc-05df-4ae1-9b1e-152365290cfd",
+                    "name": "Match"
+                },
+                "category_id": "a0b910b8-85f0-4f6e-821d-c9fd9e3bdf93",
+                "visible": true,
+                "competition_id": "83aca000-e677-45b6-9e9b-38e55c1e6576",
+                "feed_revision": "11",
+                "feed_metadata": {
+                    "feed_id": "lclkafka-243306287",
+                    "provider_id": "lclkafka"
+                }
+            },
+            "3caeabd6-e9c9-4218-8c37-188c7491b80f": {
+                "id": "3caeabd6-e9c9-4218-8c37-188c7491b80f",
+                "name": "Moyuka Uchijima vs Viktoria Morvayova",
+                "advertised_start": {
+                    "seconds": 1706165100
+                },
+                "actual_start": {
+                    "seconds": 1706165100
+                },
+                "slug": "moyuka-uchijima-vs-viktoria-morvayova",
+                "match_status": "BettingOpen",
+                "event_type": {
+                    "id": "6bfa0efc-05df-4ae1-9b1e-152365290cfd",
+                    "name": "Match"
+                },
+                "category_id": "a0b910b8-85f0-4f6e-821d-c9fd9e3bdf93",
+                "visible": true,
+                "competition_id": "83aca000-e677-45b6-9e9b-38e55c1e6576",
+                "feed_revision": "13",
+                "feed_metadata": {
+                    "feed_id": "lclkafka-243306289",
+                    "provider_id": "lclkafka"
+                }
+            },
+            "9ab081f9-3102-429d-8d2b-dfd2c3b42e5d": {
+                "id": "9ab081f9-3102-429d-8d2b-dfd2c3b42e5d",
+                "name": "Shrivalli Rashmikaa Bhamidipaty vs Anastasia Tikhonova",
+                "advertised_start": {
+                    "seconds": 1706157472
+                },
+                "actual_start": {
+                    "seconds": 1706157472
+                },
+                "slug": "shrivalli-rashmikaa-bhamidipaty-vs-anastasia-tikhonova",
+                "match_status": "BettingOpen",
+                "event_type": {
+                    "id": "6bfa0efc-05df-4ae1-9b1e-152365290cfd",
+                    "name": "Match"
+                },
+                "category_id": "a0b910b8-85f0-4f6e-821d-c9fd9e3bdf93",
+                "visible": true,
+                "competition_id": "83aca000-e677-45b6-9e9b-38e55c1e6576",
+                "feed_revision": "4273",
+                "feed_metadata": {
+                    "feed_id": "lclkafka-243306257",
+                    "provider_id": "lclkafka"
+                }
+            },
+            "b5991067-09a5-4851-b435-0d1a716fb824": {
+                "id": "b5991067-09a5-4851-b435-0d1a716fb824",
+                "name": "Jeremy Taylor vs Jorge Martinez Martinez",
+                "advertised_start": {
+                    "seconds": 1706166900
+                },
+                "actual_start": {
+                    "seconds": 1706166900
+                },
+                "slug": "jeremy-taylor-vs-jorge-martinez-martinez",
+                "match_status": "BettingOpen",
+                "event_type": {
+                    "id": "6bfa0efc-05df-4ae1-9b1e-152365290cfd",
+                    "name": "Match"
+                },
+                "category_id": "a0b910b8-85f0-4f6e-821d-c9fd9e3bdf93",
+                "visible": true,
+                "competition_id": "88b553c9-f7c4-403e-92a3-29a7d55f42e9",
+                "feed_revision": "13",
+                "feed_metadata": {
+                    "feed_id": "lclkafka-243306939",
+                    "provider_id": "lclkafka"
+                }
+            }
+        },
+        "sports_markets": {
+            "39542140-ca36-4307-87e0-2a6298c04914": {
+                "id": "39542140-ca36-4307-87e0-2a6298c04914",
+                "event_id": "9ab081f9-3102-429d-8d2b-dfd2c3b42e5d",
+                "market_type_id": "0ef3403c-b5c9-48a8-98a4-3706a60e0437",
+                "market_status_id": "0b9e24e1-3daa-4fdd-b4d5-e720cb74a2ce",
+                "name": "Match Betting",
+                "advertised_start": {
+                    "seconds": 1706157060
+                },
+                "actual_start": {
+                    "seconds": 1706157060
+                },
+                "live_betting_available": true,
+                "is_primary": true,
+                "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                "visible": true,
+                "entrants": {
+                    "1a2a2dac-6288-4957-9045-e3fd511c90a2": {
+                        "id": "1a2a2dac-6288-4957-9045-e3fd511c90a2",
+                        "name": "Shrivalli Rashmikaa Bhamidipaty",
+                        "sort_order": 10,
+                        "home_away": "HOME",
+                        "market_id": "39542140-ca36-4307-87e0-2a6298c04914",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "1a2a2dac-6288-4957-9045-e3fd511c90a2",
+                        "visible": true
+                    },
+                    "eb775c56-008c-476e-bf78-34ccfff2488e": {
+                        "id": "eb775c56-008c-476e-bf78-34ccfff2488e",
+                        "name": "Anastasia Tikhonova",
+                        "sort_order": 20,
+                        "home_away": "AWAY",
+                        "market_id": "39542140-ca36-4307-87e0-2a6298c04914",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "eb775c56-008c-476e-bf78-34ccfff2488e",
+                        "visible": true
+                    }
+                },
+                "created": {
+                    "seconds": 1706100481
+                },
+                "updated": {
+                    "seconds": 1706157475,
+                    "nanos": 688108
+                },
+                "tier_id": "b321c6ef-5568-4ad4-9698-539188c5d5e9",
+                "num_winners": 1,
+                "feed_metadata": {
+                    "feed_id": "795442164",
+                    "provider_id": "lclkafka"
+                },
+                "bir_delay_seconds": 5
+            },
+            "6fa3c40a-e1de-41e3-8a67-f1c9e3230260": {
+                "id": "6fa3c40a-e1de-41e3-8a67-f1c9e3230260",
+                "event_id": "3caeabd6-e9c9-4218-8c37-188c7491b80f",
+                "market_type_id": "0ef3403c-b5c9-48a8-98a4-3706a60e0437",
+                "market_status_id": "4bc8fe96-296b-4b4c-aea4-85c94f63b9c6",
+                "name": "Match Betting",
+                "advertised_start": {
+                    "seconds": 1706165100
+                },
+                "actual_start": {
+                    "seconds": 1706165100
+                },
+                "live_betting_available": true,
+                "is_primary": true,
+                "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                "visible": true,
+                "entrants": {
+                    "0bca583d-0fb3-433e-bf9a-bc5e88ae99c9": {
+                        "id": "0bca583d-0fb3-433e-bf9a-bc5e88ae99c9",
+                        "name": "Viktoria Morvayova",
+                        "sort_order": 20,
+                        "home_away": "AWAY",
+                        "market_id": "6fa3c40a-e1de-41e3-8a67-f1c9e3230260",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "0bca583d-0fb3-433e-bf9a-bc5e88ae99c9",
+                        "visible": true
+                    },
+                    "26708682-4cf9-4608-a1ae-30aaf7383fe6": {
+                        "id": "26708682-4cf9-4608-a1ae-30aaf7383fe6",
+                        "name": "Moyuka Uchijima",
+                        "sort_order": 10,
+                        "home_away": "HOME",
+                        "market_id": "6fa3c40a-e1de-41e3-8a67-f1c9e3230260",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "26708682-4cf9-4608-a1ae-30aaf7383fe6",
+                        "visible": true
+                    }
+                },
+                "created": {
+                    "seconds": 1706100593
+                },
+                "updated": {
+                    "seconds": 1706101204
+                },
+                "tier_id": "b321c6ef-5568-4ad4-9698-539188c5d5e9",
+                "num_winners": 1,
+                "bir_delay_seconds": 5
+            },
+            "7d4458a7-3c05-4f63-a56a-f95f5d69a084": {
+                "id": "7d4458a7-3c05-4f63-a56a-f95f5d69a084",
+                "event_id": "1b76cee5-ddb0-40cb-9915-3ef4c8c64a60",
+                "market_type_id": "0ef3403c-b5c9-48a8-98a4-3706a60e0437",
+                "market_status_id": "4bc8fe96-296b-4b4c-aea4-85c94f63b9c6",
+                "name": "Match Betting",
+                "advertised_start": {
+                    "seconds": 1706165100
+                },
+                "actual_start": {
+                    "seconds": 1706165100
+                },
+                "live_betting_available": true,
+                "is_primary": true,
+                "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                "visible": true,
+                "entrants": {
+                    "c1c32b96-03b1-4d35-b912-38c55615473e": {
+                        "id": "c1c32b96-03b1-4d35-b912-38c55615473e",
+                        "name": "Zeel Desai",
+                        "sort_order": 10,
+                        "home_away": "HOME",
+                        "market_id": "7d4458a7-3c05-4f63-a56a-f95f5d69a084",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "c1c32b96-03b1-4d35-b912-38c55615473e",
+                        "visible": true
+                    },
+                    "d6bf46d4-7138-48eb-be24-b4232a698202": {
+                        "id": "d6bf46d4-7138-48eb-be24-b4232a698202",
+                        "name": "Alexandra Eala",
+                        "sort_order": 20,
+                        "home_away": "AWAY",
+                        "market_id": "7d4458a7-3c05-4f63-a56a-f95f5d69a084",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "d6bf46d4-7138-48eb-be24-b4232a698202",
+                        "visible": true
+                    }
+                },
+                "created": {
+                    "seconds": 1706100563
+                },
+                "updated": {
+                    "seconds": 1706101204
+                },
+                "tier_id": "b321c6ef-5568-4ad4-9698-539188c5d5e9",
+                "num_winners": 1,
+                "bir_delay_seconds": 5
+            },
+            "9e52d0b3-c7af-4afb-94cf-da003e58c6d2": {
+                "id": "9e52d0b3-c7af-4afb-94cf-da003e58c6d2",
+                "event_id": "b5991067-09a5-4851-b435-0d1a716fb824",
+                "market_type_id": "0ef3403c-b5c9-48a8-98a4-3706a60e0437",
+                "market_status_id": "4bc8fe96-296b-4b4c-aea4-85c94f63b9c6",
+                "name": "Match Betting",
+                "advertised_start": {
+                    "seconds": 1706166900
+                },
+                "actual_start": {
+                    "seconds": 1706166900
+                },
+                "live_betting_available": true,
+                "is_primary": true,
+                "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                "visible": true,
+                "entrants": {
+                    "1962211c-b7a3-43f7-8e44-c2137c7178d7": {
+                        "id": "1962211c-b7a3-43f7-8e44-c2137c7178d7",
+                        "name": "Jeremy Taylor",
+                        "sort_order": 10,
+                        "home_away": "HOME",
+                        "market_id": "9e52d0b3-c7af-4afb-94cf-da003e58c6d2",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "1962211c-b7a3-43f7-8e44-c2137c7178d7",
+                        "visible": true
+                    },
+                    "9eb1744f-09e3-4fe4-ad92-30f144caccc3": {
+                        "id": "9eb1744f-09e3-4fe4-ad92-30f144caccc3",
+                        "name": "Jorge Martinez Martinez",
+                        "sort_order": 20,
+                        "home_away": "AWAY",
+                        "market_id": "9e52d0b3-c7af-4afb-94cf-da003e58c6d2",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "9eb1744f-09e3-4fe4-ad92-30f144caccc3",
+                        "visible": true
+                    }
+                },
+                "created": {
+                    "seconds": 1706109227
+                },
+                "updated": {
+                    "seconds": 1706109843
+                },
+                "tier_id": "b321c6ef-5568-4ad4-9698-539188c5d5e9",
+                "num_winners": 1,
+                "bir_delay_seconds": 5
+            },
+            "e222fc70-cb5a-4231-a898-9ca6f10c8907": {
+                "id": "e222fc70-cb5a-4231-a898-9ca6f10c8907",
+                "event_id": "0220b1f6-7a84-47a4-a83f-26401fd97fea",
+                "market_type_id": "0ef3403c-b5c9-48a8-98a4-3706a60e0437",
+                "market_status_id": "0b9e24e1-3daa-4fdd-b4d5-e720cb74a2ce",
+                "name": "Match Betting",
+                "is_suspended": true,
+                "advertised_start": {
+                    "seconds": 1706155560
+                },
+                "actual_start": {
+                    "seconds": 1706155560
+                },
+                "live_betting_available": true,
+                "is_primary": true,
+                "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                "visible": true,
+                "entrants": {
+                    "8aee9c89-ce8d-482a-b3ab-1c1f52b2beb0": {
+                        "id": "8aee9c89-ce8d-482a-b3ab-1c1f52b2beb0",
+                        "name": "Ranjeet Virali-Murugesan",
+                        "sort_order": 20,
+                        "home_away": "AWAY",
+                        "market_id": "e222fc70-cb5a-4231-a898-9ca6f10c8907",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "8aee9c89-ce8d-482a-b3ab-1c1f52b2beb0",
+                        "visible": true
+                    },
+                    "8f8b155d-9283-43bb-b71c-0011c6bf4e00": {
+                        "id": "8f8b155d-9283-43bb-b71c-0011c6bf4e00",
+                        "name": "Eric Vanshelboim",
+                        "sort_order": 10,
+                        "home_away": "HOME",
+                        "market_id": "e222fc70-cb5a-4231-a898-9ca6f10c8907",
+                        "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                        "feed_id": "8f8b155d-9283-43bb-b71c-0011c6bf4e00",
+                        "visible": true
+                    }
+                },
+                "created": {
+                    "seconds": 1706097740
+                },
+                "updated": {
+                    "seconds": 1706158195,
+                    "nanos": 586894492
+                },
+                "tier_id": "b321c6ef-5568-4ad4-9698-539188c5d5e9",
+                "num_winners": 1,
+                "feed_metadata": {
+                    "feed_id": "795432286",
+                    "provider_id": "lclkafka"
+                },
+                "bir_delay_seconds": 5
+            }
+        },
+        "sports_entrants": {
+            "26708682-4cf9-4608-a1ae-30aaf7383fe6": {
+                "id": "26708682-4cf9-4608-a1ae-30aaf7383fe6",
+                "name": "Moyuka Uchijima",
+                "sort_order": 10,
+                "home_away": "HOME",
+                "market_id": "6fa3c40a-e1de-41e3-8a67-f1c9e3230260",
+                "visible": true
+            },
+            "8f8b155d-9283-43bb-b71c-0011c6bf4e00": {
+                "id": "8f8b155d-9283-43bb-b71c-0011c6bf4e00",
+                "name": "Eric Vanshelboim",
+                "sort_order": 10,
+                "home_away": "HOME",
+                "market_id": "e222fc70-cb5a-4231-a898-9ca6f10c8907",
+                "is_suspended": true,
+                "feed_source_id": "82ad9e41-918b-4c47-a4ef-a6b3d73fc7c7",
+                "feed_id": "8f8b155d-9283-43bb-b71c-0011c6bf4e00",
+                "visible": true
+            },
+            "9eb1744f-09e3-4fe4-ad92-30f144caccc3": {
+                "id": "9eb1744f-09e3-4fe4-ad92-30f144caccc3",
+                "name": "Jorge Martinez Martinez",
+                "sort_order": 20,
+                "home_away": "AWAY",
+                "market_id": "9e52d0b3-c7af-4afb-94cf-da003e58c6d2",
+                "visible": true
+            },
+            "d6bf46d4-7138-48eb-be24-b4232a698202": {
+                "id": "d6bf46d4-7138-48eb-be24-b4232a698202",
+                "name": "Alexandra Eala",
+                "sort_order": 20,
+                "home_away": "AWAY",
+                "market_id": "7d4458a7-3c05-4f63-a56a-f95f5d69a084",
+                "visible": true
+            },
+            "eb775c56-008c-476e-bf78-34ccfff2488e": {
+                "id": "eb775c56-008c-476e-bf78-34ccfff2488e",
+                "name": "Anastasia Tikhonova",
+                "sort_order": 20,
+                "home_away": "AWAY",
+                "market_id": "39542140-ca36-4307-87e0-2a6298c04914",
+                "visible": true
+            }
+        },
+        "racing_results": null,
+        "race_compound_map_results": null,
+        "sports_results": {},
+        "racing_dividends": null,
+        "racing_dividend_entrant_maps": null
+    },
+    "message": "Pending Statement sent"
+}

@@ -1,0 +1,1 @@
+//TODO : get collection of bets from ladbrokes client then store it on dynamodb

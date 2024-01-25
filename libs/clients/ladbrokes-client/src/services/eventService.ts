@@ -1,28 +1,45 @@
 import HttpApiClient from '../../../http-api-client'
-import BetCollectionParser from '../parsers/betCollectionParser'
-import { Bet } from '../types/responses'
+import EventParser from '../parsers/eventParser'
+import { Bet, Event } from '../types/responses'
 
 export default class EventService {
 
   constructor() {
   }
 
-  // async getEvents() : Promise<Array<Event>>{
-  //   const headers = {
-  //     'Content-Type': 'application/json'
-  //   }
-  //   const params = {
-  //   }
-  //   const httpApiClient = new HttpApiClient()
-  //   const result = await httpApiClient.get(
-  //     process.env.LADBROKES_HOST!,
-  //     process.env.LADBROKES_EVENT_CARD_PATH,
-  //     headers,
-  //     params,
-  //   )
+  async getEvent(eventId: string) : Promise<Event>{
+    const headers = {
+      'Content-Type': 'application/json'
+    }
+    const params = {
+      id: eventId
+    }
+    const httpApiClient = new HttpApiClient()
+    const result = await httpApiClient.get(
+      process.env.LADBROKES_HOST!,
+      process.env.LADBROKES_EVENT_CARD_PATH,
+      headers,
+      params,
+    )
 
-  //   const pendingBets = BetCollectionParser.parse(result.value['data'] as any)
+    console.log('>>>params>>>', params)
+    // console.log('>>>>>getEventService>>>', result.value)
 
-  //   return pendingBets
-  // }
+    const event: Event = EventParser.parse(result.value as any)
+
+    return event
+  }
+
+  async getEvents(bets: Array<Bet>) : Promise<Array<Bet>> {
+    console.log('>>>>getEvents')
+    const betsResult = Promise.all(
+      bets.map(async bet => {
+        console.log('>>>>bet.event.id>>>', bet.event.id)
+        bet.event = await this.getEvent(bet.event.id)
+        return bet
+      })
+    )
+
+    return betsResult
+  }
 }
