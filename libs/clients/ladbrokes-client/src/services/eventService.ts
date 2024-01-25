@@ -22,19 +22,14 @@ export default class EventService {
       params,
     )
 
-    console.log('>>>params>>>', params)
-    // console.log('>>>>>getEventService>>>', result.value)
-
     const event: Event = EventParser.parse(result.value as any)
 
     return event
   }
 
   async getEvents(bets: Array<Bet>) : Promise<Array<Bet>> {
-    console.log('>>>>getEvents')
     const betsResult = Promise.all(
       bets.map(async bet => {
-        console.log('>>>>bet.event.id>>>', bet.event.id)
         bet.event = await this.getEvent(bet.event.id)
         return bet
       })

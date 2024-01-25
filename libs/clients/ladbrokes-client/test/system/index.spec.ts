@@ -14,9 +14,6 @@ describe('LadbrokesClient', () => {
     it('should return response', async () => {
       const result = await new LadbrokesClient().getPendingBetsDetail()
 
-      console.debug('>>>>>getPendingBetsDetail')
-      console.debug(result)
-
       expect(result).not.toBeNull
     })
   })

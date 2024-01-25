@@ -1,5 +1,4 @@
 import HttpApiClient from '../http-api-client'
-import BetParser from './src/parsers/betCollectionParser'
 import PendingBetsParser from './src/parsers/pendingBetsParser'
 import EventService from './src/services/eventService';
 import Socket from './src/services/socket'
