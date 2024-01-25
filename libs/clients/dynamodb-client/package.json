@@ -1,15 +1,15 @@
 {
-    "name": "dynamodb-client",
-    "version": "1.0.0",
-    "author": "abraham cole finite <abrahamfinite@gmail.com>",
-    "type": "module",
-    "dependencies": {
-        "@aws-sdk/client-dynamodb": "^3.462.0",
-        "@aws-sdk/lib-dynamodb": "^3.462.0",
-        "uuid": "^9.0.1",
-        "yarn": "^1.22.21"
-    },
-    "scripts": {
-        "tsc": "tsc"
-    }
+  "name": "dynamodb-client",
+  "version": "1.0.0",
+  "author": "abraham cole finite <abrahamfinite@gmail.com>",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.462.0",
+    "@aws-sdk/lib-dynamodb": "^3.462.0",
+    "uuid": "^9.0.1",
+    "yarn": "^1.22.21"
+  },
+  "scripts": {
+    "build": "webpack --mode production"
+  }
 }

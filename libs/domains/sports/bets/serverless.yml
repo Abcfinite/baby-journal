@@ -3,6 +3,7 @@ service: weight-domain
 frameworkVersion: '3'
 
 plugins:
+  - serverless-plugin-typescript
   - serverless-offline
 
 provider:
@@ -12,7 +13,7 @@ provider:
   lambdaHashingVersion: '20201221'
 
 functions:
-  hello:
+  logBets:
     handler: index.logBets
     events:
       - http:
