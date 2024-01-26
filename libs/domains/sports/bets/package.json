@@ -6,11 +6,6 @@
     "@abcfinite/bet-adapter": "0.0.4",
     "lodash.get": "^4.4.2"
   },
-  "devDependencies": {
-    "@types/aws-lambda": "^8.10.131",
-    "serverless-plugin-typescript": "^2.1.5",
-    "typescript": "^5.3.3"
-  },
   "jest": {
     "verbose": true,
     "transform": {

@@ -3,7 +3,6 @@ service: weight-domain
 frameworkVersion: '3'
 
 plugins:
-  - serverless-plugin-typescript
   - serverless-webpack
   - serverless-offline
 

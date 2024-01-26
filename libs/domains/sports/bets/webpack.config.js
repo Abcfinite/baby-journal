@@ -1,9 +1,26 @@
 const path = require('path');
 
+const slsw = require('serverless-webpack')
+const nodeExternals = require('webpack-node-externals')
 const nodeModulesPath = path.resolve(__dirname, '../../../../node_modules')
 
 module.exports = {
-  entry: './index.ts',
+  target: 'node',
+  entry: slsw.lib.entries,
+  mode: 'development',
+  optimization: {
+    minimize: false,
+  },
+  performance: {
+    hints: false,
+  },
+  devtool: false,
+  externals: [
+    nodeExternals({
+      allowlist: [/^@abcfinite\//],
+      modulesDir: nodeModulesPath,
+    }),
+  ],
   module: {
     rules: [
       {
