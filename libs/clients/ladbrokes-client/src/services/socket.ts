@@ -1,4 +1,4 @@
-import HttpApiClient from 'http-api-client'
+import HttpApiClient from '@abcfinite/http-api-client'
 import BetCollectionParser from '../parsers/betCollectionParser'
 import { Bet } from '../types/responses'
 

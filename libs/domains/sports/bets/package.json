@@ -4,6 +4,7 @@
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "type": "module",
   "dependencies": {
+    "@abcfinite/bet-adapter": "0.0.1",
     "lodash.get": "^4.4.2"
   },
   "devDependencies": {

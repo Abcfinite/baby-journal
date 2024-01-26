@@ -1,4 +1,4 @@
-import BetAdapter from 'bet-adapter'
+import BetAdapter from '@abcfinite/bet-adapter'
 
 import { Handler } from 'aws-lambda';
 
