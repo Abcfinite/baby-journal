@@ -9,8 +9,7 @@ shell: $(ENVFILE) $(NODE_MODULES_DIR)
 deps:
 	docker-compose run --rm serverless make _deps
 
-offline: $(NODE_MODULES_DIR)
-#	sls offline start --host 0.0.0.0  --noPrependStageInUrl
+offline: $(ENVFILE) $(NODE_MODULES_DIR)
 	docker-compose run -w $(WORKDIR) -p 3000:3000 --rm serverless make _offline
 
 #############

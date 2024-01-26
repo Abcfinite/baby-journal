@@ -1,4 +1,4 @@
-service: weight-domain
+service: sports-domain
 
 frameworkVersion: '3'
 
@@ -11,6 +11,16 @@ provider:
   runtime: nodejs16.x
   region: ap-southeast-2
   lambdaHashingVersion: '20201221'
+  environment:
+    AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID}
+    AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY}
+    AWS_REGION: ${env:AWS_REGION}
+    LADBROKES_BEARER_TOKEN: ${env:LADBROKES_BEARER_TOKEN}
+    LADBROKES_HOST: ${env:LADBROKES_HOST}
+    LADBROKES_SOCKET_HOST: ${env:LADBROKES_SOCKET_HOST}
+    LADBROKES_SOCKET_TRANSACTION_PATH: ${env:LADBROKES_SOCKET_TRANSACTION_PATH}
+    LADBROKES_EVENT_CARD_PATH: ${env:LADBROKES_EVENT_CARD_PATH}
+    LADBROKES_PENDING_BETS_PATH: ${env:LADBROKES_PENDING_BETS_PATH}
 
 custom:
   webpack:
