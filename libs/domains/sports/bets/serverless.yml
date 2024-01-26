@@ -4,6 +4,7 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-plugin-typescript
+  - serverless-webpack
   - serverless-offline
 
 provider:
@@ -11,6 +12,11 @@ provider:
   runtime: nodejs16.x
   region: ap-southeast-2
   lambdaHashingVersion: '20201221'
+
+custom:
+  webpack:
+    webpackConfig: './webpack.config.js'
+    packager: yarn
 
 functions:
   logBets:

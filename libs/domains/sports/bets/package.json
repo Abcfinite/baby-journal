@@ -2,9 +2,8 @@
   "name": "bets-sports",
   "version": "1.0.0",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
-  "type": "module",
   "dependencies": {
-    "@abcfinite/bet-adapter": "0.0.1",
+    "@abcfinite/bet-adapter": "0.0.4",
     "lodash.get": "^4.4.2"
   },
   "devDependencies": {
@@ -42,8 +41,5 @@
       "test",
       "src"
     ]
-  },
-  "scripts": {
-    "tsc": "tsc"
   }
 }
