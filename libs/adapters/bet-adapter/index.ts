@@ -11,17 +11,21 @@ export default class BetAdapter {
 
     Promise.all(
       pendingBetDetails.map(async bet => {
-        const betRecord: Bet = {
-          Id: bet.id,
-          EventId: bet.event.id,
-          Player1: bet.event.player1,
-          Player2: bet.event.player2,
-          Player1Odd: bet.event.player1Odd,
-          Player2Odd: bet.event.player2Odd,
-          Tournament: bet.event.tournament,
-        }
+        if (bet.event) {
+          const betRecord: Bet = {
+            Id: bet.id,
+            EventId: bet.event.id,
+            Player1: bet.event.player1,
+            Player2: bet.event.player2,
+            Player1Odd: bet.event.player1Odd,
+            Player2Odd: bet.event.player2Odd,
+            Tournament: bet.event.tournament,
+            OddCorrect: true,
+            Category: 'tennis'
+          }
 
-        await putItem('Bets', betRecord)
+          await putItem('Bets', betRecord)
+        }
       })
     )
   }

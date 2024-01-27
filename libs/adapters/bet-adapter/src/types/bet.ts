@@ -6,4 +6,6 @@ export type Bet = {
   Player1Odd: number,
   Player2Odd: number,
   Tournament: string,
+  OddCorrect: boolean,
+  Category: string,
 }

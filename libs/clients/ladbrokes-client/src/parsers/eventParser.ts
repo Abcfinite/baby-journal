@@ -6,6 +6,9 @@ export default class EventParser {
     const eventsBody =  Object.values(_.get(bodyJson, 'events'))[0]
     const entrants = _.get(bodyJson, 'entrants')
     const mainMarketId = _.get(eventsBody, 'main_markets[0]')
+
+    if(!mainMarketId) { return null }
+
     const markets = _.get(bodyJson, 'markets')
     const marketDetails = _.get(markets, mainMarketId)
     const entrantsIds = _.get(marketDetails, 'entrant_ids')

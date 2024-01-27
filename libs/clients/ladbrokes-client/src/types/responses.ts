@@ -13,5 +13,5 @@ export type Event = {
 
 export type Bet = {
   id: string
-  event: Event
+  event: Event | null
 }

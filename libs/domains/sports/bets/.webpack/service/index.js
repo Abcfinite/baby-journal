@@ -22,16 +22,20 @@ class BetAdapter {
     async logBets() {
         const pendingBetDetails = await new _abcfinite_ladbrokes_client__WEBPACK_IMPORTED_MODULE_0__["default"]().getPendingBetsDetail();
         Promise.all(pendingBetDetails.map(async (bet) => {
-            const betRecord = {
-                Id: bet.id,
-                EventId: bet.event.id,
-                Player1: bet.event.player1,
-                Player2: bet.event.player2,
-                Player1Odd: bet.event.player1Odd,
-                Player2Odd: bet.event.player2Odd,
-                Tournament: bet.event.tournament,
-            };
-            await (0,_abcfinite_dynamodb_client__WEBPACK_IMPORTED_MODULE_1__.putItem)('Bets', betRecord);
+            if (bet.event) {
+                const betRecord = {
+                    Id: bet.id,
+                    EventId: bet.event.id,
+                    Player1: bet.event.player1,
+                    Player2: bet.event.player2,
+                    Player1Odd: bet.event.player1Odd,
+                    Player2Odd: bet.event.player2Odd,
+                    Tournament: bet.event.tournament,
+                    OddCorrect: true,
+                    Category: 'tennis'
+                };
+                await (0,_abcfinite_dynamodb_client__WEBPACK_IMPORTED_MODULE_1__.putItem)('Bets', betRecord);
+            }
         }));
     }
 }
@@ -258,6 +262,9 @@ class EventParser {
         const eventsBody = Object.values(lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'events'))[0];
         const entrants = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'entrants');
         const mainMarketId = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(eventsBody, 'main_markets[0]');
+        if (!mainMarketId) {
+            return null;
+        }
         const markets = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'markets');
         const marketDetails = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(markets, mainMarketId);
         const entrantsIds = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(marketDetails, 'entrant_ids');

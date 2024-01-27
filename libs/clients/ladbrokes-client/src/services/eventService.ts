@@ -7,7 +7,7 @@ export default class EventService {
   constructor() {
   }
 
-  async getEvent(eventId: string) : Promise<Event>{
+  async getEvent(eventId: string) : Promise<Event | null>{
     const headers = {
       'Content-Type': 'application/json'
     }
@@ -22,7 +22,7 @@ export default class EventService {
       params,
     )
 
-    const event: Event = EventParser.parse(result.value as any)
+    const event: Event | null = EventParser.parse(result.value as any)
 
     return event
   }
