@@ -1,5 +1,5 @@
 import LadbrokesClient from '@abcfinite/ladbrokes-client';
-import { putItem } from '@abcfinite/dynamodb-client';
+import { getItem, putItem } from '@abcfinite/dynamodb-client';
 import { Bet } from "./src/types/bet";
 
 export default class BetAdapter {
