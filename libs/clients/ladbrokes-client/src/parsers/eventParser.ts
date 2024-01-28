@@ -26,6 +26,7 @@ export default class EventParser {
       player1Odd: _.get(entrant1Odd, 'numerator', 0) / _.get(entrant1Odd, 'denominator', 1) + 1,
       player2Odd: _.get(entrant2Odd, 'numerator', 0) / _.get(entrant2Odd, 'denominator', 1) + 1,
       tournament: _.get(eventsBody, 'competition.name', 'please check'),
+      advertisedStart: new Date(_.get(eventsBody, 'advertised_start', Date.now())),
     }
   }
 }

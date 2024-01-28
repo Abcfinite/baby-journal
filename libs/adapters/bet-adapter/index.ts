@@ -1,5 +1,5 @@
 import LadbrokesClient from '@abcfinite/ladbrokes-client';
-import { getItem, putItem } from '@abcfinite/dynamodb-client';
+import { executeQuery, putItem } from '@abcfinite/dynamodb-client';
 import { Bet } from "./src/types/bet";
 
 export default class BetAdapter {
@@ -11,6 +11,7 @@ export default class BetAdapter {
 
     Promise.all(
       pendingBetDetails.map(async bet => {
+
         if (bet.event) {
           const betRecord: Bet = {
             Id: bet.id,
@@ -21,12 +22,24 @@ export default class BetAdapter {
             Player2Odd: bet.event.player2Odd,
             Tournament: bet.event.tournament,
             OddCorrect: true,
-            Category: 'tennis'
+            Category: 'tennis',
+            PlayDateTime: bet.event.advertisedStart.getTime(),
+            RatingPlayer1End: 0,
+            RatingPlayer1Start: 0
           }
 
           await putItem('Bets', betRecord)
         }
       })
     )
+  }
+
+  async getVolleyBallMetrics() {
+    const queryResponse = await executeQuery();
+
+    console.log('>>>>>queryResponse')
+    console.log(queryResponse)
+
+    return queryResponse
   }
 }

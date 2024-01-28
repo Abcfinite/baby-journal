@@ -9,6 +9,7 @@ export type Event = {
   player1Odd: number,
   player2Odd: number,
   tournament: string,
+  advertisedStart: Date
 }
 
 export type Bet = {

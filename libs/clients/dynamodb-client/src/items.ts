@@ -1,6 +1,5 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { PutCommand, DeleteCommand, GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import { getItem } from '../index';
 
 export const put = async (tableName: string,
   item: object,
@@ -23,6 +22,23 @@ export const put = async (tableName: string,
   const response = await docClient.send(command)
 
   return response;
+}
+
+export const scan = async (params: object) => {
+const client = new DynamoDBClient({});
+
+const command = new ScanCommand({
+  FilterExpression: "Category = :cat",
+  ExpressionAttributeValues: {
+    ":cat": { S: "volleyball" },
+  },
+  ProjectionExpression: "Id, Category",
+  TableName: "Bets",
+});
+
+const response = await client.send(command);
+
+return response;
 }
 
 export const get = async (tableName: string,

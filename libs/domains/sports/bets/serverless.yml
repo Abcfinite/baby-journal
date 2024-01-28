@@ -34,3 +34,9 @@ functions:
       - http:
           path: /bets
           method: get
+  volleyBallSummary:
+    handler: index.volleyBallSummary
+    events:
+      - http:
+          path: /volleyball/summary
+          method: get
