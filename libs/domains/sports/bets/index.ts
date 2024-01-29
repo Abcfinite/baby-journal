@@ -23,15 +23,11 @@ export const logBets: Handler = async (event: any) => {
 }
 
 export const volleyBallSummary: Handler = async (event: any) => {
-  await new BetAdapter().getVolleyBallMetrics()
+  const result = await new BetAdapter().getVolleyBallMetrics()
 
   const response = {
     statusCode: 200,
-    body: JSON.stringify(
-      {
-        message: 'your pending bets stored successfully in dynamodb',
-        input: event,
-      },
+    body: JSON.stringify(result,
       null,
       2
     ),

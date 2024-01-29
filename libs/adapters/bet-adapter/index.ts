@@ -1,6 +1,8 @@
 import LadbrokesClient from '@abcfinite/ladbrokes-client';
 import { executeQuery, putItem } from '@abcfinite/dynamodb-client';
 import { Bet } from "./src/types/bet";
+import BetParser from './src/parsers/betParser';
+import { Summary } from '@/types/summary';
 
 export default class BetAdapter {
   constructor() {
@@ -24,8 +26,6 @@ export default class BetAdapter {
             OddCorrect: true,
             Category: 'tennis',
             PlayDateTime: bet.event.advertisedStart.getTime(),
-            RatingPlayer1End: 0,
-            RatingPlayer1Start: 0
           }
 
           await putItem('Bets', betRecord)
@@ -34,12 +34,43 @@ export default class BetAdapter {
     )
   }
 
-  async getVolleyBallMetrics() {
+  async getVolleyBallMetrics() : Promise<Summary>{
     const queryResponse = await executeQuery();
+    const volleyBallRecords = queryResponse.Items.map(res => BetParser.parse(res))
 
-    console.log('>>>>>queryResponse')
-    console.log(queryResponse)
+    let biggestWinningOdd = 0
+    volleyBallRecords.map(rec => {
+      if (rec.OddCorrect && Math.min(rec.Player2Odd, rec.Player1Odd) > biggestWinningOdd ) {
+        biggestWinningOdd = Math.min(rec.Player2Odd, rec.Player1Odd)
+      }
+    })
 
-    return queryResponse
+    let smallestWinningOdd = 100
+    volleyBallRecords.map(rec => {
+      if (rec.OddCorrect && Math.min(rec.Player2Odd, rec.Player1Odd) < smallestWinningOdd ) {
+        smallestWinningOdd = Math.min(rec.Player2Odd, rec.Player1Odd)
+      }
+    })
+
+    let biggestWinningOddDiff = 0
+    volleyBallRecords.map(rec => {
+      if (rec.OddCorrect && Math.abs(rec.Player2Odd - rec.Player1Odd) > biggestWinningOddDiff ) {
+        biggestWinningOddDiff = Math.abs(rec.Player2Odd - rec.Player1Odd)
+      }
+    })
+
+    let smallestWinningOddDiff = 100
+    volleyBallRecords.map(rec => {
+      if (rec.OddCorrect && Math.abs(rec.Player2Odd - rec.Player1Odd) < smallestWinningOddDiff ) {
+        smallestWinningOddDiff = Math.abs(rec.Player2Odd - rec.Player1Odd)
+      }
+    })
+
+    return {
+      biggestWinningOdd,
+      smallestWinningOdd,
+      biggestWinningOddDiff,
+      smallestWinningOddDiff
+    }
   }
 }

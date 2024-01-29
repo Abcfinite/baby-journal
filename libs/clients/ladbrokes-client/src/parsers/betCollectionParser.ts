@@ -21,6 +21,7 @@ export default class BetCollectionParser {
           player1Odd: null,
           player2Odd: null,
           tournament: null,
+          advertisedStart: null,
         }
       }
     })

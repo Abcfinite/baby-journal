@@ -32,9 +32,13 @@ const command = new ScanCommand({
   ExpressionAttributeValues: {
     ":cat": { S: "volleyball" },
   },
-  ProjectionExpression: "Id, Category",
+  ProjectionExpression: `Id, Category, EventId,
+    H2hDraw, H2hPlayer1Win, H2hPlayer2Win, OddCorrect,
+    Player1, Player1Odd, Player2, Player2Odd, RatingPlayer1End,
+    RatingPlayer1Start, RatingPlayer2End, RatingPlayer2Start,
+    Tournament, PlayDateTime`,
   TableName: "Bets",
-});
+})
 
 const response = await client.send(command);
 
