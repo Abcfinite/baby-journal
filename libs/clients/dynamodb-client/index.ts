@@ -1,6 +1,6 @@
 import { put, remove, get, scan } from './src/items';
 
-export const executeQuery = async (params?: object) => scan(params)
+export const executeScan = async (params?: object) => scan(params)
 
 export const getItem = async (tableName: string,
   itemId: string,

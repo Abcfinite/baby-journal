@@ -1,5 +1,5 @@
 import LadbrokesClient from '@abcfinite/ladbrokes-client';
-import { executeQuery, putItem } from '@abcfinite/dynamodb-client';
+import { executeScan, putItem } from '@abcfinite/dynamodb-client';
 import { Bet } from "./src/types/bet";
 import BetParser from './src/parsers/betParser';
 import { Summary } from '@/types/summary';
@@ -13,7 +13,6 @@ export default class BetAdapter {
 
     Promise.all(
       pendingBetDetails.map(async bet => {
-
         if (bet.event) {
           const betRecord: Bet = {
             Id: bet.id,
@@ -34,33 +33,33 @@ export default class BetAdapter {
     )
   }
 
-  async getVolleyBallMetrics() : Promise<Summary>{
-    const queryResponse = await executeQuery();
-    const volleyBallRecords = queryResponse.Items.map(res => BetParser.parse(res))
+  async getSummary(sport: string) : Promise<Summary>{
+    const queryResponse = await executeScan({sport});
+    const sportRecords = queryResponse.Items.map(res => BetParser.parse(res))
 
     let biggestWinningOdd = 0
-    volleyBallRecords.map(rec => {
+    sportRecords.map(rec => {
       if (rec.OddCorrect && Math.min(rec.Player2Odd, rec.Player1Odd) > biggestWinningOdd ) {
         biggestWinningOdd = Math.min(rec.Player2Odd, rec.Player1Odd)
       }
     })
 
     let smallestWinningOdd = 100
-    volleyBallRecords.map(rec => {
+    sportRecords.map(rec => {
       if (rec.OddCorrect && Math.min(rec.Player2Odd, rec.Player1Odd) < smallestWinningOdd ) {
         smallestWinningOdd = Math.min(rec.Player2Odd, rec.Player1Odd)
       }
     })
 
     let biggestWinningOddDiff = 0
-    volleyBallRecords.map(rec => {
+    sportRecords.map(rec => {
       if (rec.OddCorrect && Math.abs(rec.Player2Odd - rec.Player1Odd) > biggestWinningOddDiff ) {
         biggestWinningOddDiff = Math.abs(rec.Player2Odd - rec.Player1Odd)
       }
     })
 
     let smallestWinningOddDiff = 100
-    volleyBallRecords.map(rec => {
+    sportRecords.map(rec => {
       if (rec.OddCorrect && Math.abs(rec.Player2Odd - rec.Player1Odd) < smallestWinningOddDiff ) {
         smallestWinningOddDiff = Math.abs(rec.Player2Odd - rec.Player1Odd)
       }

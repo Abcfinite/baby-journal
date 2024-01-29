@@ -30,7 +30,7 @@ const client = new DynamoDBClient({});
 const command = new ScanCommand({
   FilterExpression: "Category = :cat",
   ExpressionAttributeValues: {
-    ":cat": { S: "volleyball" },
+    ":cat": { S: params['sport'] },
   },
   ProjectionExpression: `Id, Category, EventId,
     H2hDraw, H2hPlayer1Win, H2hPlayer2Win, OddCorrect,
