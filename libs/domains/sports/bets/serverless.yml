@@ -11,10 +11,19 @@ provider:
   runtime: nodejs16.x
   region: ap-southeast-2
   lambdaHashingVersion: '20201221'
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "arn:aws:dynamodb:ap-southeast-2:*:table/Bets"
+        - "arn:aws:dynamodb:ap-southeast-2:*:table/weight"
   environment:
-    AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID}
-    AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY}
-    AWS_REGION: ${env:AWS_REGION}
     LADBROKES_BEARER_TOKEN: ${env:LADBROKES_BEARER_TOKEN}
     LADBROKES_HOST: ${env:LADBROKES_HOST}
     LADBROKES_SOCKET_HOST: ${env:LADBROKES_SOCKET_HOST}

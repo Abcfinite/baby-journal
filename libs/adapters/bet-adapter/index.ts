@@ -2,7 +2,7 @@ import LadbrokesClient from '@abcfinite/ladbrokes-client';
 import { executeScan, putItem } from '@abcfinite/dynamodb-client';
 import { Bet } from "./src/types/bet";
 import BetParser from './src/parsers/betParser';
-import { Summary } from '@/types/summary';
+import { Summary } from './src/types/summary';
 
 export default class BetAdapter {
   constructor() {

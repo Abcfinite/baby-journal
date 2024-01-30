@@ -1,6 +1,6 @@
 {
   "name": "@abcfinite/ladbrokes-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "main": "./index.ts",
   "dependencies": {

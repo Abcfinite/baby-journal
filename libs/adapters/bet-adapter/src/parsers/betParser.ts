@@ -1,5 +1,5 @@
 import _ from "lodash"
-import { Bet } from "@/types/bet";
+import { Bet } from "../types/bet";
 
 export default class BetParser {
   static parse(bodyJson: object): Bet {
