@@ -3,6 +3,7 @@ import { executeScan, putItem } from '@abcfinite/dynamodb-client';
 import { Bet } from "./src/types/bet";
 import BetParser from './src/parsers/betParser';
 import { Summary } from './src/types/summary';
+import { category } from '../../clients/ladbrokes-client/src/types/category';
 
 export default class BetAdapter {
   constructor() {
@@ -23,7 +24,7 @@ export default class BetAdapter {
             Player2Odd: bet.event.player2Odd,
             Tournament: bet.event.tournament,
             OddCorrect: true,
-            Category: 'tennis',
+            Category: bet.event.category,
             PlayDateTime: bet.event.advertisedStart.getTime(),
           }
 
