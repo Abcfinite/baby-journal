@@ -5,3 +5,4 @@ services:
     env_file: ${ENVFILE:-.env}
     volumes:
       - .:/opt/app
+      - ~/.aws/:/root/.aws:ro

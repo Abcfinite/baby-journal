@@ -1,3 +1,4 @@
+import { category } from './category';
 export type PendingBets = {
   pendingBetCounts: number
 }
@@ -9,9 +10,11 @@ export type Event = {
   player1Odd: number,
   player2Odd: number,
   tournament: string,
+  category: string,
+  advertisedStart: Date
 }
 
 export type Bet = {
   id: string
-  event: Event
+  event: Event | null
 }

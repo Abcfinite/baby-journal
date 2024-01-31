@@ -1,11 +1,15 @@
 import _ from 'lodash'
 import { Event } from '../types/responses'
+import { category } from '../types/category'
 
 export default class EventParser {
   static parse(bodyJson: object): Event {
     const eventsBody =  Object.values(_.get(bodyJson, 'events'))[0]
     const entrants = _.get(bodyJson, 'entrants')
     const mainMarketId = _.get(eventsBody, 'main_markets[0]')
+
+    if(!mainMarketId) { return null }
+
     const markets = _.get(bodyJson, 'markets')
     const marketDetails = _.get(markets, mainMarketId)
     const entrantsIds = _.get(marketDetails, 'entrant_ids')
@@ -23,6 +27,8 @@ export default class EventParser {
       player1Odd: _.get(entrant1Odd, 'numerator', 0) / _.get(entrant1Odd, 'denominator', 1) + 1,
       player2Odd: _.get(entrant2Odd, 'numerator', 0) / _.get(entrant2Odd, 'denominator', 1) + 1,
       tournament: _.get(eventsBody, 'competition.name', 'please check'),
+      category: category[_.get(eventsBody, 'category_id', 'unknown')],
+      advertisedStart: new Date(_.get(eventsBody, 'advertised_start', Date.now())),
     }
   }
 }

@@ -1,4 +1,6 @@
-import { put, remove, get } from './src/items';
+import { put, remove, get, scan } from './src/items';
+
+export const executeScan = async (params?: object) => scan(params)
 
 export const getItem = async (tableName: string,
   itemId: string,
@@ -7,8 +9,11 @@ export const getItem = async (tableName: string,
       itemName)
 
 export const putItem = async (tableName: string,
-  item: object) => put(tableName,
-  item)
+  item: object,
+  replaceWhenExist: boolean = false,
+  ) => put(tableName,
+  item,
+  replaceWhenExist)
 
 export const removeItem = (tableName: string,
   itemId: string) => remove(tableName,

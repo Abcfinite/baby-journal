@@ -7,7 +7,7 @@ export default class BetCollectionParser {
     const betLegs: object[] = _.get(bodyJson, 'bet_legs', [])
     const betLegSelections: object[] = _.get(bodyJson, 'bet_leg_selections', [])
 
-    const betCollection: Array<Bet> = Object.entries(bets).map(([key, value]) => {
+    const betCollection: Array<Bet> = Object.entries(bets).map(([key, _value]) => {
 
       const betLegKey = Object.keys(betLegs).find(legKey => betLegs[legKey]['bet_id'] === key);
       const betLegSelection = Object.entries(betLegSelections).find(([_legSelectionKey, legSelectionValue]) => legSelectionValue['bet_leg_id'] === betLegKey);
@@ -21,6 +21,7 @@ export default class BetCollectionParser {
           player1Odd: null,
           player2Odd: null,
           tournament: null,
+          advertisedStart: null,
         }
       }
     })

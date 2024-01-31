@@ -1,4 +1,4 @@
-import { HttpResponse, Value } from './src/types/http-response';
+import { HttpResponse } from './src/types/http-response';
 import axios, { AxiosResponse } from 'axios'
 
 export default class HttpApiClient {
