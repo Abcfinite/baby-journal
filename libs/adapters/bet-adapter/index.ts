@@ -1,9 +1,8 @@
 import LadbrokesClient from '@abcfinite/ladbrokes-client';
-import { executeScan, putItem } from '@abcfinite/dynamodb-client';
+import { executeScan, putItem, countTable } from '@abcfinite/dynamodb-client';
 import { Bet } from "./src/types/bet";
 import BetParser from './src/parsers/betParser';
 import { Summary } from './src/types/summary';
-import { category } from '../../clients/ladbrokes-client/src/types/category';
 
 export default class BetAdapter {
   constructor() {
@@ -72,5 +71,10 @@ export default class BetAdapter {
       biggestWinningOddDiff,
       smallestWinningOddDiff
     }
+  }
+
+  async betTableTotalNumber() : Promise<number> {
+    const countResponse = await countTable()
+    return countResponse.Count
   }
 }
