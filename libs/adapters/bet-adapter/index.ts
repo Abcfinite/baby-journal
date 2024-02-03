@@ -33,6 +33,33 @@ export default class BetAdapter {
     )
   }
 
+  async logEvents() {
+    console.log('>>>>logEvents')
+    const allEventDetails = await new LadbrokesClient().getIncomingMatch()
+
+    Promise.all(
+      allEventDetails.map(async event => {
+
+        // if (bet.event) {
+        //   const betRecord: Bet = {
+        //     Id: bet.id,
+        //     EventId: bet.event.id,
+        //     Player1: bet.event.player1,
+        //     Player2: bet.event.player2,
+        //     Player1Odd: bet.event.player1Odd,
+        //     Player2Odd: bet.event.player2Odd,
+        //     Tournament: bet.event.tournament,
+        //     OddCorrect: true,
+        //     Category: bet.event.category,
+        //     PlayDateTime: bet.event.advertisedStart.getTime(),
+        //   }
+
+        //   await putItem('Bets', betRecord)
+        // }
+      })
+    )
+  }
+
   async getSummary(sport: string) : Promise<Summary>{
     const queryResponse = await executeScan({sport});
     const sportRecords = queryResponse.Items.map(res => BetParser.parse(res))
