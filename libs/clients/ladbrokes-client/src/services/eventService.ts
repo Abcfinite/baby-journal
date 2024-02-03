@@ -12,11 +12,13 @@ export default class EventService {
     const headers = {
       'Content-Type': 'application/json'
     }
+    const categoryIds = Object.entries(category).find(([_key, value]) => value == requestCategory)[0]
     const params = {
-      id: Object.entries(category).find(([_key, value]) => value == requestCategory) ,
+      category_ids: `["${categoryIds}"]`,
       include_any_team_vs_any_team_events: true
     }
     const httpApiClient = new HttpApiClient()
+
     const result = await httpApiClient.get(
       process.env.LADBROKES_HOST!,
       process.env.LADBROKES_EVENT_REQUEST_PATH,
@@ -24,12 +26,20 @@ export default class EventService {
       params,
     )
 
-    console.log('>>>>>result')
-    console.log(result)
+    const events = []
 
-    // const event: Event | null = EventParser.parse(result.value as any)
+    Object.values(result.value['events']).map(event => {
+      events.push(
+        EventParser.parse(null,
+          event as any,
+          result.value['entrants'],
+          result.value['markets'],
+          result.value['prices'],
+        )
+      )
+    })
 
-    return []
+    return events
   }
 
   async getEvent(eventId: string) : Promise<Event | null>{

@@ -1,8 +1,9 @@
-import LadbrokesClient from '@abcfinite/ladbrokes-client';
-import { executeScan, putItem, countTable } from '@abcfinite/dynamodb-client';
-import { Bet } from "./src/types/bet";
-import BetParser from './src/parsers/betParser';
-import { Summary } from './src/types/summary';
+import LadbrokesClient from '@abcfinite/ladbrokes-client'
+import { executeScan, putItem, countTable } from '@abcfinite/dynamodb-client'
+import { Bet } from "./src/types/bet"
+import { EventRecord } from "./src/types/eventRecord"
+import BetParser from './src/parsers/betParser'
+import { Summary } from './src/types/summary'
 
 export default class BetAdapter {
   constructor() {
@@ -34,28 +35,24 @@ export default class BetAdapter {
   }
 
   async logEvents() {
-    console.log('>>>>logEvents')
     const allEventDetails = await new LadbrokesClient().getIncomingMatch()
 
     Promise.all(
       allEventDetails.map(async event => {
 
-        // if (bet.event) {
-        //   const betRecord: Bet = {
-        //     Id: bet.id,
-        //     EventId: bet.event.id,
-        //     Player1: bet.event.player1,
-        //     Player2: bet.event.player2,
-        //     Player1Odd: bet.event.player1Odd,
-        //     Player2Odd: bet.event.player2Odd,
-        //     Tournament: bet.event.tournament,
-        //     OddCorrect: true,
-        //     Category: bet.event.category,
-        //     PlayDateTime: bet.event.advertisedStart.getTime(),
-        //   }
+        const eventRecord: EventRecord = {
+          Id: event.id,
+          Player1: event.player1,
+          Player2: event.player2,
+          Player1Odd: event.player1Odd,
+          Player2Odd: event.player2Odd,
+          Tournament: event.tournament,
+          OddCorrect: true,
+          Category: event.category,
+          PlayDateTime: event.advertisedStart.getTime(),
+        }
 
-        //   await putItem('Bets', betRecord)
-        // }
+        await putItem('Events', eventRecord)
       })
     )
   }

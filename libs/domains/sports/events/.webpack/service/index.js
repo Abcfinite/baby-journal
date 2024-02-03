@@ -42,24 +42,20 @@ class BetAdapter {
         }));
     }
     async logEvents() {
-        console.log('>>>>logEvents');
         const allEventDetails = await new _abcfinite_ladbrokes_client__WEBPACK_IMPORTED_MODULE_0__["default"]().getIncomingMatch();
         Promise.all(allEventDetails.map(async (event) => {
-            // if (bet.event) {
-            //   const betRecord: Bet = {
-            //     Id: bet.id,
-            //     EventId: bet.event.id,
-            //     Player1: bet.event.player1,
-            //     Player2: bet.event.player2,
-            //     Player1Odd: bet.event.player1Odd,
-            //     Player2Odd: bet.event.player2Odd,
-            //     Tournament: bet.event.tournament,
-            //     OddCorrect: true,
-            //     Category: bet.event.category,
-            //     PlayDateTime: bet.event.advertisedStart.getTime(),
-            //   }
-            //   await putItem('Bets', betRecord)
-            // }
+            const eventRecord = {
+                Id: event.id,
+                Player1: event.player1,
+                Player2: event.player2,
+                Player1Odd: event.player1Odd,
+                Player2Odd: event.player2Odd,
+                Tournament: event.tournament,
+                OddCorrect: true,
+                Category: event.category,
+                PlayDateTime: event.advertisedStart.getTime(),
+            };
+            await (0,_abcfinite_dynamodb_client__WEBPACK_IMPORTED_MODULE_1__.putItem)('Events', eventRecord);
         }));
     }
     async getSummary(sport) {
@@ -406,17 +402,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class EventParser {
-    static parse(bodyJson) {
-        const eventsBody = Object.values(lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'events'))[0];
-        const entrants = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'entrants');
+    static parse(bodyJson, event, entrantsParam, marketsParam, pricesParam) {
+        const eventsBody = event || Object.values(lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'events'))[0];
+        const entrants = entrantsParam || lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'entrants');
         const mainMarketId = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(eventsBody, 'main_markets[0]');
         if (!mainMarketId) {
             return null;
         }
-        const markets = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'markets');
+        const markets = marketsParam || lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'markets');
         const marketDetails = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(markets, mainMarketId);
         const entrantsIds = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(marketDetails, 'entrant_ids');
-        const prices = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'prices');
+        const prices = pricesParam || lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'prices');
         const entrant1PriceKey = Object.keys(prices).find(key => key.match(entrantsIds[0]) !== null);
         const entrant2PriceKey = Object.keys(prices).find(key => key.match(entrantsIds[1]) !== null);
         const entrant1Odd = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(prices, `${entrant1PriceKey}.odds`);
@@ -485,16 +481,18 @@ class EventService {
         const headers = {
             'Content-Type': 'application/json'
         };
+        const categoryIds = Object.entries(_types_category__WEBPACK_IMPORTED_MODULE_2__.category).find(([_key, value]) => value == requestCategory)[0];
         const params = {
-            id: Object.entries(_types_category__WEBPACK_IMPORTED_MODULE_2__.category).find(([_key, value]) => value == requestCategory),
+            category_ids: `["${categoryIds}"]`,
             include_any_team_vs_any_team_events: true
         };
         const httpApiClient = new _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
         const result = await httpApiClient.get(process.env.LADBROKES_HOST, process.env.LADBROKES_EVENT_REQUEST_PATH, headers, params);
-        console.log('>>>>>result');
-        console.log(result);
-        // const event: Event | null = EventParser.parse(result.value as any)
-        return [];
+        const events = [];
+        Object.values(result.value['events']).map(event => {
+            events.push(_parsers_eventParser__WEBPACK_IMPORTED_MODULE_1__["default"].parse(null, event, result.value['entrants'], result.value['markets'], result.value['prices']));
+        });
+        return events;
     }
     async getEvent(eventId) {
         const headers = {
