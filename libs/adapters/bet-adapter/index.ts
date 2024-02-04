@@ -1,3 +1,4 @@
+import _ from "lodash"
 import LadbrokesClient from '@abcfinite/ladbrokes-client'
 import { executeScan, putItem, countTable } from '@abcfinite/dynamodb-client'
 import { Bet } from "./src/types/bet"
@@ -39,7 +40,6 @@ export default class BetAdapter {
 
     Promise.all(
       allEventDetails.map(async event => {
-
         const eventRecord: EventRecord = {
           Id: event.id,
           Player1: event.player1,
@@ -57,7 +57,7 @@ export default class BetAdapter {
     )
   }
 
-  async getSummary(sport: string) : Promise<Summary>{
+  async getSummary(sport: string) : Promise<Summary> {
     const queryResponse = await executeScan({sport});
     const sportRecords = queryResponse.Items.map(res => BetParser.parse(res))
 
@@ -93,12 +93,108 @@ export default class BetAdapter {
       biggestWinningOdd,
       smallestWinningOdd,
       biggestWinningOddDiff,
-      smallestWinningOddDiff
+      smallestWinningOddDiff,
+      oddsPercentage: this.oddsPercentageCollection(queryResponse.Items)
     }
   }
 
   async betTableTotalNumber() : Promise<number> {
     const countResponse = await countTable()
     return countResponse.Count
+  }
+
+  oddsPercentageCollection(betHistory: Array<object>) : object {
+    const correctOddBets = betHistory.filter(bet => _.get(bet, 'OddCorrect.BOOL') == true )
+    const wrongOddBets = betHistory.filter(bet => _.get(bet, 'OddCorrect.BOOL') == false )
+
+    const correctOddMatrix = this.getMatrix(correctOddBets)
+    const wrongOddMatrix = this.getMatrix(wrongOddBets)
+
+    return {
+      correct_odd_bets: correctOddBets.length,
+      wrong_odd_bets: wrongOddBets.length,
+      matrix: this.processMatrix(correctOddMatrix, wrongOddMatrix)
+    }
+  }
+
+  processMatrix(correctOddMatrix: Array<Array<number>>,
+    wrongOddMatrix: Array<Array<number>>) : Array<Array<number>> {
+
+    var matrix = [];
+    for(var i = 0; i <= 4; ++i) {
+      matrix[i] = []
+      for(var j = 0; j <= 5; ++j) {
+        matrix[i][j] = correctOddMatrix[i][j] / (correctOddMatrix[i][j] + wrongOddMatrix[i][j])
+      }
+    }
+
+    return matrix
+  }
+
+  getMatrix(betHistory: Array<object>) : Array<Array<number>> {
+    var totalBet = 0
+    // ranges for fav : 1 < x =< 1.05, 1.05 - 1.1, 1.1 - 1.15, 1.15 - 1.2, 1.2 and above
+    // ranges for non fav : 5 and below, 5 - 6, 6 - 7, 7 - 8, 8 - 9, 9 - 10, 10 - 11, 11 - 12, 12 - 13, 13 and above
+
+    const favOddSet = [
+      [1, 1.05], //0
+      [1.05, 1.1], //1
+      [1.1, 1.15], //2
+      [1.15, 1.2], //3
+      [1.2, 5], //4
+    ]
+
+    const nonFavOddSet = [
+      [1, 5], //0
+      [5, 6], //1
+      [7, 8], //2
+      [9, 10], //3
+      [11, 12], //4
+      [13, 100], //5
+    ]
+
+    var matrix = [];
+    for(var i = 0; i <= 4; ++i) {
+      matrix[i] = [ ];
+      for(var j = 0; j <= 5; ++j) {
+        matrix[i][j] = 0; // a[i] is now an array so this works.
+      }
+    }
+
+    for (var x = 0; x < betHistory.length; x++) {
+      const player1Odd = _.get(betHistory[x], 'Player1Odd.N', 0)
+      const player2Odd = _.get(betHistory[x], 'Player2Odd.N', 0)
+      let favOdd = 0
+      let nonFavOdd = 0
+      let favOddLocation = 0
+      let nonFavOddLocation = 0
+
+      if(player1Odd > player2Odd) {
+        favOdd = player2Odd
+        nonFavOdd = player1Odd
+      } else {
+        favOdd = player1Odd
+        nonFavOdd = player2Odd
+      }
+
+      for (var i = 0; i < favOddSet.length; i++) {
+        if (favOdd > favOddSet[i][0] && favOdd <= favOddSet[i][1]) {
+          favOddLocation = i
+          break
+        }
+      }
+
+      for (var i = 0; i < nonFavOddSet.length; i++) {
+        if (nonFavOdd > nonFavOddSet[i][0] && nonFavOdd <= nonFavOddSet[i][1]) {
+          nonFavOddLocation = i
+          break
+        }
+      }
+
+      matrix[favOddLocation][nonFavOddLocation] = matrix[favOddLocation][nonFavOddLocation] + 1
+      totalBet++
+    }
+
+    return matrix
   }
 }

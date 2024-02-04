@@ -34,7 +34,6 @@ export default class LadbrokesClient {
   }
 
   async getIncomingMatch() : Promise<Array<Event>> {
-    console.log('>>>>getIncomingMatch')
     const incomingMatch = await new EventService().getFutureEvents('tennis')
 
     return incomingMatch

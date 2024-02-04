@@ -19,9 +19,9 @@
     "emitDecoratorMetadata": true,
     "downlevelIteration": true,
     "paths": {
-      // "@abcfinite/bet-adapter": ["./libs/adapters/bet-adapter"],
-      // "@abcfinite/ladbrokes-client": ["./libs/client/ladbrokes-client"],
-      // "@abcfinite/http-api-client": ["./libs/client/http-api-client"],
+      "@abcfinite/bet-adapter": ["./libs/adapters/bet-adapter"],
+      "@abcfinite/ladbrokes-client": ["./libs/client/ladbrokes-client"],
+      "@abcfinite/http-api-client": ["./libs/client/http-api-client"],
     }
   }
 }
