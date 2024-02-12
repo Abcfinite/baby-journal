@@ -3,17 +3,24 @@ import { Event } from '../types/responses'
 import { category } from '../types/category'
 
 export default class EventParser {
-  static parse(bodyJson: object): Event {
-    const eventsBody =  Object.values(_.get(bodyJson, 'events'))[0]
-    const entrants = _.get(bodyJson, 'entrants')
+  static parse(bodyJson?: object,
+    event?: object,
+    entrantsParam?: object,
+    marketsParam?: object,
+    pricesParam?: object,
+  ): Event {
+
+
+    const eventsBody = event || Object.values(_.get(bodyJson, 'events'))[0]
+    const entrants = entrantsParam || _.get(bodyJson, 'entrants')
     const mainMarketId = _.get(eventsBody, 'main_markets[0]')
 
     if(!mainMarketId) { return null }
 
-    const markets = _.get(bodyJson, 'markets')
+    const markets = marketsParam || _.get(bodyJson, 'markets')
     const marketDetails = _.get(markets, mainMarketId)
     const entrantsIds = _.get(marketDetails, 'entrant_ids')
-    const prices = _.get(bodyJson, 'prices')
+    const prices = pricesParam || _.get(bodyJson, 'prices')
 
     const entrant1PriceKey = Object.keys(prices).find(key => key.match(entrantsIds[0]) !== null)
     const entrant2PriceKey = Object.keys(prices).find(key => key.match(entrantsIds[1]) !== null)

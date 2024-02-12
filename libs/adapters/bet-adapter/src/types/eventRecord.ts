@@ -1,6 +1,5 @@
 import { EventDetail } from "./eventDetail";
 
-export type Bet = {
+export type EventRecord = {
   Id: string,
-  EventId: string,
 } & EventDetail

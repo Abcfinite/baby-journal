@@ -24,25 +24,38 @@ export const put = async (tableName: string,
   return response;
 }
 
+export const count = async (tableName: string) => {
+  const client = new DynamoDBClient({});
+
+  const command = new ScanCommand({
+    TableName: tableName,
+    Select: 'COUNT'
+  })
+
+  const response = await client.send(command);
+
+  return response;
+}
+
 export const scan = async (params: object) => {
-const client = new DynamoDBClient({});
+  const client = new DynamoDBClient({});
 
-const command = new ScanCommand({
-  FilterExpression: "Category = :cat",
-  ExpressionAttributeValues: {
-    ":cat": { S: params['sport'] },
-  },
-  ProjectionExpression: `Id, Category, EventId,
-    H2hDraw, H2hPlayer1Win, H2hPlayer2Win, OddCorrect,
-    Player1, Player1Odd, Player2, Player2Odd, RatingPlayer1End,
-    RatingPlayer1Start, RatingPlayer2End, RatingPlayer2Start,
-    Tournament, PlayDateTime`,
-  TableName: "Bets",
-})
+  const command = new ScanCommand({
+    FilterExpression: "Category = :cat",
+    ExpressionAttributeValues: {
+      ":cat": { S: params['sport'] },
+    },
+    ProjectionExpression: `Id, Category, EventId,
+        H2hDraw, H2hPlayer1Win, H2hPlayer2Win, OddCorrect,
+        Player1, Player1Odd, Player2, Player2Odd, RatingPlayer1End,
+        RatingPlayer1Start, RatingPlayer2End, RatingPlayer2Start,
+        Tournament, PlayDateTime`,
+      TableName: "Bets",
+    })
 
-const response = await client.send(command);
+  const response = await client.send(command);
 
-return response;
+  return response;
 }
 
 export const get = async (tableName: string,

@@ -1,0 +1,17 @@
+export type EventDetail = {
+  Player1: string,
+  Player2: string,
+  Player1Odd: number,
+  Player2Odd: number,
+  Tournament: string,
+  OddCorrect: boolean,
+  Category: string,
+  PlayDateTime: number,
+  RatingPlayer1End?: number,
+  RatingPlayer1Start?: number,
+  RatingPlayer2End?: number,
+  RatingPlayer2Start?: number,
+  H2hDraw?: number,
+  H2hPlayer1Win?: number,
+  H2hPlayer2Win?: number,
+}

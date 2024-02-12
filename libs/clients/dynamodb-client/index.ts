@@ -1,6 +1,8 @@
-import { put, remove, get, scan } from './src/items';
+import { put, remove, get, scan, count } from './src/items';
 
 export const executeScan = async (params?: object) => scan(params)
+
+export const countTable = async () => count('Bets')
 
 export const getItem = async (tableName: string,
   itemId: string,
