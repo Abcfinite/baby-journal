@@ -2,7 +2,7 @@ import HttpApiClient from '../http-api-client'
 import PendingBetsParser from './src/parsers/pendingBetsParser'
 import EventService from './src/services/eventService';
 import Socket from './src/services/socket'
-import { Bet, PendingBets } from './src/types/responses';
+import { Event, Bet, PendingBets } from './src/types/responses';
 
 export default class LadbrokesClient {
 
@@ -31,5 +31,11 @@ export default class LadbrokesClient {
     const betDetailList = await new EventService().getEvents(pendingBets)
 
     return betDetailList
+  }
+
+  async getIncomingMatch() : Promise<Array<Event>> {
+    const incomingMatch = await new EventService().getFutureEvents('tennis')
+
+    return incomingMatch
   }
 }

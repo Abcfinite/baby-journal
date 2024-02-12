@@ -1,9 +1,10 @@
-import LadbrokesClient from '@abcfinite/ladbrokes-client';
-import { executeScan, putItem } from '@abcfinite/dynamodb-client';
-import { Bet } from "./src/types/bet";
-import BetParser from './src/parsers/betParser';
-import { Summary } from './src/types/summary';
-import { category } from '../../clients/ladbrokes-client/src/types/category';
+import _ from "lodash"
+import LadbrokesClient from '@abcfinite/ladbrokes-client'
+import { executeScan, putItem, countTable } from '@abcfinite/dynamodb-client'
+import { Bet } from "./src/types/bet"
+import { EventRecord } from "./src/types/eventRecord"
+import BetParser from './src/parsers/betParser'
+import { Summary } from './src/types/summary'
 
 export default class BetAdapter {
   static favOddSet = [
@@ -53,7 +54,29 @@ export default class BetAdapter {
     )
   }
 
-  async getSummary(sport: string) : Promise<Summary>{
+  async logEvents() {
+    const allEventDetails = await new LadbrokesClient().getIncomingMatch()
+
+    Promise.all(
+      allEventDetails.map(async event => {
+        const eventRecord: EventRecord = {
+          Id: event.id,
+          Player1: event.player1,
+          Player2: event.player2,
+          Player1Odd: event.player1Odd,
+          Player2Odd: event.player2Odd,
+          Tournament: event.tournament,
+          OddCorrect: true,
+          Category: event.category,
+          PlayDateTime: event.advertisedStart.getTime(),
+        }
+
+        await putItem('Events', eventRecord)
+      })
+    )
+  }
+
+  async getSummary(sport: string) : Promise<Summary> {
     const queryResponse = await executeScan({sport});
     const sportRecords = queryResponse.Items.map(res => BetParser.parse(res))
 

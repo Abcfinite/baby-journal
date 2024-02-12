@@ -3,4 +3,5 @@ export type Summary = {
   smallestWinningOdd: number,
   biggestWinningOddDiff: number,
   smallestWinningOddDiff: number,
+  oddsPercentage: object
 }
