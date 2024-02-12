@@ -6,6 +6,25 @@ import { Summary } from './src/types/summary';
 import { category } from '../../clients/ladbrokes-client/src/types/category';
 
 export default class BetAdapter {
+  static favOddSet = [
+    [1, 1.05], //0
+    [1.05, 1.1], //1
+    [1.1, 1.15], //2
+    [1.15, 1.2], //3
+    [1.2, 5], //4
+  ]
+
+  static nonFavOddSet = [
+    [1, 5], //0
+    [5, 6], //1
+    [6, 7], //2
+    [7, 8], //3
+    [8, 9], //4
+    [9, 10], //5
+    [10, 11], //6
+    [11, 12], //7
+    [13, 100], //8
+  ]
   constructor() {
   }
 
@@ -70,7 +89,93 @@ export default class BetAdapter {
       biggestWinningOdd,
       smallestWinningOdd,
       biggestWinningOddDiff,
-      smallestWinningOddDiff
+      smallestWinningOddDiff,
+      oddsPercentage: this.oddsPercentageCollection(queryResponse.Items)
     }
+  }
+
+  async betTableTotalNumber() : Promise<number> {
+    const countResponse = await countTable()
+    return countResponse.Count
+  }
+
+  oddsPercentageCollection(betHistory: Array<object>) : object {
+    const correctOddBets = betHistory.filter(bet => _.get(bet, 'OddCorrect.BOOL') == true )
+    const wrongOddBets = betHistory.filter(bet => _.get(bet, 'OddCorrect.BOOL') == false )
+
+    const correctOddMatrix = this.getMatrix(correctOddBets)
+    const wrongOddMatrix = this.getMatrix(wrongOddBets)
+
+    const matrix = this.processMatrix(correctOddMatrix, wrongOddMatrix)
+    console.log('>>>>matrix')
+    console.log(matrix)
+
+    return {
+      correct_odd_bets: correctOddBets.length,
+      wrong_odd_bets: wrongOddBets.length,
+      matrix: matrix
+    }
+  }
+
+  processMatrix(correctOddMatrix: Array<Array<number>>,
+    wrongOddMatrix: Array<Array<number>>) : Array<Array<number>> {
+
+    var matrix = [];
+    for(var i = 0; i <= 4; ++i) {
+      matrix[i] = []
+      for(var j = 0; j <= 8; ++j) {
+        matrix[i][j] = correctOddMatrix[i][j] / (correctOddMatrix[i][j] + wrongOddMatrix[i][j])
+      }
+    }
+
+    return matrix
+  }
+
+  getMatrix(betHistory: Array<object>) : Array<Array<number>> {
+    var totalBet = 0
+
+    var matrix = [];
+    for(var i = 0; i <= BetAdapter.favOddSet.length; ++i) {
+      matrix[i] = [ ];
+      for(var j = 0; j <= BetAdapter.nonFavOddSet.length ; ++j) {
+        matrix[i][j] = 0; // a[i] is now an array so this works.
+      }
+    }
+
+    for (var x = 0; x < betHistory.length; x++) {
+      const player1Odd = _.get(betHistory[x], 'Player1Odd.N', 0)
+      const player2Odd = _.get(betHistory[x], 'Player2Odd.N', 0)
+      let favOdd = 0
+      let nonFavOdd = 0
+      let favOddLocation = 0
+      let nonFavOddLocation = 0
+
+      if(player1Odd > player2Odd) {
+        favOdd = player2Odd
+        nonFavOdd = player1Odd
+      } else {
+        favOdd = player1Odd
+        nonFavOdd = player2Odd
+      }
+
+      for (var i = 0; i < BetAdapter.favOddSet.length; i++) {
+        if (favOdd > BetAdapter.favOddSet[i][0] && favOdd <= BetAdapter.favOddSet[i][1]) {
+          favOddLocation = i
+          break
+        }
+      }
+
+      for (var i = 0; i < BetAdapter.nonFavOddSet.length; i++) {
+        if (nonFavOdd > BetAdapter.nonFavOddSet[i][0] && nonFavOdd <= BetAdapter.nonFavOddSet[i][1]) {
+          nonFavOddLocation = i
+          break
+        }
+      }
+
+      matrix[favOddLocation][nonFavOddLocation] = matrix[favOddLocation][nonFavOddLocation] + 1
+      totalBet++
+    }
+
+    return matrix
   }
 }
