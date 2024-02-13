@@ -1,6 +1,6 @@
 import { Player } from "./player";
 
-export type Event = {
+export type SportEvent = {
   name: String,
   date: String,
   competitionName: String,

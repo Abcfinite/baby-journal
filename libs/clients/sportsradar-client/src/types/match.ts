@@ -1,5 +1,6 @@
 import { Player } from './player';
 
 export type Match = {
-  player: Player
+  player: Player,
+  result: 'won' | 'lost',
 }
