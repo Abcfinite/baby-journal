@@ -1,7 +1,7 @@
 import { Player } from "./player";
 
 export type SportEvent = {
-  name: String,
+  id: String,
   date: String,
   competitionName: String,
   player1: Player,

@@ -1,6 +1,6 @@
 import { Match } from "./match";
 
-export type Player = [
+export type Player = {
   name: String,
   age: String,
   currentRanking: Number,
@@ -8,4 +8,4 @@ export type Player = [
   total: Number,
   won: Number,
   previousMatches: Array<Match>
-]
+}

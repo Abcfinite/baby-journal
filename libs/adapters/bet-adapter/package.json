@@ -1,6 +1,6 @@
 {
   "name": "@abcfinite/bet-adapter",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "main": "index.ts",
   "dependencies": {

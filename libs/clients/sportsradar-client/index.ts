@@ -10,7 +10,7 @@ export default class SportsradarClient {
   }
 
   async getEvent(sportEventId: string) : Promise<SportEvent>{
-    const event = new EventService().getEvent(sportEventId)
+    const event = new EventService().getEvent('sr:sport_event:47677577')
     return event
   }
 }
