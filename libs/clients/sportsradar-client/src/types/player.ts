@@ -1,8 +1,9 @@
 import { Match } from "./match";
 
 export type Player = {
-  name: String,
-  age: String,
+  id: string,
+  name: string,
+  age: string,
   currentRanking: Number,
   highestRanking: Number,
   total: Number,

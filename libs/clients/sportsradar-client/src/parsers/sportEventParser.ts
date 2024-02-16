@@ -4,20 +4,13 @@ import { Player } from '../types/player'
 
 export default class SportEventParser {
   static parse(bodyJson?: object): SportEvent {
-
-    console.log('>>>>>parse')
-    console.log(bodyJson)
-
     const sportEvent = _.get(bodyJson, 'sport_event', {})
     const player1Json = _.get(bodyJson, 'sport_event.competitors[0]', {})
     const player2Json = _.get(bodyJson, 'sport_event.competitors[1]', {})
     const competitionJson = _.get(bodyJson, 'sport_event.sport_event_context.competition', {})
 
-    console.log('>>>>>competitionJson')
-    console.log(competitionJson)
-
-
     const player1 : Player = {
+      id: _.get(player1Json, 'id', 'player-id-needed'),
       name: '',
       age: '',
       currentRanking: 1000,
@@ -28,6 +21,7 @@ export default class SportEventParser {
     }
 
     const player2 : Player = {
+      id: _.get(player2Json, 'id', 'player-id-needed'),
       name: '',
       age: '',
       currentRanking: 1000,

@@ -3,6 +3,7 @@
 
 import { SportEvent } from "./src/types/sportEvent";
 import EventService from "./src/services/eventService";
+import PlayerService from "./src/services/playerService";
 
 export default class SportsradarClient {
 
@@ -10,7 +11,10 @@ export default class SportsradarClient {
   }
 
   async getEvent(sportEventId: string) : Promise<SportEvent>{
-    const event = new EventService().getEvent('sr:sport_event:47677577')
-    return event
+    var sportEvent: SportEvent = await new EventService().getEvent(sportEventId)
+    sportEvent.player1 = await new PlayerService().getProfile(sportEvent.player1.id)
+    sportEvent.player2 = await new PlayerService().getProfile(sportEvent.player2.id)
+
+    return {} as any
   }
 }

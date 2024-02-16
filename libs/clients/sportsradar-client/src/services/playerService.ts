@@ -3,7 +3,7 @@ import HttpApiClient from '@abcfinite/http-api-client'
 import { Player } from '../types/player'
 import PlayerParser from '../parsers/playerParser'
 
-export default class CompetitorService {
+export default class PlayerService {
 
   constructor() {
   }
@@ -25,6 +25,9 @@ export default class CompetitorService {
       headers,
       params,
     )
+
+    console.log('>>>>>>>getProfile')
+    console.log(result)
 
     return PlayerParser.parse(result.value as any)
   }
