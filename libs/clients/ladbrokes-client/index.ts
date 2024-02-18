@@ -27,7 +27,9 @@ export default class LadbrokesClient {
   }
 
   async getPendingBetsDetail() : Promise<Array<Bet>> {
+    console.log('>>>>getPendingBetsDetail>>>0')
     const pendingBets = await new Socket().getPendingBetDetails()
+    console.log('>>>>getPendingBetsDetail>>>1')
     const betDetailList = await new EventService().getEvents(pendingBets)
 
     return betDetailList
