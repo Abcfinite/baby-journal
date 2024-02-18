@@ -44,3 +44,9 @@ functions:
       - http:
           path: /events
           method: get
+  logEvent:
+    handler: index.logEvent
+    events:
+      - http:
+          path: /event/{id}
+          method: get

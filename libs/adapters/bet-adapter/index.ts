@@ -5,8 +5,28 @@ import { Bet } from "./src/types/bet"
 import { EventRecord } from "./src/types/eventRecord"
 import BetParser from './src/parsers/betParser'
 import { Summary } from './src/types/summary'
+import SportsradarClient from '../../clients/sportsradar-client/index';
 
 export default class BetAdapter {
+  static favOddSet = [
+    [1, 1.05], //0
+    [1.05, 1.1], //1
+    [1.1, 1.15], //2
+    [1.15, 1.2], //3
+    [1.2, 5], //4
+  ]
+
+  static nonFavOddSet = [
+    [1, 5], //0
+    [5, 6], //1
+    [6, 7], //2
+    [7, 8], //3
+    [8, 9], //4
+    [9, 10], //5
+    [10, 11], //6
+    [11, 12], //7
+    [13, 100], //8
+  ]
   constructor() {
   }
 
@@ -55,6 +75,12 @@ export default class BetAdapter {
         await putItem('Events', eventRecord)
       })
     )
+  }
+
+  async logEvent() {
+    const eventDetail = await new SportsradarClient().getEvent
+
+    return eventDetail
   }
 
   async getSummary(sport: string) : Promise<Summary> {
@@ -110,10 +136,14 @@ export default class BetAdapter {
     const correctOddMatrix = this.getMatrix(correctOddBets)
     const wrongOddMatrix = this.getMatrix(wrongOddBets)
 
+    const matrix = this.processMatrix(correctOddMatrix, wrongOddMatrix)
+    console.log('>>>>matrix')
+    console.log(matrix)
+
     return {
       correct_odd_bets: correctOddBets.length,
       wrong_odd_bets: wrongOddBets.length,
-      matrix: this.processMatrix(correctOddMatrix, wrongOddMatrix)
+      matrix: matrix
     }
   }
 
@@ -123,7 +153,7 @@ export default class BetAdapter {
     var matrix = [];
     for(var i = 0; i <= 4; ++i) {
       matrix[i] = []
-      for(var j = 0; j <= 5; ++j) {
+      for(var j = 0; j <= 8; ++j) {
         matrix[i][j] = correctOddMatrix[i][j] / (correctOddMatrix[i][j] + wrongOddMatrix[i][j])
       }
     }
@@ -133,30 +163,11 @@ export default class BetAdapter {
 
   getMatrix(betHistory: Array<object>) : Array<Array<number>> {
     var totalBet = 0
-    // ranges for fav : 1 < x =< 1.05, 1.05 - 1.1, 1.1 - 1.15, 1.15 - 1.2, 1.2 and above
-    // ranges for non fav : 5 and below, 5 - 6, 6 - 7, 7 - 8, 8 - 9, 9 - 10, 10 - 11, 11 - 12, 12 - 13, 13 and above
-
-    const favOddSet = [
-      [1, 1.05], //0
-      [1.05, 1.1], //1
-      [1.1, 1.15], //2
-      [1.15, 1.2], //3
-      [1.2, 5], //4
-    ]
-
-    const nonFavOddSet = [
-      [1, 5], //0
-      [5, 6], //1
-      [7, 8], //2
-      [9, 10], //3
-      [11, 12], //4
-      [13, 100], //5
-    ]
 
     var matrix = [];
-    for(var i = 0; i <= 4; ++i) {
+    for(var i = 0; i <= BetAdapter.favOddSet.length; ++i) {
       matrix[i] = [ ];
-      for(var j = 0; j <= 5; ++j) {
+      for(var j = 0; j <= BetAdapter.nonFavOddSet.length ; ++j) {
         matrix[i][j] = 0; // a[i] is now an array so this works.
       }
     }
@@ -177,15 +188,15 @@ export default class BetAdapter {
         nonFavOdd = player2Odd
       }
 
-      for (var i = 0; i < favOddSet.length; i++) {
-        if (favOdd > favOddSet[i][0] && favOdd <= favOddSet[i][1]) {
+      for (var i = 0; i < BetAdapter.favOddSet.length; i++) {
+        if (favOdd > BetAdapter.favOddSet[i][0] && favOdd <= BetAdapter.favOddSet[i][1]) {
           favOddLocation = i
           break
         }
       }
 
-      for (var i = 0; i < nonFavOddSet.length; i++) {
-        if (nonFavOdd > nonFavOddSet[i][0] && nonFavOdd <= nonFavOddSet[i][1]) {
+      for (var i = 0; i < BetAdapter.nonFavOddSet.length; i++) {
+        if (nonFavOdd > BetAdapter.nonFavOddSet[i][0] && nonFavOdd <= BetAdapter.nonFavOddSet[i][1]) {
           nonFavOddLocation = i
           break
         }

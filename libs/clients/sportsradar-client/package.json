@@ -1,12 +1,11 @@
 {
-  "name": "@abcfinite/bet-adapter",
-  "version": "0.0.7",
+  "name": "@abcfinite/sportsradar-client",
+  "version": "0.0.1",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
-  "main": "index.ts",
+  "main": "./index.ts",
   "dependencies": {
-      "@abcfinite/dynamodb-client": "0.0.4",
-      "@abcfinite/ladbrokes-client": "0.0.3",
-      "lodash.get": "^4.4.2"
+    "@abcfinite/http-api-client": "^0.0.2",
+    "lodash.get": "^4.4.2"
   },
   "jest": {
     "verbose": true,
