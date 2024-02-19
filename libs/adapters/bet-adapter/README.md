@@ -28,6 +28,12 @@ These are the list on odds for Tennis
   - when player 28 years and older then high risk against below 25 years although has higher ranking
 
 
+
+## Tennis how to compare player with previous match
+
+- find the lowest rank, lowest age gap, lowest win percentage gap
+- compare it to the current match player
+
 ## esports consideration
 
 - lower rank team might win when :

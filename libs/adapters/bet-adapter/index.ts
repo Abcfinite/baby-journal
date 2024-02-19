@@ -117,12 +117,15 @@ export default class BetAdapter {
       }
     })
 
+    const scannedCount = _.get(queryResponse, 'ScannedCount', 0)
+
     return {
       biggestWinningOdd,
       smallestWinningOdd,
       biggestWinningOddDiff,
       smallestWinningOddDiff,
-      oddsPercentage: this.oddsPercentageCollection(queryResponse.Items)
+      oddsPercentage: this.oddsPercentageCollection(queryResponse.Items),
+      scannedCount
     }
   }
 

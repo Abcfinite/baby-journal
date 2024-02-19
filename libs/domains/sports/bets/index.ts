@@ -25,7 +25,6 @@ export const logBets: Handler = async (event: any) => {
 export const summary: Handler = async (event: any) => {
   const { sport } = event.queryStringParameters
   const result = await new BetAdapter().getSummary(sport)
-  result['count'] = await new BetAdapter().betTableTotalNumber()
 
   const response = {
     statusCode: 200,
