@@ -42,7 +42,8 @@ export default class EventService {
     return events
   }
 
-  async getEvent(eventId: string) : Promise<Event | null>{
+  async getEvent(eventId: string) : Promise<Event | null> {
+    console.log('>> getEvent for : ', eventId)
     const headers = {
       'Content-Type': 'application/json'
     }
@@ -57,6 +58,7 @@ export default class EventService {
       params,
     )
 
+    console.log('>> getEvent result : ', result)
     const event: Event | null = EventParser.parse(result.value as any)
 
     return event

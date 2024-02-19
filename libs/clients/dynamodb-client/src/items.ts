@@ -24,6 +24,7 @@ export const put = async (tableName: string,
   return response;
 }
 
+//todo: might want to remove this
 export const count = async (tableName: string) => {
   const client = new DynamoDBClient({});
 

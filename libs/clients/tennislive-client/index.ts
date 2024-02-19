@@ -10,7 +10,11 @@ export default class TennisliveClient {
   }
 
   async getPlayer(playerName: string) : Promise<Player>{
-    var sportEvent = await new PlayerService().getPlayerUrl('august holmgren')
+    const playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
+
+    if (playerDetailUrl !== null || playerDetailUrl !== undefined) {
+      const player = await new PlayerService().getPlayerDetailHtml(playerDetailUrl)
+    }
 
     return {} as any
   }

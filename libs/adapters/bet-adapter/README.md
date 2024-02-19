@@ -27,6 +27,8 @@ These are the list on odds for Tennis
 - WTA
   - when player 28 years and older then high risk against below 25 years although has higher ranking
 
+- play against the odds only if :
+  - historically player lost at least 2x to player with lower / no ranking
 
 
 ## Tennis how to compare player with previous match

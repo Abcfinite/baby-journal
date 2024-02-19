@@ -3,7 +3,8 @@ import { Match } from "./match";
 export type Player = {
   id: string,
   name: string,
-  age: string,
+  country: string,
+  dob: string,
   currentRanking: Number,
   highestRanking: Number,
   total: Number,
