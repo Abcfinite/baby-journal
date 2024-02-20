@@ -26,6 +26,7 @@ These are the list on odds for Tennis
 
 - WTA
   - when player 28 years and older then high risk against below 25 years although has higher ranking
+  - DO NOT put big bet on player below 20 years old even the odd good and all matrix good. LOST $7
 
 - play against the odds only if :
   - historically player lost at least 2x to player with lower / no ranking

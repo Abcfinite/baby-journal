@@ -7,7 +7,7 @@ export type Player = {
   dob: string,
   currentRanking: Number,
   highestRanking: Number,
-  total: Number,
-  won: Number,
+  matchesTotal: Number,
+  matchesWon: Number,
   previousMatches: Array<Match>
 }
