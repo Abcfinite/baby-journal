@@ -9,5 +9,5 @@ export type Player = {
   highestRanking: Number,
   matchesTotal: Number,
   matchesWon: Number,
-  previousMatches: Array<Match>
+  previousMatches: any
 }

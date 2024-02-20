@@ -6,8 +6,7 @@
   "dependencies": {
     "@abcfinite/http-api-client": "^0.0.2",
     "lodash.get": "^4.4.2",
-    "node-html-parser": "^6.1.12",
-    "uuidv4": "^6.2.13"
+    "node-html-parser": "^6.1.12"
   },
   "jest": {
     "verbose": true,

@@ -1,5 +1,4 @@
 import _ from 'lodash'
-import { uuid } from 'uuidv4';
 import { Player } from '../types/player'
 import { parse } from 'node-html-parser';
 
@@ -8,7 +7,7 @@ export default class PlayerDetailParser {
     const root = parse(html);
     const playerStatsElement = root.getElementsByTagName("div").find(div => div.attributes.class === "player_stats")
     const player = {
-      id: uuid(),
+      id: '',
       name: '',
       country: '',
       dob: '',
@@ -16,7 +15,8 @@ export default class PlayerDetailParser {
       highestRanking: 0,
       matchesTotal: 0,
       matchesWon: 0,
-      previousMatches: []
+      previousMatches: root.getElementsByTagName("table")
+        .findLast(table => table.attributes.class === "table_pmatches")
     }
 
     let post=0
@@ -31,7 +31,7 @@ export default class PlayerDetailParser {
 
       if (element.rawText.trim() === 'Birthdate:') {
         const dobAge = playerStatsElement.childNodes[post + 1].rawText.trim()
-        player['dob'] = dobAge.split(',')[0].replaceAll('.','/')
+        player['dob'] = dobAge.split(',')[0]
       }
 
       if (element.rawText.trim() === 'ATP ranking') {
@@ -52,7 +52,7 @@ export default class PlayerDetailParser {
       ++post
     });
 
-    console.log('>>>>player : ', player)
+    player['id'] = player['name'].toLocaleLowerCase().replaceAll(' ', '') + '#' + player['dob']
 
     return player
   }
