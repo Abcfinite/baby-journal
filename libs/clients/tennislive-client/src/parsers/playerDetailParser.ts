@@ -3,7 +3,7 @@ import { Player } from '../types/player'
 import { parse } from 'node-html-parser';
 
 export default class PlayerDetailParser {
-  static parse(html: string): Player {
+  static parse(html: string, keepPreviousMatches: boolean = true): Player {
     const root = parse(html);
     const playerStatsElement = root.getElementsByTagName("div").find(div => div.attributes.class === "player_stats")
     const player = {
@@ -15,7 +15,11 @@ export default class PlayerDetailParser {
       highestRanking: 0,
       matchesTotal: 0,
       matchesWon: 0,
-      previousMatches: root.getElementsByTagName("table")
+      previousMatches: null,
+    }
+
+    if (keepPreviousMatches) {
+      player['previousMatches'] = root.getElementsByTagName("table")
         .findLast(table => table.attributes.class === "table_pmatches")
     }
 
@@ -34,7 +38,7 @@ export default class PlayerDetailParser {
         player['dob'] = dobAge.split(',')[0]
       }
 
-      if (element.rawText.trim() === 'ATP ranking') {
+      if (element.rawText.trim() === 'ATP ranking' || element.rawText.trim() === 'WTA ranking') {
         player['currentRanking'] = Number(playerStatsElement.childNodes[post + 2].rawText.trim())
       }
 

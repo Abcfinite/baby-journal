@@ -1,5 +1,3 @@
-import { Match } from "./match";
-
 export type Player = {
   id: string,
   name: string,
@@ -9,5 +7,5 @@ export type Player = {
   highestRanking: Number,
   matchesTotal: Number,
   matchesWon: Number,
-  previousMatches: any
+  previousMatches: HTMLElement | null
 }
