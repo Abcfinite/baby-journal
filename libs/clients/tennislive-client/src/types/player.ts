@@ -5,10 +5,10 @@ export type Player = {
   name: string,
   country: string,
   dob: string,
-  currentRanking: Number,
-  highestRanking: Number,
-  matchesTotal: Number,
-  matchesWon: Number,
+  currentRanking: number,
+  highestRanking: number,
+  matchesTotal: number,
+  matchesWon: number,
   url: string | null,
   previousMatches: HTMLElement | null
   parsedPreviousMatches: Array<Match> | null

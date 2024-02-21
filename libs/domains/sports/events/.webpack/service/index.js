@@ -10,25 +10,91 @@
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ PlayerAdater)
+/* harmony export */   "default": () => (/* binding */ PlayerAdapter)
 /* harmony export */ });
 /* harmony import */ var _abcfinite_tennislive_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/tennislive-client */ "../../../clients/tennislive-client/index.ts");
+/* harmony import */ var _src_utils_comparePlayer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/utils/comparePlayer */ "../../../adapters/player-adapter/src/utils/comparePlayer.ts");
 
-class PlayerAdater {
+
+class PlayerAdapter {
     async checkPlayer(player1Name, player2Name) {
-        console.log('>>>>player1Name');
-        console.log(player1Name);
-        console.log('>>>>player2Name');
-        console.log(player2Name);
         const tennisLiveClient = new _abcfinite_tennislive_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
         const player1 = await tennisLiveClient.getPlayer(player1Name);
-        console.log('>>>>player1');
-        console.log(player1);
         const player2 = await tennisLiveClient.getPlayer(player2Name);
-        console.log('>>>>player2');
-        console.log(player2);
+        return {
+            higherRanking: (0,_src_utils_comparePlayer__WEBPACK_IMPORTED_MODULE_1__.getHigherRanking)(player1, player2),
+            rankingDifferent: (0,_src_utils_comparePlayer__WEBPACK_IMPORTED_MODULE_1__.getRankingDiff)(player1, player2),
+            winPercentage: (0,_src_utils_comparePlayer__WEBPACK_IMPORTED_MODULE_1__.winPercentage)(player1, player2),
+            wonL20: (0,_src_utils_comparePlayer__WEBPACK_IMPORTED_MODULE_1__.wonL20)(player1, player2),
+            lostToLowerRanking: (0,_src_utils_comparePlayer__WEBPACK_IMPORTED_MODULE_1__.beatenByLowerRanking)(player1, player2),
+            player1: player1,
+            player2: player2
+        };
     }
 }
+
+
+/***/ }),
+
+/***/ "../../../adapters/player-adapter/src/utils/comparePlayer.ts":
+/*!*******************************************************************!*\
+  !*** ../../../adapters/player-adapter/src/utils/comparePlayer.ts ***!
+  \*******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   beatenByLowerRanking: () => (/* binding */ beatenByLowerRanking),
+/* harmony export */   getHigherRanking: () => (/* binding */ getHigherRanking),
+/* harmony export */   getRankingDiff: () => (/* binding */ getRankingDiff),
+/* harmony export */   winPercentage: () => (/* binding */ winPercentage),
+/* harmony export */   wonL20: () => (/* binding */ wonL20)
+/* harmony export */ });
+const getHigherRanking = (player1, player2) => {
+    if (player1.currentRanking === 0 && player2.currentRanking > 0) {
+        return player2.name;
+    }
+    else if (player1.currentRanking > 0 && player2.currentRanking === 0) {
+        return player1.name;
+    }
+    else {
+        if (player1.currentRanking > player2.currentRanking) {
+            return player2.name;
+        }
+        else if (player2.currentRanking > player1.currentRanking) {
+            return player1.name;
+        }
+    }
+    return 'both player no ranking';
+};
+const getRankingDiff = (player1, player2) => Math.abs(player1.currentRanking - player2.currentRanking);
+const winPercentage = (player1, player2) => {
+    const player1winPercentage = (player1.matchesWon / player1.matchesTotal) * 100;
+    const player2winPercentage = (player2.matchesWon / player2.matchesTotal) * 100;
+    return {
+        player1: player1.name + ' => ' + player1winPercentage + '%',
+        player2: player2.name + ' => ' + player2winPercentage + '%',
+        diff: Math.abs(player1winPercentage - player2winPercentage) + '%'
+    };
+};
+const wonL20 = (player1, player2) => {
+    const p1w = player1.parsedPreviousMatches.filter(m => m.result === 'win');
+    const p2w = player2.parsedPreviousMatches.filter(m => m.result === 'win');
+    return {
+        player1: player1.name + ' => ' + p1w.length,
+        player2: player2.name + ' => ' + p2w.length
+    };
+};
+const beatenByLowerRanking = (player1, player2) => {
+    const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'lost');
+    const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'lost');
+    const p1LLower = p1L.filter(p => p.player.currentRanking > player1.currentRanking);
+    const p2LLower = p2L.filter(p => p.player.currentRanking > player2.currentRanking);
+    return {
+        player1: player1.name + ' => ' + p1LLower.length,
+        player2: player2.name + ' => ' + p2LLower.length
+    };
+};
 
 
 /***/ }),
