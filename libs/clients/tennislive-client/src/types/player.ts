@@ -1,3 +1,5 @@
+import { Match } from "./match"
+
 export type Player = {
   id: string,
   name: string,
@@ -7,5 +9,7 @@ export type Player = {
   highestRanking: Number,
   matchesTotal: Number,
   matchesWon: Number,
+  url: string | null,
   previousMatches: HTMLElement | null
+  parsedPreviousMatches: Array<Match> | null
 }

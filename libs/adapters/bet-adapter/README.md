@@ -30,7 +30,7 @@ These are the list on odds for Tennis
   - avoid game when the fav just won tournament. LOST $9.40
 
 - careful 50% wrong odds :
-  - historically player lost at least 2x to player with lower / no ranking in the last 10 games
+  - historically player lost at least 2x to player with lower / no ranking in the last 10 lost. LOST $10
 
 - DO NOT CASH OUT - LOST $3
   - score could be bad early: 1-6, 6-3, 6-0
