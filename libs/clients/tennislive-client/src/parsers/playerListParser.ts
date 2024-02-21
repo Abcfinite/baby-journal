@@ -8,6 +8,7 @@ export default class PlayerListParser {
 
     if (links.length > 1) {
       console.log('too many result check name')
+      return links[0].getAttribute('href')
     } else if (links.length == 1) {
       return links[0].getAttribute('href')
     }

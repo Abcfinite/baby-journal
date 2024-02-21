@@ -42,8 +42,8 @@ export const wonL20 = (player1: Player, player2: Player) : any => {
 export const beatenByLowerRanking = (player1: Player, player2: Player) : any => {
   const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
-  const p1LLower = p1L.filter(p => p.player.currentRanking > player1.currentRanking)
-  const p2LLower = p2L.filter(p => p.player.currentRanking > player2.currentRanking)
+  const p1LLower = player1.currentRanking > 0 ? p1L.filter(p => p.player.currentRanking > player1.currentRanking) : []
+  const p2LLower = player2.currentRanking > 0 ? p2L.filter(p => p.player.currentRanking > player2.currentRanking) : []
   return {
     player1: player1.name + ' => ' + p1LLower.length,
     player2: player2.name + ' => ' + p2LLower.length
