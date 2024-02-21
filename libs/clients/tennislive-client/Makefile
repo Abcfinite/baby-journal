@@ -27,4 +27,4 @@ _testIntegration:
 	$(NODE_MODULES_DIR)/jest/bin/jest.js test/integration --runInBand --passWithNoTests
 
 _testSystem:
-	$(NODE_MODULES_DIR)/jest/bin/jest.js test/system
+	$(NODE_MODULES_DIR)/jest/bin/jest.js test/system --detectOpenHandles

@@ -25,7 +25,7 @@ export default class PlayerService {
     return PlayerListParser.parse(result.value as string)
   }
 
-  async getPlayerDetailHtml(playerDetailUrl: string) : Promise<Player> {
+  async getPlayerDetailHtml(playerDetailUrl: string, keepPreviousMatches: boolean = true) : Promise<Player> {
     const headers = {
       Host: 'www.tennislive.net',
       Referer: process.env.TENNISLIVE_HOST
@@ -39,6 +39,6 @@ export default class PlayerService {
       headers,
     )
 
-    return PlayerDetailParser.parse(result.value as string)
+    return PlayerDetailParser.parse(result.value as string, keepPreviousMatches)
   }
 }

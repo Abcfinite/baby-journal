@@ -7,6 +7,7 @@ export default class MatchesDetailParser {
   parse(startPlayerData: Player): Player {
 
     const matchesShown = startPlayerData.previousMatches.getElementsByTagName("tr")
+    startPlayerData.previousMatches = null
     const matchesShownLength = matchesShown.length < 20 ? matchesShown.length : 20
     const matches = []
 
@@ -46,14 +47,8 @@ export default class MatchesDetailParser {
 
       matches.push(match)
     })
-
-
     startPlayerData.parsedPreviousMatches = matches
 
     return startPlayerData
   }
-
-  // parseSingleMatch() : Match {
-
-  // }
 }

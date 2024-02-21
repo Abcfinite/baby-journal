@@ -15,7 +15,9 @@ export default class PlayerDetailParser {
       highestRanking: 0,
       matchesTotal: 0,
       matchesWon: 0,
+      url: '',
       previousMatches: null,
+      parsedPreviousMatches: null
     }
 
     if (keepPreviousMatches) {
