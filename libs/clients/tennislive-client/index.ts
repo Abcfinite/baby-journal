@@ -25,9 +25,6 @@ export default class TennisliveClient {
       })
     )
 
-    console.log('>>>player')
-    console.log(JSON.stringify(player))
-
-    return {} as any
+    return player
   }
 }

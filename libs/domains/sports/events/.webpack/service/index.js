@@ -2,262 +2,33 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "../../../adapters/bet-adapter/index.ts":
-/*!**********************************************!*\
-  !*** ../../../adapters/bet-adapter/index.ts ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ BetAdapter)
-/* harmony export */ });
-/* harmony import */ var _abcfinite_ladbrokes_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/ladbrokes-client */ "../../../clients/ladbrokes-client/index.ts");
-/* harmony import */ var _abcfinite_dynamodb_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @abcfinite/dynamodb-client */ "../../../clients/dynamodb-client/index.ts");
-/* harmony import */ var _src_parsers_betParser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./src/parsers/betParser */ "../../../adapters/bet-adapter/src/parsers/betParser.ts");
-
-
-
-class BetAdapter {
-    constructor() {
-    }
-    async logBets() {
-        const pendingBetDetails = await new _abcfinite_ladbrokes_client__WEBPACK_IMPORTED_MODULE_0__["default"]().getPendingBetsDetail();
-        Promise.all(pendingBetDetails.map(async (bet) => {
-            if (bet.event) {
-                const betRecord = {
-                    Id: bet.id,
-                    EventId: bet.event.id,
-                    Player1: bet.event.player1,
-                    Player2: bet.event.player2,
-                    Player1Odd: bet.event.player1Odd,
-                    Player2Odd: bet.event.player2Odd,
-                    Tournament: bet.event.tournament,
-                    OddCorrect: true,
-                    Category: bet.event.category,
-                    PlayDateTime: bet.event.advertisedStart.getTime(),
-                };
-                await (0,_abcfinite_dynamodb_client__WEBPACK_IMPORTED_MODULE_1__.putItem)('Bets', betRecord);
-            }
-        }));
-    }
-    async logEvents() {
-        const allEventDetails = await new _abcfinite_ladbrokes_client__WEBPACK_IMPORTED_MODULE_0__["default"]().getIncomingMatch();
-        Promise.all(allEventDetails.map(async (event) => {
-            const eventRecord = {
-                Id: event.id,
-                Player1: event.player1,
-                Player2: event.player2,
-                Player1Odd: event.player1Odd,
-                Player2Odd: event.player2Odd,
-                Tournament: event.tournament,
-                OddCorrect: true,
-                Category: event.category,
-                PlayDateTime: event.advertisedStart.getTime(),
-            };
-            await (0,_abcfinite_dynamodb_client__WEBPACK_IMPORTED_MODULE_1__.putItem)('Events', eventRecord);
-        }));
-    }
-    async getSummary(sport) {
-        const queryResponse = await (0,_abcfinite_dynamodb_client__WEBPACK_IMPORTED_MODULE_1__.executeScan)({ sport });
-        const sportRecords = queryResponse.Items.map(res => _src_parsers_betParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(res));
-        let biggestWinningOdd = 0;
-        sportRecords.map(rec => {
-            if (rec.OddCorrect && Math.min(rec.Player2Odd, rec.Player1Odd) > biggestWinningOdd) {
-                biggestWinningOdd = Math.min(rec.Player2Odd, rec.Player1Odd);
-            }
-        });
-        let smallestWinningOdd = 100;
-        sportRecords.map(rec => {
-            if (rec.OddCorrect && Math.min(rec.Player2Odd, rec.Player1Odd) < smallestWinningOdd) {
-                smallestWinningOdd = Math.min(rec.Player2Odd, rec.Player1Odd);
-            }
-        });
-        let biggestWinningOddDiff = 0;
-        sportRecords.map(rec => {
-            if (rec.OddCorrect && Math.abs(rec.Player2Odd - rec.Player1Odd) > biggestWinningOddDiff) {
-                biggestWinningOddDiff = Math.abs(rec.Player2Odd - rec.Player1Odd);
-            }
-        });
-        let smallestWinningOddDiff = 100;
-        sportRecords.map(rec => {
-            if (rec.OddCorrect && Math.abs(rec.Player2Odd - rec.Player1Odd) < smallestWinningOddDiff) {
-                smallestWinningOddDiff = Math.abs(rec.Player2Odd - rec.Player1Odd);
-            }
-        });
-        return {
-            biggestWinningOdd,
-            smallestWinningOdd,
-            biggestWinningOddDiff,
-            smallestWinningOddDiff
-        };
-    }
-    async betTableTotalNumber() {
-        const countResponse = await (0,_abcfinite_dynamodb_client__WEBPACK_IMPORTED_MODULE_1__.countTable)();
-        return countResponse.Count;
-    }
-}
-
-
-/***/ }),
-
-/***/ "../../../adapters/bet-adapter/src/parsers/betParser.ts":
-/*!**************************************************************!*\
-  !*** ../../../adapters/bet-adapter/src/parsers/betParser.ts ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ BetParser)
-/* harmony export */ });
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
-
-class BetParser {
-    static parse(bodyJson) {
-        return {
-            Id: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'Id.S', ''),
-            EventId: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'EventId.S', ''),
-            Player1: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'Player1.S', ''),
-            Player2: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'Player2.S', ''),
-            Player1Odd: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'Player1Odd.N'),
-            Player2Odd: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'Player2Odd.N'),
-            Tournament: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'Tournament.S', ''),
-            OddCorrect: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'OddCorrect.BOOL', true),
-            Category: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'Category.S'),
-            PlayDateTime: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'PlayDateTime.N'),
-            RatingPlayer1End: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'RatingPlayer1End.N'),
-            RatingPlayer1Start: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'RatingPlayer1Start.N'),
-            RatingPlayer2End: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'RatingPlayer2End.N'),
-            RatingPlayer2Start: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'RatingPlayer2Start.N'),
-            H2hDraw: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'H2hDraw.N'),
-            H2hPlayer1Win: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'H2hPlayer1Win.N'),
-            H2hPlayer2Win: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'H2hPlayer2Win.N'),
-        };
-    }
-}
-
-
-/***/ }),
-
-/***/ "../../../clients/dynamodb-client/index.ts":
+/***/ "../../../adapters/player-adapter/index.ts":
 /*!*************************************************!*\
-  !*** ../../../clients/dynamodb-client/index.ts ***!
+  !*** ../../../adapters/player-adapter/index.ts ***!
   \*************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   countTable: () => (/* binding */ countTable),
-/* harmony export */   executeScan: () => (/* binding */ executeScan),
-/* harmony export */   getItem: () => (/* binding */ getItem),
-/* harmony export */   putItem: () => (/* binding */ putItem),
-/* harmony export */   removeItem: () => (/* binding */ removeItem)
+/* harmony export */   "default": () => (/* binding */ PlayerAdater)
 /* harmony export */ });
-/* harmony import */ var _src_items__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/items */ "../../../clients/dynamodb-client/src/items.ts");
+/* harmony import */ var _abcfinite_tennislive_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/tennislive-client */ "../../../clients/tennislive-client/index.ts");
 
-const executeScan = async (params) => (0,_src_items__WEBPACK_IMPORTED_MODULE_0__.scan)(params);
-const countTable = async () => (0,_src_items__WEBPACK_IMPORTED_MODULE_0__.count)('Bets');
-const getItem = async (tableName, itemId, itemName) => (0,_src_items__WEBPACK_IMPORTED_MODULE_0__.get)(tableName, itemId, itemName);
-const putItem = async (tableName, item, replaceWhenExist = false) => (0,_src_items__WEBPACK_IMPORTED_MODULE_0__.put)(tableName, item, replaceWhenExist);
-const removeItem = (tableName, itemId) => (0,_src_items__WEBPACK_IMPORTED_MODULE_0__.remove)(tableName, itemId);
-
-
-/***/ }),
-
-/***/ "../../../clients/dynamodb-client/src/items.ts":
-/*!*****************************************************!*\
-  !*** ../../../clients/dynamodb-client/src/items.ts ***!
-  \*****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   count: () => (/* binding */ count),
-/* harmony export */   get: () => (/* binding */ get),
-/* harmony export */   put: () => (/* binding */ put),
-/* harmony export */   remove: () => (/* binding */ remove),
-/* harmony export */   scan: () => (/* binding */ scan),
-/* harmony export */   update: () => (/* binding */ update)
-/* harmony export */ });
-/* harmony import */ var _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @aws-sdk/client-dynamodb */ "@aws-sdk/client-dynamodb");
-/* harmony import */ var _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @aws-sdk/lib-dynamodb */ "@aws-sdk/lib-dynamodb");
-/* harmony import */ var _aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1__);
-
-
-const put = async (tableName, item, replaceWhenExist = false) => {
-    const client = new _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__.DynamoDBClient({});
-    const docClient = _aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1__.DynamoDBDocumentClient.from(client);
-    if (!replaceWhenExist) {
-        const getResult = await get(tableName, item['Id']);
-        if (getResult.Item) {
-            return;
-        }
+class PlayerAdater {
+    async checkPlayer(player1Name, player2Name) {
+        console.log('>>>>player1Name');
+        console.log(player1Name);
+        console.log('>>>>player2Name');
+        console.log(player2Name);
+        const tennisLiveClient = new _abcfinite_tennislive_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
+        const player1 = await tennisLiveClient.getPlayer(player1Name);
+        console.log('>>>>player1');
+        console.log(player1);
+        const player2 = await tennisLiveClient.getPlayer(player2Name);
+        console.log('>>>>player2');
+        console.log(player2);
     }
-    const command = new _aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1__.PutCommand({
-        TableName: tableName,
-        Item: item
-    });
-    const response = await docClient.send(command);
-    return response;
-};
-const count = async (tableName) => {
-    const client = new _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__.DynamoDBClient({});
-    const command = new _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__.ScanCommand({
-        TableName: tableName,
-        Select: 'COUNT'
-    });
-    const response = await client.send(command);
-    return response;
-};
-const scan = async (params) => {
-    const client = new _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__.DynamoDBClient({});
-    const command = new _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__.ScanCommand({
-        FilterExpression: "Category = :cat",
-        ExpressionAttributeValues: {
-            ":cat": { S: params['sport'] },
-        },
-        ProjectionExpression: `Id, Category, EventId,
-        H2hDraw, H2hPlayer1Win, H2hPlayer2Win, OddCorrect,
-        Player1, Player1Odd, Player2, Player2Odd, RatingPlayer1End,
-        RatingPlayer1Start, RatingPlayer2End, RatingPlayer2Start,
-        Tournament, PlayDateTime`,
-        TableName: "Bets",
-    });
-    const response = await client.send(command);
-    return response;
-};
-const get = async (tableName, itemId, itemName = null) => {
-    const client = new _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__.DynamoDBClient({});
-    const docClient = _aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1__.DynamoDBDocumentClient.from(client);
-    const Key = { Id: itemId };
-    if (itemName) {
-        Key['Category'] = itemName;
-    }
-    const command = new _aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1__.GetCommand({
-        TableName: tableName,
-        Key,
-    });
-    const response = await docClient.send(command);
-    return response;
-};
-const update = async () => {
-};
-const remove = async (tableName, itemId) => {
-    const client = new _aws_sdk_client_dynamodb__WEBPACK_IMPORTED_MODULE_0__.DynamoDBClient({});
-    const docClient = _aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1__.DynamoDBDocumentClient.from(client);
-    const command = new _aws_sdk_lib_dynamodb__WEBPACK_IMPORTED_MODULE_1__.DeleteCommand({
-        TableName: tableName,
-        Key: {
-            id: itemId,
-        },
-    });
-    const response = await docClient.send(command);
-    console.log(response);
-    return response;
-};
+}
 
 
 /***/ }),
@@ -298,303 +69,238 @@ class HttpApiClient {
 
 /***/ }),
 
-/***/ "../../../clients/ladbrokes-client/index.ts":
-/*!**************************************************!*\
-  !*** ../../../clients/ladbrokes-client/index.ts ***!
-  \**************************************************/
+/***/ "../../../clients/tennislive-client/index.ts":
+/*!***************************************************!*\
+  !*** ../../../clients/tennislive-client/index.ts ***!
+  \***************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ LadbrokesClient)
+/* harmony export */   "default": () => (/* binding */ TennisliveClient)
 /* harmony export */ });
-/* harmony import */ var _http_api_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../http-api-client */ "../../../clients/http-api-client/index.ts");
-/* harmony import */ var _src_parsers_pendingBetsParser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/parsers/pendingBetsParser */ "../../../clients/ladbrokes-client/src/parsers/pendingBetsParser.ts");
-/* harmony import */ var _src_services_eventService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./src/services/eventService */ "../../../clients/ladbrokes-client/src/services/eventService.ts");
-/* harmony import */ var _src_services_socket__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./src/services/socket */ "../../../clients/ladbrokes-client/src/services/socket.ts");
+/* harmony import */ var _src_services_playerService__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/services/playerService */ "../../../clients/tennislive-client/src/services/playerService.ts");
+/* harmony import */ var _src_parsers_matchesDetailParser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/parsers/matchesDetailParser */ "../../../clients/tennislive-client/src/parsers/matchesDetailParser.ts");
+// manually find sport event
+// fetch info on the sport event
 
 
-
-
-class LadbrokesClient {
+class TennisliveClient {
     constructor() {
     }
-    async getPendingBets() {
-        const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': process.env.LADBROKES_BEARER_TOKEN
-        };
-        const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
-        const result = await httpApiClient.get(process.env.LADBROKES_HOST, process.env.LADBROKES_PENDING_BETS_PATH, headers);
-        const pendingBets = _src_parsers_pendingBetsParser__WEBPACK_IMPORTED_MODULE_1__["default"].parse(result.value);
-        return pendingBets;
-    }
-    async getPendingBetsDetail() {
-        const pendingBets = await new _src_services_socket__WEBPACK_IMPORTED_MODULE_3__["default"]().getPendingBetDetails();
-        const betDetailList = await new _src_services_eventService__WEBPACK_IMPORTED_MODULE_2__["default"]().getEvents(pendingBets);
-        return betDetailList;
-    }
-    async getIncomingMatch() {
-        console.log('>>>>getIncomingMatch');
-        const incomingMatch = await new _src_services_eventService__WEBPACK_IMPORTED_MODULE_2__["default"]().getFutureEvents('tennis');
-        return incomingMatch;
+    async getPlayer(playerName) {
+        const playerDetailUrl = await new _src_services_playerService__WEBPACK_IMPORTED_MODULE_0__["default"]().getPlayerUrl(playerName);
+        if (playerDetailUrl === null || playerDetailUrl === undefined)
+            return {};
+        const player = await new _src_services_playerService__WEBPACK_IMPORTED_MODULE_0__["default"]().getPlayerDetailHtml(playerDetailUrl);
+        new _src_parsers_matchesDetailParser__WEBPACK_IMPORTED_MODULE_1__["default"]().parse(player);
+        await Promise.all(player.parsedPreviousMatches.map(async (prevMatch, index) => {
+            const newPlayerData = await new _src_services_playerService__WEBPACK_IMPORTED_MODULE_0__["default"]().getPlayerDetailHtml(prevMatch.player.url, false);
+            player.parsedPreviousMatches[index].player = newPlayerData;
+        }));
+        return player;
     }
 }
 
 
 /***/ }),
 
-/***/ "../../../clients/ladbrokes-client/src/parsers/betCollectionParser.ts":
+/***/ "../../../clients/tennislive-client/src/parsers/matchesDetailParser.ts":
+/*!*****************************************************************************!*\
+  !*** ../../../clients/tennislive-client/src/parsers/matchesDetailParser.ts ***!
+  \*****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ MatchesDetailParser)
+/* harmony export */ });
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+
+class MatchesDetailParser {
+    parse(startPlayerData) {
+        const matchesShown = startPlayerData.previousMatches.getElementsByTagName("tr");
+        startPlayerData.previousMatches = null;
+        const matchesShownLength = matchesShown.length < 20 ? matchesShown.length : 20;
+        const matches = [];
+        Array.from(matchesShown).slice(0, matchesShownLength).forEach(element => {
+            const player = {
+                id: '',
+                name: '',
+                country: '',
+                dob: '',
+                currentRanking: 0,
+                highestRanking: 0,
+                matchesTotal: 0,
+                matchesWon: 0,
+                url: null,
+                previousMatches: null,
+                parsedPreviousMatches: null,
+            };
+            const match = {
+                player: player,
+                result: 'lost'
+            };
+            element.childNodes.forEach(td => {
+                td.childNodes.forEach(content => {
+                    const attributes = content.attributes;
+                    if (lodash__WEBPACK_IMPORTED_MODULE_0___default().get(attributes, 'title', null) === '') {
+                        player['url'] = content.attributes['href'];
+                    }
+                    const alt = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(attributes, 'alt', null);
+                    if (alt !== null && (alt === 'win' || alt === 'lost')) {
+                        match['result'] = content.attributes['alt'];
+                    }
+                });
+            });
+            matches.push(match);
+        });
+        startPlayerData.parsedPreviousMatches = matches;
+        return startPlayerData;
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/tennislive-client/src/parsers/playerDetailParser.ts":
 /*!****************************************************************************!*\
-  !*** ../../../clients/ladbrokes-client/src/parsers/betCollectionParser.ts ***!
+  !*** ../../../clients/tennislive-client/src/parsers/playerDetailParser.ts ***!
   \****************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ BetCollectionParser)
+/* harmony export */   "default": () => (/* binding */ PlayerDetailParser)
 /* harmony export */ });
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! node-html-parser */ "node-html-parser");
+/* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_html_parser__WEBPACK_IMPORTED_MODULE_0__);
 
-class BetCollectionParser {
-    static parse(bodyJson) {
-        const bets = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'bets', []);
-        const betLegs = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'bet_legs', []);
-        const betLegSelections = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'bet_leg_selections', []);
-        const betCollection = Object.entries(bets).map(([key, _value]) => {
-            const betLegKey = Object.keys(betLegs).find(legKey => betLegs[legKey]['bet_id'] === key);
-            const betLegSelection = Object.entries(betLegSelections).find(([_legSelectionKey, legSelectionValue]) => legSelectionValue['bet_leg_id'] === betLegKey);
-            return {
-                id: key,
-                event: {
-                    id: betLegSelection[1]['event_id'],
-                    player1: null,
-                    player2: null,
-                    player1Odd: null,
-                    player2Odd: null,
-                    tournament: null,
-                    category: null,
-                    advertisedStart: null,
-                }
-            };
-        });
-        return betCollection;
-    }
-}
-
-
-/***/ }),
-
-/***/ "../../../clients/ladbrokes-client/src/parsers/eventParser.ts":
-/*!********************************************************************!*\
-  !*** ../../../clients/ladbrokes-client/src/parsers/eventParser.ts ***!
-  \********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ EventParser)
-/* harmony export */ });
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _types_category__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../types/category */ "../../../clients/ladbrokes-client/src/types/category.ts");
-
-
-class EventParser {
-    static parse(bodyJson, event, entrantsParam, marketsParam, pricesParam) {
-        const eventsBody = event || Object.values(lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'events'))[0];
-        const entrants = entrantsParam || lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'entrants');
-        const mainMarketId = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(eventsBody, 'main_markets[0]');
-        if (!mainMarketId) {
-            return null;
-        }
-        const markets = marketsParam || lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'markets');
-        const marketDetails = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(markets, mainMarketId);
-        const entrantsIds = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(marketDetails, 'entrant_ids');
-        const prices = pricesParam || lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'prices');
-        const entrant1PriceKey = Object.keys(prices).find(key => key.match(entrantsIds[0]) !== null);
-        const entrant2PriceKey = Object.keys(prices).find(key => key.match(entrantsIds[1]) !== null);
-        const entrant1Odd = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(prices, `${entrant1PriceKey}.odds`);
-        const entrant2Odd = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(prices, `${entrant2PriceKey}.odds`);
-        return {
-            id: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(eventsBody, 'id'),
-            player1: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(entrants, `${entrantsIds[0]}.name`, 'please check'),
-            player2: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(entrants, `${entrantsIds[1]}.name`, 'please check'),
-            player1Odd: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(entrant1Odd, 'numerator', 0) / lodash__WEBPACK_IMPORTED_MODULE_0___default().get(entrant1Odd, 'denominator', 1) + 1,
-            player2Odd: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(entrant2Odd, 'numerator', 0) / lodash__WEBPACK_IMPORTED_MODULE_0___default().get(entrant2Odd, 'denominator', 1) + 1,
-            tournament: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(eventsBody, 'competition.name', 'please check'),
-            category: _types_category__WEBPACK_IMPORTED_MODULE_1__.category[lodash__WEBPACK_IMPORTED_MODULE_0___default().get(eventsBody, 'category_id', 'unknown')],
-            advertisedStart: new Date(lodash__WEBPACK_IMPORTED_MODULE_0___default().get(eventsBody, 'advertised_start', Date.now())),
+class PlayerDetailParser {
+    static parse(html, keepPreviousMatches = true) {
+        const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_0__.parse)(html);
+        const playerStatsElement = root.getElementsByTagName("div").find(div => div.attributes.class === "player_stats");
+        const player = {
+            id: '',
+            name: '',
+            country: '',
+            dob: '',
+            currentRanking: 0,
+            highestRanking: 0,
+            matchesTotal: 0,
+            matchesWon: 0,
+            url: '',
+            previousMatches: null,
+            parsedPreviousMatches: null
         };
+        if (keepPreviousMatches) {
+            player['previousMatches'] = root.getElementsByTagName("table")
+                .findLast(table => table.attributes.class === "table_pmatches");
+        }
+        let post = 0;
+        playerStatsElement.childNodes.forEach(element => {
+            if (element.rawText.trim() === 'Name:') {
+                player['name'] = playerStatsElement.childNodes[post + 1].rawText.trim();
+            }
+            if (element.rawText.trim() === 'Country:') {
+                player['country'] = playerStatsElement.childNodes[post + 1].rawText.trim();
+            }
+            if (element.rawText.trim() === 'Birthdate:') {
+                const dobAge = playerStatsElement.childNodes[post + 1].rawText.trim();
+                player['dob'] = dobAge.split(',')[0];
+            }
+            if (element.rawText.trim() === 'ATP ranking' || element.rawText.trim() === 'WTA ranking') {
+                player['currentRanking'] = Number(playerStatsElement.childNodes[post + 2].rawText.trim());
+            }
+            if (element.rawText.trim() === "TOP ranking's position:") {
+                player['highestRanking'] = Number(playerStatsElement.childNodes[post + 1].rawText.trim());
+            }
+            if (element.rawText.trim() === 'Matches total:') {
+                player['matchesTotal'] = Number(playerStatsElement.childNodes[post + 1].rawText.trim());
+            }
+            if (element.rawText.trim() === 'Win:') {
+                player['matchesWon'] = Number(playerStatsElement.childNodes[post + 1].rawText.trim());
+            }
+            ++post;
+        });
+        player['id'] = player['name'].toLocaleLowerCase().replaceAll(' ', '') + '#' + player['dob'];
+        return player;
     }
 }
 
 
 /***/ }),
 
-/***/ "../../../clients/ladbrokes-client/src/parsers/pendingBetsParser.ts":
+/***/ "../../../clients/tennislive-client/src/parsers/playerListParser.ts":
 /*!**************************************************************************!*\
-  !*** ../../../clients/ladbrokes-client/src/parsers/pendingBetsParser.ts ***!
+  !*** ../../../clients/tennislive-client/src/parsers/playerListParser.ts ***!
   \**************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ PendingBetsParser)
+/* harmony export */   "default": () => (/* binding */ PlayerListParser)
 /* harmony export */ });
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! node-html-parser */ "node-html-parser");
+/* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_html_parser__WEBPACK_IMPORTED_MODULE_0__);
 
-class PendingBetsParser {
-    static parse(bodyJson) {
-        const pendingBetCounts = lodash__WEBPACK_IMPORTED_MODULE_0___default().get(bodyJson, 'pending_bet_count');
-        return {
-            pendingBetCounts
-        };
+class PlayerListParser {
+    static parse(html) {
+        const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_0__.parse)(html);
+        const links = root.querySelectorAll("a");
+        if (links.length > 1) {
+            console.log('too many result check name');
+        }
+        else if (links.length == 1) {
+            return links[0].getAttribute('href');
+        }
+        return null;
     }
 }
 
 
 /***/ }),
 
-/***/ "../../../clients/ladbrokes-client/src/services/eventService.ts":
-/*!**********************************************************************!*\
-  !*** ../../../clients/ladbrokes-client/src/services/eventService.ts ***!
-  \**********************************************************************/
+/***/ "../../../clients/tennislive-client/src/services/playerService.ts":
+/*!************************************************************************!*\
+  !*** ../../../clients/tennislive-client/src/services/playerService.ts ***!
+  \************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ EventService)
+/* harmony export */   "default": () => (/* binding */ PlayerService)
 /* harmony export */ });
 /* harmony import */ var _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/http-api-client */ "../../../clients/http-api-client/index.ts");
-/* harmony import */ var _parsers_eventParser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../parsers/eventParser */ "../../../clients/ladbrokes-client/src/parsers/eventParser.ts");
-/* harmony import */ var _types_category__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../types/category */ "../../../clients/ladbrokes-client/src/types/category.ts");
+/* harmony import */ var _parsers_playerListParser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../parsers/playerListParser */ "../../../clients/tennislive-client/src/parsers/playerListParser.ts");
+/* harmony import */ var _parsers_playerDetailParser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../parsers/playerDetailParser */ "../../../clients/tennislive-client/src/parsers/playerDetailParser.ts");
 
 
 
-class EventService {
+class PlayerService {
     constructor() {
     }
-    async getFutureEvents(requestCategory) {
+    async getPlayerUrl(playerName) {
         const headers = {
-            'Content-Type': 'application/json'
-        };
-        const categoryIds = Object.entries(_types_category__WEBPACK_IMPORTED_MODULE_2__.category).find(([_key, value]) => value == requestCategory)[0];
-        const params = {
-            category_ids: `["${categoryIds}"]`,
-            include_any_team_vs_any_team_events: true
+            Host: 'www.tennislive.net',
+            Referer: process.env.TENNISLIVE_HOST
         };
         const httpApiClient = new _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
-        const result = await httpApiClient.get(process.env.LADBROKES_HOST, process.env.LADBROKES_EVENT_REQUEST_PATH, headers, params);
-        const events = [];
-        Object.values(result.value['events']).map(event => {
-            events.push(_parsers_eventParser__WEBPACK_IMPORTED_MODULE_1__["default"].parse(null, event, result.value['entrants'], result.value['markets'], result.value['prices']));
-        });
-        return events;
+        const result = await httpApiClient.get(process.env.TENNISLIVE_HOST, process.env.TENNISLIVE_PATH + '?qe=' + playerName, headers);
+        return _parsers_playerListParser__WEBPACK_IMPORTED_MODULE_1__["default"].parse(result.value);
     }
-    async getEvent(eventId) {
+    async getPlayerDetailHtml(playerDetailUrl, keepPreviousMatches = true) {
         const headers = {
-            'Content-Type': 'application/json'
-        };
-        const params = {
-            id: eventId
+            Host: 'www.tennislive.net',
+            Referer: process.env.TENNISLIVE_HOST
         };
         const httpApiClient = new _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
-        const result = await httpApiClient.get(process.env.LADBROKES_HOST, process.env.LADBROKES_EVENT_CARD_PATH, headers, params);
-        const event = _parsers_eventParser__WEBPACK_IMPORTED_MODULE_1__["default"].parse(result.value);
-        return event;
-    }
-    async getEvents(bets) {
-        const betsResult = Promise.all(bets.map(async (bet) => {
-            bet.event = await this.getEvent(bet.event.id);
-            return bet;
-        }));
-        return betsResult;
+        const result = await httpApiClient.get(process.env.TENNISLIVE_HOST, playerDetailUrl.replace(process.env.TENNISLIVE_HOST, ''), headers);
+        return _parsers_playerDetailParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(result.value, keepPreviousMatches);
     }
 }
 
-
-/***/ }),
-
-/***/ "../../../clients/ladbrokes-client/src/services/socket.ts":
-/*!****************************************************************!*\
-  !*** ../../../clients/ladbrokes-client/src/services/socket.ts ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ Socket)
-/* harmony export */ });
-/* harmony import */ var _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/http-api-client */ "../../../clients/http-api-client/index.ts");
-/* harmony import */ var _parsers_betCollectionParser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../parsers/betCollectionParser */ "../../../clients/ladbrokes-client/src/parsers/betCollectionParser.ts");
-
-
-class Socket {
-    constructor() {
-    }
-    async getPendingBetDetails() {
-        const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': process.env.LADBROKES_BEARER_TOKEN
-        };
-        const params = {
-            method: 'transactionsbyclientidwithfilters',
-            'client_id': 'c0616a90-07cd-435c-ac7f-4476857c6c1e',
-            'transaction_type_ids': '["3a71227e-727c-4180-984d-87bf92f0f456"]',
-            'bet_status_ids': '["6d91cb72-215e-47d1-93d0-e2105db3165c"]',
-            'compact_combo_bets': true,
-        };
-        const httpApiClient = new _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
-        const result = await httpApiClient.get(process.env.LADBROKES_SOCKET_HOST, process.env.LADBROKES_SOCKET_TRANSACTION_PATH, headers, params);
-        const pendingBets = _parsers_betCollectionParser__WEBPACK_IMPORTED_MODULE_1__["default"].parse(result.value['data']);
-        return pendingBets;
-    }
-}
-
-
-/***/ }),
-
-/***/ "../../../clients/ladbrokes-client/src/types/category.ts":
-/*!***************************************************************!*\
-  !*** ../../../clients/ladbrokes-client/src/types/category.ts ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   category: () => (/* binding */ category)
-/* harmony export */ });
-const category = {
-    'a0b910b8-85f0-4f6e-821d-c9fd9e3bdf93': 'tennis',
-    'c16422dc-2e08-4512-bd42-4ca72a3cdc35': 'volleyball',
-    'e89fbf3f-7ed4-47b4-923e-6febc6691ac9': 'esports',
-    '3c34d075-dc14-436d-bfc4-9272a49c2b39': 'basketball',
-    'unknown': 'unknown',
-};
-
-
-/***/ }),
-
-/***/ "@aws-sdk/client-dynamodb":
-/*!*******************************************!*\
-  !*** external "@aws-sdk/client-dynamodb" ***!
-  \*******************************************/
-/***/ ((module) => {
-
-module.exports = require("@aws-sdk/client-dynamodb");
-
-/***/ }),
-
-/***/ "@aws-sdk/lib-dynamodb":
-/*!****************************************!*\
-  !*** external "@aws-sdk/lib-dynamodb" ***!
-  \****************************************/
-/***/ ((module) => {
-
-module.exports = require("@aws-sdk/lib-dynamodb");
 
 /***/ }),
 
@@ -615,6 +321,16 @@ module.exports = require("axios");
 /***/ ((module) => {
 
 module.exports = require("lodash");
+
+/***/ }),
+
+/***/ "node-html-parser":
+/*!***********************************!*\
+  !*** external "node-html-parser" ***!
+  \***********************************/
+/***/ ((module) => {
+
+module.exports = require("node-html-parser");
 
 /***/ })
 
@@ -694,28 +410,15 @@ var __webpack_exports__ = {};
   \******************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   logEvents: () => (/* binding */ logEvents),
-/* harmony export */   summary: () => (/* binding */ summary)
+/* harmony export */   checkPlayer: () => (/* binding */ checkPlayer)
 /* harmony export */ });
-/* harmony import */ var _abcfinite_bet_adapter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/bet-adapter */ "../../../adapters/bet-adapter/index.ts");
+/* harmony import */ var _abcfinite_player_adapter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/player-adapter */ "../../../adapters/player-adapter/index.ts");
 
-const logEvents = async (event) => {
-    await new _abcfinite_bet_adapter__WEBPACK_IMPORTED_MODULE_0__["default"]().logEvents();
-    const response = {
-        statusCode: 200,
-        body: JSON.stringify({
-            message: 'new events stored successfully in dynamodb',
-            input: event,
-        }, null, 2),
-    };
-    return new Promise((resolve) => {
-        resolve(response);
-    });
-};
-const summary = async (event) => {
-    const { sport } = event.queryStringParameters;
-    const result = await new _abcfinite_bet_adapter__WEBPACK_IMPORTED_MODULE_0__["default"]().getSummary(sport);
-    result['count'] = await new _abcfinite_bet_adapter__WEBPACK_IMPORTED_MODULE_0__["default"]().betTableTotalNumber();
+const checkPlayer = async (event) => {
+    const { player1, player2 } = event.queryStringParameters;
+    console.log('>>>player1 : ', player1);
+    console.log('>>>player2 : ', player2);
+    const result = await new _abcfinite_player_adapter__WEBPACK_IMPORTED_MODULE_0__["default"]().checkPlayer(player1, player2);
     const response = {
         statusCode: 200,
         body: JSON.stringify(result, null, 2),

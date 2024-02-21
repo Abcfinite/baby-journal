@@ -2,7 +2,7 @@
   "compilerOptions": {
     "pretty": true,
     "lib": [
-        "ES2021",
+        "ES2023",
         "DOM"
       ],
       "module": "ES2020",

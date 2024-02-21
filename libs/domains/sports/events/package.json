@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "dependencies": {
-    "@abcfinite/bet-adapter": "0.0.6",
+    "@abcfinite/player-adapter": "0.0.6",
     "lodash.get": "^4.4.2"
   },
   "jest": {
