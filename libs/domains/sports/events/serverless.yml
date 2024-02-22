@@ -31,6 +31,8 @@ provider:
     LADBROKES_EVENT_CARD_PATH: ${env:LADBROKES_EVENT_CARD_PATH}
     LADBROKES_PENDING_BETS_PATH: ${env:LADBROKES_PENDING_BETS_PATH}
     LADBROKES_EVENT_REQUEST_PATH: ${env:LADBROKES_EVENT_REQUEST_PATH}
+    TENNISLIVE_HOST: ${env:TENNISLIVE_HOST}
+    TENNISLIVE_PATH: ${env:TENNISLIVE_PATH}
 
 custom:
   webpack:
@@ -39,14 +41,9 @@ custom:
 
 functions:
   logEvents:
-    handler: index.logEvents
+    handler: index.checkPlayer
+    timeout: 45
     events:
       - http:
-          path: /events
-          method: get
-  logEvent:
-    handler: index.logEvent
-    events:
-      - http:
-          path: /event/{id}
+          path: /checkPlayer
           method: get

@@ -31,7 +31,9 @@ export default class BetAdapter {
   }
 
   async logBets() {
+    console.log('>>>>>logBets>>>0')
     const pendingBetDetails = await new LadbrokesClient().getPendingBetsDetail()
+    console.log('>>>>>logBets>>>1')
 
     Promise.all(
       pendingBetDetails.map(async bet => {
@@ -115,12 +117,15 @@ export default class BetAdapter {
       }
     })
 
+    const scannedCount = _.get(queryResponse, 'ScannedCount', 0)
+
     return {
       biggestWinningOdd,
       smallestWinningOdd,
       biggestWinningOddDiff,
       smallestWinningOddDiff,
-      oddsPercentage: this.oddsPercentageCollection(queryResponse.Items)
+      oddsPercentage: this.oddsPercentageCollection(queryResponse.Items),
+      scannedCount
     }
   }
 

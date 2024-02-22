@@ -1,31 +1,14 @@
-import BetAdapter from '@abcfinite/bet-adapter'
+import PlayerAdapter from '@abcfinite/player-adapter'
 
 import { Handler } from 'aws-lambda';
 
-export const logEvents: Handler = async (event: any) => {
-  await new BetAdapter().logEvents()
+export const checkPlayer: Handler = async (event: any) => {
+  const { player1, player2 } = event.queryStringParameters
 
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify(
-      {
-        message: 'new events stored successfully in dynamodb',
-        input: event,
-      },
-      null,
-      2
-    ),
-  };
+  console.log('>>>player1 : ', player1)
+  console.log('>>>player2 : ', player2)
 
-  return new Promise((resolve) => {
-    resolve(response)
-  })
-}
-
-export const summary: Handler = async (event: any) => {
-  const { sport } = event.queryStringParameters
-  const result = await new BetAdapter().getSummary(sport)
-  result['count'] = await new BetAdapter().betTableTotalNumber()
+  const result = await new PlayerAdapter().checkPlayer(player1, player2)
 
   const response = {
     statusCode: 200,

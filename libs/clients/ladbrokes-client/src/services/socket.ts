@@ -8,10 +8,13 @@ export default class Socket {
   }
 
   async getPendingBetDetails() : Promise<Array<Bet>>{
+    console.log('>>>>>getPendingBetDetails>>>1')
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': process.env.LADBROKES_BEARER_TOKEN
     }
+
+    console.log('>>>>>getPendingBetDetails>>>2')
     const params = {
       method: 'transactionsbyclientidwithfilters',
       'client_id': 'c0616a90-07cd-435c-ac7f-4476857c6c1e',
@@ -19,6 +22,8 @@ export default class Socket {
       'bet_status_ids': '["6d91cb72-215e-47d1-93d0-e2105db3165c"]',
       'compact_combo_bets': true,
     }
+
+    console.log('>>>>>getPendingBetDetails>>>3')
     const httpApiClient = new HttpApiClient()
     const result = await httpApiClient.get(
       process.env.LADBROKES_SOCKET_HOST!,
@@ -27,7 +32,9 @@ export default class Socket {
       params,
     )
 
+    console.log('>>>>>getPendingBetDetails>>>4')
     const pendingBets = BetCollectionParser.parse(result.value!['data'] as any)
+    console.log('>>>>>getPendingBetDetails>>>5')
 
     return pendingBets
   }

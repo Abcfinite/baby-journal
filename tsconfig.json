@@ -2,7 +2,7 @@
   "compilerOptions": {
     "pretty": true,
     "lib": [
-        "ES2021",
+        "ES2023",
         "DOM"
       ],
       "module": "ES2020",
@@ -22,6 +22,8 @@
       "@abcfinite/bet-adapter": ["./libs/adapters/bet-adapter"],
       "@abcfinite/ladbrokes-client": ["./libs/client/ladbrokes-client"],
       "@abcfinite/http-api-client": ["./libs/client/http-api-client"],
+      "@abcfinite/sportsradar-client": ["./libs/client/sportsradar-client"],
+      "@abcfinite/tennislive-client": ["./libs/client/tennislive-client"],
     }
   }
 }

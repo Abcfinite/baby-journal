@@ -45,6 +45,7 @@ functions:
           method: get
   summary:
     handler: index.summary
+    timeout: 30
     events:
       - http:
           path: /summary

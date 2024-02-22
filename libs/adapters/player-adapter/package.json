@@ -1,10 +1,12 @@
 {
-  "name": "events-sports",
-  "version": "1.0.0",
+  "name": "@abcfinite/player-adapter",
+  "version": "0.0.1",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
+  "main": "index.ts",
   "dependencies": {
-    "@abcfinite/player-adapter": "0.0.6",
-    "lodash.get": "^4.4.2"
+      "@abcfinite/dynamodb-client": "0.0.4",
+      "@abcfinite/tennislive-client": "0.0.1",
+      "lodash.get": "^4.4.2"
   },
   "jest": {
     "verbose": true,
@@ -36,5 +38,8 @@
       "test",
       "src"
     ]
+  },
+  "scripts": {
+    "build": "tsc"
   }
 }
