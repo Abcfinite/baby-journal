@@ -19,20 +19,25 @@ These are the list on odds for Tennis
   - compare :
     - age
     - ranking
+        - DISREGARD ranking below 100 diff
     - win percentage
-    - last 10 W / L record
+    - last 20 W / L record
   - Red Flag :
     -  lost against younger player with lower ranking in the last 20 games and will play against younger player with no ranking.
     - lower rank double team might win when :
       - met before on the same competition
+    - avoid game when the fav just on the final tournament. LOST $9.90
+        - this is above everything : ranking diff, beatenByLowerRankingThanOpponent,lostToLowerRanking
+        - example: alex de minaur, aryna sabalenka
+
 
 - WTA
   - when player 28 years and older then high risk against below 25 years although has higher ranking
   - DO NOT put big bet on player below 20 years old even the odd good and all matrix good. LOST $7
-  - avoid game when the fav just won tournament. LOST $9.40
 
 - careful 50% wrong odds :
   - historically player lost at least 2x to player with lower / no ranking in the last 10 lost. LOST $10
+    - lost 1 to lower / no ranking player
 
 - DO NOT CASH OUT - LOST $3
   - score could be bad early: 1-6, 6-3, 6-0

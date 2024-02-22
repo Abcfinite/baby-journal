@@ -11,7 +11,12 @@ export default class TennisliveClient {
   }
 
   async getPlayer(playerName: string) : Promise<Player>{
-    const playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
+    let playerDetailUrl = null
+    if (playerName === 'li tu') {
+      playerDetailUrl = 'https://www.tennislive.net/atp/li-tu/'
+    } else {
+      playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
+    }
 
     if (playerDetailUrl === null || playerDetailUrl === undefined) return {} as any
 
