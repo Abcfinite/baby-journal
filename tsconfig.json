@@ -18,6 +18,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "downlevelIteration": true,
+    "sourceMap": true,
     "paths": {
       "@abcfinite/bet-adapter": ["./libs/adapters/bet-adapter"],
       "@abcfinite/ladbrokes-client": ["./libs/client/ladbrokes-client"],

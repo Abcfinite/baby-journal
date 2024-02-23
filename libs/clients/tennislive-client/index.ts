@@ -25,8 +25,19 @@ export default class TennisliveClient {
 
     await Promise.all(
       player.parsedPreviousMatches.map(async (prevMatch, index) => {
-        const newPlayerData = await new PlayerService().getPlayerDetailHtml(prevMatch.player.url, false)
-        player.parsedPreviousMatches[index].player = newPlayerData
+        let newPlayerData = null
+
+        try {
+          newPlayerData = await new PlayerService().getPlayerDetailHtml(prevMatch.player.url, false)
+        } catch(ex) {
+          console.error(ex)
+        }
+
+        if (newPlayerData !== null) {
+          player.parsedPreviousMatches[index].player = newPlayerData
+        } else {
+          player.parsedPreviousMatches = player.parsedPreviousMatches.filter(pm => pm.date !== prevMatch.date )
+        }
       })
     )
 
