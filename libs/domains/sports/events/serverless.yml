@@ -40,7 +40,7 @@ custom:
     packager: yarn
 
 functions:
-  logEvents:
+  checkPlayer:
     handler: index.checkPlayer
     timeout: 45
     events:

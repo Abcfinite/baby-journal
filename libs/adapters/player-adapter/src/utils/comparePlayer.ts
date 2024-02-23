@@ -60,3 +60,37 @@ export const beatenByLowerRankingThanOpponent = (player1: Player, player2: Playe
     player2: player2.name + ' => ' + p2LLower.length
   }
 }
+
+export const winFromHigherRankingThanOpponent = (player1: Player, player2: Player) : any => {
+  const m1W = player1.parsedPreviousMatches.filter(m => m.result === 'win')
+  const m2W = player2.parsedPreviousMatches.filter(m => m.result === 'win')
+  const mp1WHigher = m1W.filter(m => m.player.currentRanking < player2.currentRanking)
+  const mp2WHigher = m2W.filter(m => m.player.currentRanking < player1.currentRanking)
+
+  const mp1WHindex = []
+  player1.parsedPreviousMatches.forEach((pm, index) => {
+    if (mp1WHigher.map(m => m.date).includes(pm.date)) {
+      mp1WHindex.push(index)
+    }
+  })
+
+  const mp2WHindex = []
+  player2.parsedPreviousMatches.forEach((pm, index) => {
+    if (mp2WHigher.map(m => m.date).includes(pm.date)) {
+      mp2WHindex.push(index)
+    }
+  })
+
+  return {
+    player1: {
+      name: player1.name,
+      number: mp1WHigher.length,
+      order: mp1WHindex
+    },
+    player2: {
+      name: player2.name,
+      number: mp2WHigher.length,
+      order: mp2WHindex
+    },
+  }
+}
