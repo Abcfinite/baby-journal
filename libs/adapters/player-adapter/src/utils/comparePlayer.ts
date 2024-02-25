@@ -39,25 +39,89 @@ export const wonL20 = (player1: Player, player2: Player) : any => {
   }
 }
 
-export const beatenByLowerRanking = (player1: Player, player2: Player) : any => {
-  const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
-  const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
-  const p1LLower = player1.currentRanking === 1000 ? [] : p1L.filter(p => p.player.currentRanking > player1.currentRanking)
-  const p2LLower = player2.currentRanking === 1000 ? [] : p2L.filter(p => p.player.currentRanking > player2.currentRanking)
+export const wonL10 = (player1: Player, player2: Player) : any => {
+  const p1w = player1.parsedPreviousMatches.filter((m, idx) => m.result === 'win' && idx < 10)
+  const p2w = player2.parsedPreviousMatches.filter((m, idx) => m.result === 'win' && idx < 10)
   return {
-    player1: player1.name + ' => ' + p1LLower.length,
-    player2: player2.name + ' => ' + p2LLower.length
+    player1: player1.name + ' => ' + p1w.length,
+    player2: player2.name + ' => ' + p2w.length
+  }
+}
+
+export const wonL5 = (player1: Player, player2: Player) : any => {
+  const p1w = player1.parsedPreviousMatches.filter((m, idx) => m.result === 'win' && idx < 5)
+  const p2w = player2.parsedPreviousMatches.filter((m, idx) => m.result === 'win' && idx < 5)
+  return {
+    player1: player1.name + ' => ' + p1w.length,
+    player2: player2.name + ' => ' + p2w.length
+  }
+}
+
+export const beatenByLowerRanking = (player1: Player, player2: Player) : any => {
+  const p1ML = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
+  const p2ML = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
+  const p1LMLower = player1.currentRanking === 1000 ? [] : p1ML.filter(m => m.player.currentRanking > player1.currentRanking)
+  const p2LMLower = player2.currentRanking === 1000 ? [] : p2ML.filter(m => m.player.currentRanking > player2.currentRanking)
+
+  const mp1WLindex = []
+  player1.parsedPreviousMatches.forEach((pm, index) => {
+    if (p1LMLower.map(m => m.date).includes(pm.date)) {
+      mp1WLindex.push(index)
+    }
+  })
+
+  const mp2WLindex = []
+  player2.parsedPreviousMatches.forEach((pm, index) => {
+    if (p2LMLower.map(m => m.date).includes(pm.date)) {
+      mp2WLindex.push(index)
+    }
+  })
+
+  return {
+    player1: {
+      name: player1.name,
+      number: p1LMLower.length,
+      order: mp1WLindex
+    },
+    player2: {
+      name: player2.name,
+      number: p2LMLower.length,
+      order: mp2WLindex
+    },
   }
 }
 
 export const beatenByLowerRankingThanOpponent = (player1: Player, player2: Player) : any => {
   const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
-  const p1LLower = player1.currentRanking === 1000 ? [] : p1L.filter(p => p.player.currentRanking > player2.currentRanking)
-  const p2LLower = player2.currentRanking === 1000 ? [] : p2L.filter(p => p.player.currentRanking > player1.currentRanking)
+  const p1LMLower = player1.currentRanking === 1000 ? [] : p1L.filter(p => p.player.currentRanking > player2.currentRanking)
+  const p2LMLower = player2.currentRanking === 1000 ? [] : p2L.filter(p => p.player.currentRanking > player1.currentRanking)
+
+  const mp1WLindex = []
+  player1.parsedPreviousMatches.forEach((pm, index) => {
+    if (p1LMLower.map(m => m.date).includes(pm.date)) {
+      mp1WLindex.push(index)
+    }
+  })
+
+  const mp2WLindex = []
+  player2.parsedPreviousMatches.forEach((pm, index) => {
+    if (p2LMLower.map(m => m.date).includes(pm.date)) {
+      mp2WLindex.push(index)
+    }
+  })
+
   return {
-    player1: player1.name + ' => ' + p1LLower.length,
-    player2: player2.name + ' => ' + p2LLower.length
+    player1: {
+      name: player1.name,
+      number: p1LMLower.length,
+      order: mp1WLindex
+    },
+    player2: {
+      name: player2.name,
+      number: p2LMLower.length,
+      order: mp2WLindex
+    },
   }
 }
 
