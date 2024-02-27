@@ -1,10 +1,10 @@
 {
-  "name": "events-sports",
-  "version": "1.0.0",
+  "name": "@abcfinite/s3-client-custom",
+  "version": "0.0.1",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
+  "main": ".index.ts",
   "dependencies": {
-    "@abcfinite/player-adapter": "0.0.1",
-    "lodash.get": "^4.4.2"
+    "@aws-sdk/client-s3": "^3.521.0"
   },
   "jest": {
     "verbose": true,
@@ -36,5 +36,8 @@
       "test",
       "src"
     ]
+  },
+  "scripts": {
+      "build": "tsc"
   }
 }
