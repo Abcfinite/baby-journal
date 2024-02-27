@@ -14,7 +14,12 @@ export default class TennisliveClient {
     let playerDetailUrl = null
     if (playerName === 'li tu') {
       playerDetailUrl = 'https://www.tennislive.net/atp/li-tu/'
-    } else {
+    } else if (playerName === 'lin zhu') {
+      playerDetailUrl = 'https://www.tennislive.net/wta/lin-zhu/'
+    } else if (playerName === 'ipek oz') {
+      playerDetailUrl = 'https://www.tennislive.net/wta/ipek-oz/'
+    }
+    else {
       playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
     }
 

@@ -30,7 +30,10 @@ These are the list on odds for Tennis
         - this is above everything : ranking diff, beatenByLowerRankingThanOpponent,lostToLowerRanking
         - example: alex de minaur, aryna sabalenka
     - H2H longest streak :
-      - 2 - 100%
+      - ATP :
+        - 2 - 100%
+      - WTA :
+        - 3 - 100%
     - WL10
       - fav win only 20% in L10 will be beaten by lower ranking ( 73 diff ) 40% in L10. LOST $5
     - no 1 more fragile. When opponent already beat top 10 before in the competition probably will beat no 1 too
