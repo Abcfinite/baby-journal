@@ -14,7 +14,12 @@ export default class TennisliveClient {
     let playerDetailUrl = null
     if (playerName === 'li tu') {
       playerDetailUrl = 'https://www.tennislive.net/atp/li-tu/'
-    } else {
+    } else if (playerName === 'lin zhu') {
+      playerDetailUrl = 'https://www.tennislive.net/wta/lin-zhu/'
+    } else if (playerName === 'ipek oz') {
+      playerDetailUrl = 'https://www.tennislive.net/wta/ipek-oz/'
+    }
+    else {
       playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
     }
 
@@ -25,8 +30,19 @@ export default class TennisliveClient {
 
     await Promise.all(
       player.parsedPreviousMatches.map(async (prevMatch, index) => {
-        const newPlayerData = await new PlayerService().getPlayerDetailHtml(prevMatch.player.url, false)
-        player.parsedPreviousMatches[index].player = newPlayerData
+        let newPlayerData = null
+
+        try {
+          newPlayerData = await new PlayerService().getPlayerDetailHtml(prevMatch.player.url, false)
+        } catch(ex) {
+          console.error(ex)
+        }
+
+        if (newPlayerData !== null) {
+          player.parsedPreviousMatches[index].player = newPlayerData
+        } else {
+          player.parsedPreviousMatches = player.parsedPreviousMatches.filter(pm => pm.date !== prevMatch.date )
+        }
       })
     )
 
