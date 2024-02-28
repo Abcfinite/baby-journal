@@ -57,7 +57,7 @@ export const wonL5 = (player1: Player, player2: Player) : any => {
   }
 }
 
-export const beatenByLowerRanking = (player1: Player, player2: Player) : any => {
+export const lostToLowerRanking = (player1: Player, player2: Player) : any => {
   const p1ML = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p2ML = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p1LMLower = player1.currentRanking === 1000 ? [] : p1ML.filter(m => m.player.currentRanking > player1.currentRanking)
@@ -91,9 +91,43 @@ export const beatenByLowerRanking = (player1: Player, player2: Player) : any => 
   }
 }
 
-export const beatenByLowerRankingThanOpponent = (player1: Player, player2: Player) : any => {
-  const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
-  const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
+export const winfromHigherRanking = (player1: Player, player2: Player) : any => {
+  const p1MW = player1.parsedPreviousMatches.filter(m => m.result === 'win')
+  const p2MW = player2.parsedPreviousMatches.filter(m => m.result === 'win')
+  const p1WMHigher = player1.currentRanking === 1000 ? [] : p1MW.filter(m => m.player.currentRanking < player1.currentRanking)
+  const p2WMHigher = player2.currentRanking === 1000 ? [] : p2MW.filter(m => m.player.currentRanking < player2.currentRanking)
+
+  const mp1WHindex = []
+  player1.parsedPreviousMatches.forEach((pm, index) => {
+    if (p1WMHigher.map(m => m.date).includes(pm.date)) {
+      mp1WHindex.push(index)
+    }
+  })
+
+  const mp2WHindex = []
+  player2.parsedPreviousMatches.forEach((pm, index) => {
+    if (p2WMHigher.map(m => m.date).includes(pm.date)) {
+      mp2WHindex.push(index)
+    }
+  })
+
+  return {
+    player1: {
+      name: player1.name,
+      number: p1WMHigher.length,
+      order: mp1WHindex
+    },
+    player2: {
+      name: player2.name,
+      number: p2WMHigher.length,
+      order: mp2WHindex
+    },
+  }
+}
+
+export const lostToLowerRankingThanOpponent = (player1: Player, player2: Player) : any => {
+  const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'win')
+  const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'win')
   const p1LMLower = player1.currentRanking === 1000 ? [] : p1L.filter(p => p.player.currentRanking > player2.currentRanking)
   const p2LMLower = player2.currentRanking === 1000 ? [] : p2L.filter(p => p.player.currentRanking > player1.currentRanking)
 

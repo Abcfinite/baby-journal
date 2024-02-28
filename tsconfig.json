@@ -25,7 +25,7 @@
       "@abcfinite/http-api-client": ["./libs/client/http-api-client"],
       "@abcfinite/sportsradar-client": ["./libs/client/sportsradar-client"],
       "@abcfinite/tennislive-client": ["./libs/client/tennislive-client"],
-      "@abcfinite/s3-client": ["./libs/client/s3-client"],
+      "@abcfinite/s3-client": ["./libs/client/s3-client-custom"],
     }
   }
 }

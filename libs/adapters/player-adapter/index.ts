@@ -1,8 +1,9 @@
 import _ from "lodash"
 import TennisliveClient from '@abcfinite/tennislive-client'
 import { getHigherRanking, getRankingDiff,
-  winPercentage, wonL20, wonL10, wonL5, beatenByLowerRanking,
-  beatenByLowerRankingThanOpponent, winFromHigherRankingThanOpponent } from './src/utils/comparePlayer';
+  winPercentage, wonL20, wonL10, wonL5, lostToLowerRanking,
+  lostToLowerRankingThanOpponent, winFromHigherRankingThanOpponent,
+  winfromHigherRanking } from './src/utils/comparePlayer';
 
 export default class PlayerAdapter {
   async checkPlayer(player1Name: string, player2Name: string) {
@@ -24,8 +25,9 @@ export default class PlayerAdapter {
       wonL5: wonL5(player1, player2),
       wonL10: wonL10(player1, player2),
       wonL20: wonL20(player1, player2),
-      lostToLowerRanking: beatenByLowerRanking(player1, player2),
-      beatenByLowerRankingThanOpponent: beatenByLowerRankingThanOpponent(player1, player2),
+      lostToLowerRanking: lostToLowerRanking(player1, player2),
+      lostToLowerRankingThanOpponent: lostToLowerRankingThanOpponent(player1, player2),
+      winfromHigherRanking: winfromHigherRanking(player1, player2),
       winFromHigherRankingThanOpponent: winFromHigherRankingThanOpponent(player1, player2),
       odds: {
         player1: 1,
