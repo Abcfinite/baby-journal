@@ -6,6 +6,7 @@
   "dependencies": {
       "@abcfinite/dynamodb-client": "0.0.4",
       "@abcfinite/tennislive-client": "0.0.1",
+      "@abcfinite/s3-client-custom": "0.0.1",
       "lodash.get": "^4.4.2"
   },
   "jest": {

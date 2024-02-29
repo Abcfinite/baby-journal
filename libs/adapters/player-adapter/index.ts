@@ -1,5 +1,6 @@
 import _ from "lodash"
 import TennisliveClient from '@abcfinite/tennislive-client'
+import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { getHigherRanking, getRankingDiff,
   winPercentage, wonL20, wonL10, wonL5, lostToLowerRanking,
   lostToLowerRankingThanOpponent, winFromHigherRankingThanOpponent,
@@ -14,10 +15,9 @@ export default class PlayerAdapter {
 
     const date = new Date();
     const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
-
-
-    return {
+    const result = {
       stage: '',
+      type: player1.type,
       date: formattedDate,
       higherRanking: getHigherRanking(player1, player2),
       rankingDifferent: getRankingDiff(player1, player2),
@@ -44,5 +44,13 @@ export default class PlayerAdapter {
       player1: player1,
       player2: player2
     }
+
+    const s3ClientCustom = new S3ClientCustom()
+
+    await s3ClientCustom.deleteAllFiles('tennis-match-compare')
+    await s3ClientCustom.putFile('tennis-match-compare', 'pending.json', JSON.stringify(result))
+
+
+    return result
   }
 }

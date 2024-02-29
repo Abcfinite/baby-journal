@@ -1,4 +1,8 @@
-import { ListObjectsV2Command, GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { ListObjectsV2Command,
+  GetObjectCommand,
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client } from "@aws-sdk/client-s3";
 export default class S3ClientCustom {
 
   constructor() {}
@@ -46,5 +50,49 @@ export default class S3ClientCustom {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  async deleteAllFiles(bucketName: string) : Promise<string> {
+    const fileList = await this.getFileList(bucketName)
+
+    const client = new S3Client({});
+
+    await Promise.all(
+      fileList.map(async f => {
+
+        const command = new DeleteObjectCommand({
+          Bucket: bucketName,
+          Key: f,
+        });
+
+        try {
+          const response = await client.send(command);
+          return response
+        } catch (err) {
+          console.error(err);
+        }
+      })
+    )
+
+    return 'success'
+  }
+
+  async putFile(bucketName: string, fileName: string, content: string) : Promise<string> {
+    const client = new S3Client({});
+
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: fileName,
+      Body: content,
+    });
+
+    try {
+      const response = await client.send(command);
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+
+    return 'success'
   }
 }
