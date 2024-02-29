@@ -21,14 +21,15 @@ export default class MatchAdapter {
     const player2Age = dobToAge(_.get(jsonData, 'player2.dob', ''))
 
     const player1WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player1.number', 0)
-    const player2WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player1.number', 0)
+    const player2WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player2.number', 0)
     const player1LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player1.number', 0)
-    const player2LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player1.number', 0)
+    const player2LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player2.number', 0)
     const player1WL = player1WinFromHigherRankingThanOpponent - player1LostToLowerRankingThanOpponent
     const player2WL = player2WinFromHigherRankingThanOpponent - player2LostToLowerRankingThanOpponent
     const gapplayer1WLplayer2WL = Math.abs(player1WL - player2WL)
 
     let winClosestDiff = 1000
+    let historyGap = 0
     let winFilteredfileNo = []
 
     await Promise.all(
@@ -36,18 +37,20 @@ export default class MatchAdapter {
         const dataFileJson = await new S3ClientCustom().getFile('tennis-match-data', data)
         const compareData = JSON.parse(dataFileJson)
 
-        const cPlayer1WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player1.number', 0)
-        const cPlayer2WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player1.number', 0)
-        const cPlayer1LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player1.number', 0)
-        const cPlayer2LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player1.number', 0)
+        const cPlayer1WinFromHigherRankingThanOpponent = _.get(compareData, 'winFromHigherRankingThanOpponent.player1.number', 0)
+        const cPlayer2WinFromHigherRankingThanOpponent = _.get(compareData, 'winFromHigherRankingThanOpponent.player2.number', 0)
+        const cPlayer1LostToLowerRankingThanOpponent = _.get(compareData, 'lostToLowerRankingThanOpponent.player1.number', 0)
+        const cPlayer2LostToLowerRankingThanOpponent = _.get(compareData, 'lostToLowerRankingThanOpponent.player2.number', 0)
         const cPlayer1WL = cPlayer1WinFromHigherRankingThanOpponent - cPlayer1LostToLowerRankingThanOpponent
         const cPlayer2WL = cPlayer2WinFromHigherRankingThanOpponent - cPlayer2LostToLowerRankingThanOpponent
         const cGapplayer1WLplayer2WL = Math.abs(cPlayer1WL - cPlayer2WL)
 
         const type =  _.get(compareData, 'type', '')
         if (currentType === type) {
+
           if (winClosestDiff > Math.abs(gapplayer1WLplayer2WL - cGapplayer1WLplayer2WL)) {
             winClosestDiff = Math.abs(gapplayer1WLplayer2WL - cGapplayer1WLplayer2WL)
+            historyGap = cGapplayer1WLplayer2WL
             winFilteredfileNo = []
             winFilteredfileNo.push(data)
           } else if (winClosestDiff === Math.abs(gapplayer1WLplayer2WL - cGapplayer1WLplayer2WL)) {
@@ -76,6 +79,7 @@ export default class MatchAdapter {
     console.log('>>>player2 win lose :', player2WL)
     console.log('>>>>>player1Age : ', player1Age)
     console.log('>>>>>player2Age : ', player2Age)
+    console.log('>>historyGap>>', historyGap)
     console.log('>>winClosestDiff>>', winClosestDiff)
     console.log('>>closestRankingFileNo>>', closestRankingFileNo)
     console.log('>>closestRankingFileNo>>', closestRankingFileNo)
