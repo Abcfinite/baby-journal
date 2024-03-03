@@ -1,6 +1,7 @@
 import _ from "lodash"
 import TennisliveClient from '@abcfinite/tennislive-client'
 import S3ClientCustom from '@abcfinite/s3-client-custom'
+import MatchAdapter from '@abcfinite/match-adapter'
 import { getHigherRanking, getRankingDiff,
   winPercentage, wonL20, wonL10, wonL5, lostToLowerRanking,
   lostToLowerRankingThanOpponent, winFromHigherRankingThanOpponent,
@@ -50,6 +51,7 @@ export default class PlayerAdapter {
     await s3ClientCustom.deleteAllFiles('tennis-match-compare')
     await s3ClientCustom.putFile('tennis-match-compare', 'pending.json', JSON.stringify(result))
 
+    result['theHistorian'] = await new MatchAdapter().similarMatch()
 
     return result
   }

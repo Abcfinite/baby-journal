@@ -75,13 +75,56 @@ export default class MatchAdapter {
       })
     )
 
-    console.log('>>>player1 win lose :', player1WL)
-    console.log('>>>player2 win lose :', player2WL)
-    console.log('>>>>>player1Age : ', player1Age)
-    console.log('>>>>>player2Age : ', player2Age)
-    console.log('>>historyGap>>', historyGap)
-    console.log('>>winClosestDiff>>', winClosestDiff)
-    console.log('>>closestRankingFileNo>>', closestRankingFileNo)
-    console.log('>>closestRankingFileNo>>', closestRankingFileNo)
+    return {
+      player1WinLoseAgainstRelevantRanking: player1WL,
+      player2WinLoseAgainstRelevantRanking: player2WL,
+      player1Age: player1Age,
+      player2Age: player2Age,
+      winLostRankingGap: winClosestDiff,
+      historyGap: historyGap,
+      historianFile: closestRankingFileNo
+    }
+  }
+
+  async analyzeAge(isATP: boolean = true) {
+    const winningAge = {}
+    const losingAge = {}
+    const matchType = isATP ? 'atp' : 'wta'
+    const dataFileList = await  new S3ClientCustom().getFileList('tennis-match-data')
+
+    await Promise.all(
+      dataFileList.map(async data => {
+
+        console.log('>>data>>', data)
+
+        const dataFile = await new S3ClientCustom().getFile('tennis-match-data', data) as any
+        const dataFileJson = JSON.parse(dataFile)
+        if (_.get(dataFileJson, 'type', '') === matchType ) {
+          const player1Age = dobToAge(_.get(dataFileJson, 'player1.dob', ''))
+          const player2Age = dobToAge(_.get(dataFileJson, 'player2.dob', ''))
+          const winningPlayer = _.get(dataFileJson, 'winner', 0)
+
+          if (winningPlayer === 1) {
+            const wonNumber = winningAge[player1Age] || 0
+            const lostNumber = winningAge[player2Age] || 0
+            winningAge[player1Age] = wonNumber + 1
+            losingAge[player2Age] = lostNumber + 1
+          } else {
+            const wonNumber = winningAge[player2Age] || 0
+            const lostNumber = winningAge[player1Age] || 0
+            winningAge[player2Age] = wonNumber + 1
+            losingAge[player1Age] = lostNumber + 1
+          }
+        }
+      })
+    )
+
+    const result = {
+      winningAge,
+      losingAge
+    }
+    console.log(result)
+
+    return result
   }
 }
