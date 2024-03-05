@@ -1,6 +1,7 @@
 import _ from "lodash"
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { dobToAge } from "./src/utils/conversion"
+import { Player } from '../../clients/tennislive-client/src/types/player';
 
 export default class MatchAdapter {
 
@@ -75,15 +76,44 @@ export default class MatchAdapter {
       })
     )
 
+    const player1 = _.get(jsonData, 'player1', '')
+    const player2 = _.get(jsonData, 'player2', '')
+
     return {
-      player1WinLoseAgainstRelevantRanking: player1WL,
-      player2WinLoseAgainstRelevantRanking: player2WL,
-      player1Age: player1Age,
-      player2Age: player2Age,
-      winLostRankingGap: winClosestDiff,
-      historyGap: historyGap,
-      historianFile: closestRankingFileNo
+      winLoseRanking: {
+        player1: player1WL,
+        player2: player2WL,
+      },
+      redFlag: { playedBefore: this.playedBefore(player1, player2) },
+      benchmarkPlayer: this.benchmarkPlayer(player1, player2),
+      historian: {
+        gap: historyGap,
+        winLostRankingGap: winClosestDiff,
+        fileNo: closestRankingFileNo,
+      },
+      age: {
+        player1: player1Age,
+        player2: player2Age,
+      },
     }
+  }
+
+  // to test : /checkPlayer?player1=Genaro Alberto Olivieri&player2=Francesco Passaro
+  playedBefore(player1: Player, player2: Player) {
+    let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) !== index)
+
+    return {
+      player1 : findDuplicates(player1.parsedPreviousMatches.map(p => p.player.name)),
+      Player2 : findDuplicates(player2.parsedPreviousMatches.map(p => p.player.name)),
+    }
+  }
+
+  benchmarkPlayer(player1: Player, player2: Player) {
+    const p1names = player1.parsedPreviousMatches.map(p => p.player.name)
+    const p2names = player2.parsedPreviousMatches.map(p => p.player.name)
+    let intersection = p1names.filter(x => p2names.includes(x));
+
+    return intersection
   }
 
   async analyzeAge(isATP: boolean = true) {
