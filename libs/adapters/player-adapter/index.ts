@@ -51,7 +51,7 @@ export default class PlayerAdapter {
     await s3ClientCustom.deleteAllFiles('tennis-match-compare')
     await s3ClientCustom.putFile('tennis-match-compare', 'pending.json', JSON.stringify(result))
 
-    result['theHistorian'] = await new MatchAdapter().similarMatch()
+    result['analysis'] = await new MatchAdapter().similarMatch(result)
 
     return result
   }
