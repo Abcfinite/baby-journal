@@ -16,6 +16,7 @@ export default class PlayerDetailParser {
       matchesTotal: 0,
       matchesWon: 0,
       url: '',
+      type: '',
       previousMatches: null,
       parsedPreviousMatches: null
     }
@@ -42,6 +43,14 @@ export default class PlayerDetailParser {
 
       if (element.rawText.trim() === 'ATP ranking' || element.rawText.trim() === 'WTA ranking') {
         player['currentRanking'] = Number(playerStatsElement.childNodes[post + 2].rawText.trim())
+      }
+
+      if (element.rawText.trim() === 'ATP ranking') {
+        player.type = 'atp'
+      }
+
+      if (element.rawText.trim() === 'WTA ranking') {
+        player.type = 'wta'
       }
 
       if (element.rawText.trim() === "TOP ranking's position:") {

@@ -10,6 +10,7 @@ export type Player = {
   matchesTotal: number,
   matchesWon: number,
   url: string | null,
-  previousMatches: HTMLElement | null
+  type: string,
+  previousMatches: HTMLElement | null,
   parsedPreviousMatches: Array<Match> | null
 }

@@ -57,7 +57,7 @@ export const wonL5 = (player1: Player, player2: Player) : any => {
   }
 }
 
-export const beatenByLowerRanking = (player1: Player, player2: Player) : any => {
+export const lostToLowerRanking = (player1: Player, player2: Player) : any => {
   const p1ML = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p2ML = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p1LMLower = player1.currentRanking === 1000 ? [] : p1ML.filter(m => m.player.currentRanking > player1.currentRanking)
@@ -91,7 +91,39 @@ export const beatenByLowerRanking = (player1: Player, player2: Player) : any => 
   }
 }
 
-export const beatenByLowerRankingThanOpponent = (player1: Player, player2: Player) : any => {
+export const winfromHigherRanking = (player1: Player, player2: Player) : any => {
+  const p1MW = player1.parsedPreviousMatches.filter(m => m.result === 'win' && m.player.currentRanking < player1.currentRanking)
+  const p2MW = player2.parsedPreviousMatches.filter(m => m.result === 'win' && m.player.currentRanking < player2.currentRanking)
+
+  const mp1WHindex = []
+  player1.parsedPreviousMatches.forEach((pm, index) => {
+    if (p1MW.map(m => m.date).includes(pm.date)) {
+      mp1WHindex.push(index)
+    }
+  })
+
+  const mp2WHindex = []
+  player2.parsedPreviousMatches.forEach((pm, index) => {
+    if (p2MW.map(m => m.date).includes(pm.date)) {
+      mp2WHindex.push(index)
+    }
+  })
+
+  return {
+    player1: {
+      name: player1.name,
+      number: p1MW.length,
+      order: mp1WHindex
+    },
+    player2: {
+      name: player2.name,
+      number: p1MW.length,
+      order: mp2WHindex
+    },
+  }
+}
+
+export const lostToLowerRankingThanOpponent = (player1: Player, player2: Player) : any => {
   const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p1LMLower = player1.currentRanking === 1000 ? [] : p1L.filter(p => p.player.currentRanking > player2.currentRanking)

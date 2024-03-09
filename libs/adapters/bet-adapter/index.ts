@@ -5,7 +5,6 @@ import { Bet } from "./src/types/bet"
 import { EventRecord } from "./src/types/eventRecord"
 import BetParser from './src/parsers/betParser'
 import { Summary } from './src/types/summary'
-import SportsradarClient from '../../clients/sportsradar-client/index';
 
 export default class BetAdapter {
   static favOddSet = [
@@ -75,12 +74,6 @@ export default class BetAdapter {
         await putItem('Events', eventRecord)
       })
     )
-  }
-
-  async logEvent() {
-    const eventDetail = await new SportsradarClient().getEvent
-
-    return eventDetail
   }
 
   async getSummary(sport: string) : Promise<Summary> {

@@ -14,6 +14,7 @@ export default class MatchesDetailParser {
     Array.from(matchesShown).slice(0, matchesShownLength).forEach(element => {
       const player : Player = {
         id: '',
+        type: '',
         name: '',
         country: '',
         dob: '',
