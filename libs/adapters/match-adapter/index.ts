@@ -10,66 +10,66 @@ export default class MatchAdapter {
   // age, type, stage, winning records.
   async similarMatch(playerDetail: object) {
     const compareFileList = await new S3ClientCustom().getFileList('tennis-match-compare')
-    const dataFileList = await  new S3ClientCustom().getFileList('tennis-match-data')
+    // const dataFileList = await  new S3ClientCustom().getFileList('tennis-match-data')
 
     const compareFileJson = await new S3ClientCustom().getFile('tennis-match-compare', compareFileList[0])
     const jsonData = JSON.parse(compareFileJson)
 
-    const currentRankingDifferent = _.get(jsonData, 'rankingDifferent', '')
-    const currentType = _.get(jsonData, 'type', '')
+    // const currentRankingDifferent = _.get(jsonData, 'rankingDifferent', '')
+    // const currentType = _.get(jsonData, 'type', '')
 
     const player1Age = dobToAge(_.get(jsonData, 'player1.dob', ''))
     const player2Age = dobToAge(_.get(jsonData, 'player2.dob', ''))
 
     const player1WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player1.number', 0)
     const player2WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player2.number', 0)
-    const player1WinFromHigherRanking = _.get(jsonData, 'winfromHigherRanking.player1.number', 0)
-    const player2WinFromHigherRanking = _.get(jsonData, 'winfromHigherRanking.player2.number', 0)
+    // const player1WinFromHigherRanking = _.get(jsonData, 'winfromHigherRanking.player1.number', 0)
+    // const player2WinFromHigherRanking = _.get(jsonData, 'winfromHigherRanking.player2.number', 0)
     const player1LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player1.number', 0)
     const player2LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player2.number', 0)
-    const player1LostToLowerRanking = _.get(jsonData, 'lostToLowerRanking.player1.number', 0)
-    const player2LostToLowerRanking = _.get(jsonData, 'lostToLowerRanking.player2.number', 0)
+    // const player1LostToLowerRanking = _.get(jsonData, 'lostToLowerRanking.player1.number', 0)
+    // const player2LostToLowerRanking = _.get(jsonData, 'lostToLowerRanking.player2.number', 0)
 
     const player1WL = player1WinFromHigherRankingThanOpponent - player1LostToLowerRankingThanOpponent
     const player2WL = player2WinFromHigherRankingThanOpponent - player2LostToLowerRankingThanOpponent
 
     let winFilteredfileNo = []
 
-    await Promise.all(
-      dataFileList.map(async data => {
-        const dataFileJson = await new S3ClientCustom().getFile('tennis-match-data', data)
-        const compareData = JSON.parse(dataFileJson)
+    // await Promise.all(
+    //   dataFileList.map(async data => {
+    //     const dataFileJson = await new S3ClientCustom().getFile('tennis-match-data', data)
+    //     const compareData = JSON.parse(dataFileJson)
 
-        const cPlayer1WinFromHigherRankingThanOpponent = _.get(compareData, 'winFromHigherRankingThanOpponent.player1.number', 0)
-        const cPlayer2WinFromHigherRankingThanOpponent = _.get(compareData, 'winFromHigherRankingThanOpponent.player2.number', 0)
-        const cPlayer1WinFromHigherRanking = _.get(compareData, 'winfromHigherRanking.player1.number', 0)
-        const cPlayer2WinFromHigherRanking = _.get(compareData, 'winfromHigherRanking.player2.number', 0)
-        const cPlayer1LostToLowerRankingThanOpponent = _.get(compareData, 'lostToLowerRankingThanOpponent.player1.number', 0)
-        const cPlayer2LostToLowerRankingThanOpponent = _.get(compareData, 'lostToLowerRankingThanOpponent.player2.number', 0)
-        const cPlayer1LostToLowerRanking = _.get(compareData, 'lostToLowerRanking.player1.number', 0)
-        const cPlayer2LostToLowerRanking = _.get(compareData, 'lostToLowerRanking.player2.number', 0)
+    //     const cPlayer1WinFromHigherRankingThanOpponent = _.get(compareData, 'winFromHigherRankingThanOpponent.player1.number', 0)
+    //     const cPlayer2WinFromHigherRankingThanOpponent = _.get(compareData, 'winFromHigherRankingThanOpponent.player2.number', 0)
+    //     // const cPlayer1WinFromHigherRanking = _.get(compareData, 'winfromHigherRanking.player1.number', 0)
+    //     // const cPlayer2WinFromHigherRanking = _.get(compareData, 'winfromHigherRanking.player2.number', 0)
+    //     const cPlayer1LostToLowerRankingThanOpponent = _.get(compareData, 'lostToLowerRankingThanOpponent.player1.number', 0)
+    //     const cPlayer2LostToLowerRankingThanOpponent = _.get(compareData, 'lostToLowerRankingThanOpponent.player2.number', 0)
+    //     // const cPlayer1LostToLowerRanking = _.get(compareData, 'lostToLowerRanking.player1.number', 0)
+    //     // const cPlayer2LostToLowerRanking = _.get(compareData, 'lostToLowerRanking.player2.number', 0)
 
-        const winFromHigherRankingTO = (player1WinFromHigherRankingThanOpponent === cPlayer1WinFromHigherRankingThanOpponent &&
-          player2WinFromHigherRankingThanOpponent === cPlayer2WinFromHigherRankingThanOpponent) ||
-            (player1WinFromHigherRankingThanOpponent === cPlayer2WinFromHigherRankingThanOpponent &&
-              player2WinFromHigherRankingThanOpponent === cPlayer1WinFromHigherRankingThanOpponent)
-        // const winFromHigherRanking = (player1WinFromHigherRanking === cPlayer1WinFromHigherRanking &&
-        //   cPlayer2WinFromHigherRanking === player2WinFromHigherRanking) || (
-        //     player1WinFromHigherRanking === cPlayer2WinFromHigherRanking &&
-        //       player2WinFromHigherRanking === cPlayer1WinFromHigherRanking )
-        const lostFromLowerRankingTO = ( player1LostToLowerRankingThanOpponent === cPlayer1LostToLowerRankingThanOpponent &&
-          player2LostToLowerRankingThanOpponent === cPlayer2LostToLowerRankingThanOpponent ) || ( player1LostToLowerRankingThanOpponent === cPlayer2LostToLowerRankingThanOpponent &&
-            player2LostToLowerRankingThanOpponent === cPlayer1LostToLowerRankingThanOpponent )
-        // const lostToLowerRankingTO = ( player1LostToLowerRanking === cPlayer1LostToLowerRanking && player2LostToLowerRanking === cPlayer1LostToLowerRanking) ||
-        // ( player2LostToLowerRanking === cPlayer1LostToLowerRanking && player1LostToLowerRanking === cPlayer2LostToLowerRanking)
+    //     const winFromHigherRankingTO = (player1WinFromHigherRankingThanOpponent === cPlayer1WinFromHigherRankingThanOpponent &&
+    //       player2WinFromHigherRankingThanOpponent === cPlayer2WinFromHigherRankingThanOpponent) ||
+    //         (player1WinFromHigherRankingThanOpponent === cPlayer2WinFromHigherRankingThanOpponent &&
+    //           player2WinFromHigherRankingThanOpponent === cPlayer1WinFromHigherRankingThanOpponent)
+    //     // const winFromHigherRanking = (player1WinFromHigherRanking === cPlayer1WinFromHigherRanking &&
+    //     //   cPlayer2WinFromHigherRanking === player2WinFromHigherRanking) || (
+    //     //     player1WinFromHigherRanking === cPlayer2WinFromHigherRanking &&
+    //     //       player2WinFromHigherRanking === cPlayer1WinFromHigherRanking )
+    //     const lostFromLowerRankingTO = ( player1LostToLowerRankingThanOpponent === cPlayer1LostToLowerRankingThanOpponent &&
+    //       player2LostToLowerRankingThanOpponent === cPlayer2LostToLowerRankingThanOpponent ) || ( player1LostToLowerRankingThanOpponent === cPlayer2LostToLowerRankingThanOpponent &&
+    //         player2LostToLowerRankingThanOpponent === cPlayer1LostToLowerRankingThanOpponent )
+    //     // const lostToLowerRankingTO = ( player1LostToLowerRanking === cPlayer1LostToLowerRanking && player2LostToLowerRanking === cPlayer1LostToLowerRanking) ||
+    //     // ( player2LostToLowerRanking === cPlayer1LostToLowerRanking && player1LostToLowerRanking === cPlayer2LostToLowerRanking)
 
-        const type =  _.get(compareData, 'type', '')
-        if (currentType === type && winFromHigherRankingTO && lostFromLowerRankingTO) {
-        // if (currentType === type && winFromHigherRankingTO && winFromHigherRanking && lostFromLowerRankingTO && lostToLowerRankingTO) {
-          winFilteredfileNo.push(data)
-        }
-      })
-    )
+    //     const type =  _.get(compareData, 'type', '')
+    //     if (currentType === type && winFromHigherRankingTO && lostFromLowerRankingTO) {
+    //     // if (currentType === type && winFromHigherRankingTO && winFromHigherRanking && lostFromLowerRankingTO && lostToLowerRankingTO) {
+    //       winFilteredfileNo.push(data)
+    //     }
+    //   })
+    // )
 
     const player1 = _.get(jsonData, 'player1', '')
     const player2 = _.get(jsonData, 'player2', '')
@@ -79,18 +79,26 @@ export default class MatchAdapter {
         player1: player1WL,
         player2: player2WL,
       },
+      highLowRanking: this.highLowRanking(player1, player2),
+      betAgainstOdd: {
+        nonFavPlayerWonToHigherLevelThanFav: this.nonFavPlayerWonToHigherLevelThanFav(playerDetail)
+      },
       redFlag: {
-        playedBefore: this.playedBefore(player1, player2),
+        doNotBet: {
+          favPlayerLostToLowerLevelThanNonFav: this.favHasLostToLowerRankingThanOpponent(playerDetail)
+        },
         justLostFromLowerRanking: this.justLostFromLowerRanking(playerDetail),
-        startWith0: player1WL === 0 || player2WL === 0,
+      },
+      yellowFlag: {
+        playedBefore: this.playedBefore(player1, player2),
         manualCheck: [
           'retired InTheLast 60 days'
         ]
       },
       benchmarkPlayer: this.benchmarkPlayer(player1, player2),
-      historian: {
-        fileNo: winFilteredfileNo,
-      },
+      // historian: {
+      //   fileNo: winFilteredfileNo,
+      // },
       age: {
         player1: player1Age,
         player2: player2Age,
@@ -116,6 +124,47 @@ export default class MatchAdapter {
       player1: p1LostToLowerRanking.includes(0) || p1LostToLowerRanking.includes(1),
       player2: p2LostToLowerRanking.includes(0) || p2LostToLowerRanking.includes(1)
     }
+  }
+
+  highLowRanking(player1: Player, player2: Player) {
+    const p1Lost = _.get(player1, 'parsedPreviousMatches', []).filter(pm => pm.result === 'lost')
+    const p2Lost = _.get(player2, 'parsedPreviousMatches', []).filter(pm => pm.result === 'lost')
+    const p1Win = _.get(player1, 'parsedPreviousMatches', []).filter(pm => pm.result === 'win')
+    const p2Win = _.get(player2, 'parsedPreviousMatches', []).filter(pm => pm.result === 'win')
+
+    return {
+      player1: {
+        ranking: player1.currentRanking,
+        lostLowest: Math.max(...p1Lost.map(pm => pm.player.currentRanking)),
+        winHightest: Math.min(...p1Win.map(pm => pm.player.currentRanking))
+      },
+      player2: {
+        ranking: player2.currentRanking,
+        lostLowest: Math.max(...p2Lost.map(pm => pm.player.currentRanking)),
+        winHightest: Math.min(...p2Win.map(pm => pm.player.currentRanking))
+      },
+      rankingDiff: Math.abs(player1.currentRanking - player2.currentRanking),
+    }
+  }
+
+  nonFavPlayerWonToHigherLevelThanFav(playerDetail: object) {
+    const p1WinToHigherRankingThanOpponent = _.get(playerDetail, 'winFromHigherRankingThanOpponent.player1.number', 0)
+    const p2WinToHigherRankingThanOpponent = _.get(playerDetail, 'winFromHigherRankingThanOpponent.player2.number', 0)
+    const player1Odd = _.get(playerDetail, 'odds.player1', 0)
+    const player2Odd = _.get(playerDetail, 'odds.player2', 0)
+
+    return (player1Odd > player2Odd && p1WinToHigherRankingThanOpponent > 0) ||
+      (player2Odd > player1Odd && p2WinToHigherRankingThanOpponent > 0)
+  }
+
+  favHasLostToLowerRankingThanOpponent(playerDetail: object) {
+    const p1LostToLowerRankingThanOpponent = _.get(playerDetail, 'lostToLowerRankingThanOpponent.player1.number', 0)
+    const p2LostToLowerRankingThanOpponent = _.get(playerDetail, 'lostToLowerRankingThanOpponent.player2.number', 0)
+    const player1Odd = _.get(playerDetail, 'odds.player1', 0)
+    const player2Odd = _.get(playerDetail, 'odds.player2', 0)
+
+    return (player1Odd < player2Odd && p1LostToLowerRankingThanOpponent > 0) ||
+      (player2Odd < player1Odd && p2LostToLowerRankingThanOpponent > 0)
   }
 
   benchmarkPlayer(player1: Player, player2: Player) {

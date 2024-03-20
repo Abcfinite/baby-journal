@@ -20,8 +20,9 @@ export default class TennisliveClient {
       playerDetailUrl = 'https://www.tennislive.net/wta/ipek-oz/'
     } else if (playerName === 'luca nardi') {
       playerDetailUrl = 'https://www.tennislive.net/atp/luca-nardi/'
-    }
-    else {
+    } else if (playerName === 'yue yuan') {
+      playerDetailUrl = 'https://www.tennislive.net/wta/yue-yuan-/'
+    } else {
       playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
     }
 

@@ -2,13 +2,14 @@ import _ from "lodash"
 import TennisliveClient from '@abcfinite/tennislive-client'
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import MatchAdapter from '@abcfinite/match-adapter'
+import { Player } from '../../clients/tennislive-client/src/types/player';
 import { getHigherRanking, getRankingDiff,
   winPercentage, wonL20, wonL10, wonL5, lostToLowerRanking,
   lostToLowerRankingThanOpponent, winFromHigherRankingThanOpponent,
   winfromHigherRanking } from './src/utils/comparePlayer';
 
 export default class PlayerAdapter {
-  async checkPlayer(player1Name: string, player2Name: string) {
+  async checkPlayer(player1Name: string, player2Name: string, player1Odd: number, Player2Odd: number) {
 
     const tennisLiveClient = new TennisliveClient()
     const player1 = await tennisLiveClient.getPlayer(player1Name)
@@ -20,6 +21,7 @@ export default class PlayerAdapter {
       stage: '',
       type: player1.type,
       date: formattedDate,
+      analysis: {},
       higherRanking: getHigherRanking(player1, player2),
       rankingDifferent: getRankingDiff(player1, player2),
       winPercentage: winPercentage(player1, player2),
@@ -31,17 +33,9 @@ export default class PlayerAdapter {
       winfromHigherRanking: winfromHigherRanking(player1, player2),
       winFromHigherRankingThanOpponent: winFromHigherRankingThanOpponent(player1, player2),
       odds: {
-        player1: 1,
-        player2: 1
+        player1: player1Odd,
+        player2: Player2Odd
       },
-      h2h: [
-        {
-          date: '',
-          result: 'player1win',
-          player1ranking: 1000,
-          player2ranking: 1000
-        },
-      ],
       player1: player1,
       player2: player2
     }
@@ -51,7 +45,7 @@ export default class PlayerAdapter {
     await s3ClientCustom.deleteAllFiles('tennis-match-compare')
     await s3ClientCustom.putFile('tennis-match-compare', 'pending.json', JSON.stringify(result))
 
-    result['analysis'] = await new MatchAdapter().similarMatch(result)
+    result.analysis = await new MatchAdapter().similarMatch(result)
 
     return result
   }
