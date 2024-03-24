@@ -5,74 +5,22 @@ import { Player } from '../../clients/tennislive-client/src/types/player';
 
 export default class MatchAdapter {
 
-  // The historian: looking for similar match in the past.
-  // Compare several key variables: ranking different, ranking position,
-  // age, type, stage, winning records.
   async similarMatch(playerDetail: object) {
-    const compareFileList = await new S3ClientCustom().getFileList('tennis-match-compare')
-    // const dataFileList = await  new S3ClientCustom().getFileList('tennis-match-data')
 
-    const compareFileJson = await new S3ClientCustom().getFile('tennis-match-compare', compareFileList[0])
-    const jsonData = JSON.parse(compareFileJson)
+    const player1Age = dobToAge(_.get(playerDetail, 'player1.dob', ''))
+    const player2Age = dobToAge(_.get(playerDetail, 'player2.dob', ''))
 
-    // const currentRankingDifferent = _.get(jsonData, 'rankingDifferent', '')
-    // const currentType = _.get(jsonData, 'type', '')
+    const player1WinFromHigherRankingThanOpponent = _.get(playerDetail, 'winFromHigherRankingThanOpponent.player1.number', 0)
+    const player2WinFromHigherRankingThanOpponent = _.get(playerDetail, 'winFromHigherRankingThanOpponent.player2.number', 0)
 
-    const player1Age = dobToAge(_.get(jsonData, 'player1.dob', ''))
-    const player2Age = dobToAge(_.get(jsonData, 'player2.dob', ''))
-
-    const player1WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player1.number', 0)
-    const player2WinFromHigherRankingThanOpponent = _.get(jsonData, 'winFromHigherRankingThanOpponent.player2.number', 0)
-    // const player1WinFromHigherRanking = _.get(jsonData, 'winfromHigherRanking.player1.number', 0)
-    // const player2WinFromHigherRanking = _.get(jsonData, 'winfromHigherRanking.player2.number', 0)
-    const player1LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player1.number', 0)
-    const player2LostToLowerRankingThanOpponent = _.get(jsonData, 'lostToLowerRankingThanOpponent.player2.number', 0)
-    // const player1LostToLowerRanking = _.get(jsonData, 'lostToLowerRanking.player1.number', 0)
-    // const player2LostToLowerRanking = _.get(jsonData, 'lostToLowerRanking.player2.number', 0)
+    const player1LostToLowerRankingThanOpponent = _.get(playerDetail, 'lostToLowerRankingThanOpponent.player1.number', 0)
+    const player2LostToLowerRankingThanOpponent = _.get(playerDetail, 'lostToLowerRankingThanOpponent.player2.number', 0)
 
     const player1WL = player1WinFromHigherRankingThanOpponent - player1LostToLowerRankingThanOpponent
     const player2WL = player2WinFromHigherRankingThanOpponent - player2LostToLowerRankingThanOpponent
 
-    let winFilteredfileNo = []
-
-    // await Promise.all(
-    //   dataFileList.map(async data => {
-    //     const dataFileJson = await new S3ClientCustom().getFile('tennis-match-data', data)
-    //     const compareData = JSON.parse(dataFileJson)
-
-    //     const cPlayer1WinFromHigherRankingThanOpponent = _.get(compareData, 'winFromHigherRankingThanOpponent.player1.number', 0)
-    //     const cPlayer2WinFromHigherRankingThanOpponent = _.get(compareData, 'winFromHigherRankingThanOpponent.player2.number', 0)
-    //     // const cPlayer1WinFromHigherRanking = _.get(compareData, 'winfromHigherRanking.player1.number', 0)
-    //     // const cPlayer2WinFromHigherRanking = _.get(compareData, 'winfromHigherRanking.player2.number', 0)
-    //     const cPlayer1LostToLowerRankingThanOpponent = _.get(compareData, 'lostToLowerRankingThanOpponent.player1.number', 0)
-    //     const cPlayer2LostToLowerRankingThanOpponent = _.get(compareData, 'lostToLowerRankingThanOpponent.player2.number', 0)
-    //     // const cPlayer1LostToLowerRanking = _.get(compareData, 'lostToLowerRanking.player1.number', 0)
-    //     // const cPlayer2LostToLowerRanking = _.get(compareData, 'lostToLowerRanking.player2.number', 0)
-
-    //     const winFromHigherRankingTO = (player1WinFromHigherRankingThanOpponent === cPlayer1WinFromHigherRankingThanOpponent &&
-    //       player2WinFromHigherRankingThanOpponent === cPlayer2WinFromHigherRankingThanOpponent) ||
-    //         (player1WinFromHigherRankingThanOpponent === cPlayer2WinFromHigherRankingThanOpponent &&
-    //           player2WinFromHigherRankingThanOpponent === cPlayer1WinFromHigherRankingThanOpponent)
-    //     // const winFromHigherRanking = (player1WinFromHigherRanking === cPlayer1WinFromHigherRanking &&
-    //     //   cPlayer2WinFromHigherRanking === player2WinFromHigherRanking) || (
-    //     //     player1WinFromHigherRanking === cPlayer2WinFromHigherRanking &&
-    //     //       player2WinFromHigherRanking === cPlayer1WinFromHigherRanking )
-    //     const lostFromLowerRankingTO = ( player1LostToLowerRankingThanOpponent === cPlayer1LostToLowerRankingThanOpponent &&
-    //       player2LostToLowerRankingThanOpponent === cPlayer2LostToLowerRankingThanOpponent ) || ( player1LostToLowerRankingThanOpponent === cPlayer2LostToLowerRankingThanOpponent &&
-    //         player2LostToLowerRankingThanOpponent === cPlayer1LostToLowerRankingThanOpponent )
-    //     // const lostToLowerRankingTO = ( player1LostToLowerRanking === cPlayer1LostToLowerRanking && player2LostToLowerRanking === cPlayer1LostToLowerRanking) ||
-    //     // ( player2LostToLowerRanking === cPlayer1LostToLowerRanking && player1LostToLowerRanking === cPlayer2LostToLowerRanking)
-
-    //     const type =  _.get(compareData, 'type', '')
-    //     if (currentType === type && winFromHigherRankingTO && lostFromLowerRankingTO) {
-    //     // if (currentType === type && winFromHigherRankingTO && winFromHigherRanking && lostFromLowerRankingTO && lostToLowerRankingTO) {
-    //       winFilteredfileNo.push(data)
-    //     }
-    //   })
-    // )
-
-    const player1 = _.get(jsonData, 'player1', '')
-    const player2 = _.get(jsonData, 'player2', '')
+    const player1 = _.get(playerDetail, 'player1', {}) as Player
+    const player2 = _.get(playerDetail, 'player2', {}) as Player
 
     return {
       winLoseRanking: {
@@ -136,12 +84,12 @@ export default class MatchAdapter {
       player1: {
         ranking: player1.currentRanking,
         lostLowest: Math.max(...p1Lost.map(pm => pm.player.currentRanking)),
-        winHightest: Math.min(...p1Win.map(pm => pm.player.currentRanking))
+        winHighest: Math.min(...p1Win.map(pm => pm.player.currentRanking))
       },
       player2: {
         ranking: player2.currentRanking,
         lostLowest: Math.max(...p2Lost.map(pm => pm.player.currentRanking)),
-        winHightest: Math.min(...p2Win.map(pm => pm.player.currentRanking))
+        winHighest: Math.min(...p2Win.map(pm => pm.player.currentRanking))
       },
       rankingDiff: Math.abs(player1.currentRanking - player2.currentRanking),
     }
