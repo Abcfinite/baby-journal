@@ -10,7 +10,6 @@ import { getHigherRanking, getRankingDiff,
 
 export default class PlayerAdapter {
   async checkPlayer(player1Name: string, player2Name: string, player1Odd: number, Player2Odd: number) {
-
     const result = await this.matchesSummary(player1Name, player2Name, player1Odd, Player2Odd)
 
     result.analysis = await new MatchAdapter().similarMatch(result)
@@ -19,7 +18,6 @@ export default class PlayerAdapter {
   }
 
   async matchesSummary(player1Name: string, player2Name: string, player1Odd: number, Player2Odd: number) {
-
     const tennisLiveClient = new TennisliveClient()
     const player1 = await tennisLiveClient.getPlayer(player1Name)
     const player2 = await tennisLiveClient.getPlayer(player2Name)

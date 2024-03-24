@@ -2,6 +2,7 @@ import _ from "lodash"
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { dobToAge } from "./src/utils/conversion"
 import { Player } from '../../clients/tennislive-client/src/types/player';
+import PlayerAdapter from '../player-adapter/index';
 
 export default class MatchAdapter {
 
@@ -43,7 +44,10 @@ export default class MatchAdapter {
           'retired InTheLast 60 days'
         ]
       },
-      benchmarkPlayer: this.benchmarkPlayer(player1, player2),
+      benchmarkPlayer: {
+        bothPlayed: this.benchmarkPlayer(player1, player2),
+        previousPlayers: await this.prevPlayerAnalysis(player1, player2),
+      },
       // historian: {
       //   fileNo: winFilteredfileNo,
       // },
@@ -52,6 +56,20 @@ export default class MatchAdapter {
         player2: player2Age,
       },
     }
+  }
+
+  async prevPlayerAnalysis(player1: Player, player2: Player) {
+    const result = await new PlayerAdapter().matchesSummary(player1.parsedPreviousMatches[0].player.name,
+      player2.parsedPreviousMatches[0].player.name,
+      1, 1)
+
+    const numbers = {}
+    numbers[player1.parsedPreviousMatches[0].player.name] = result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number
+    numbers[player2.parsedPreviousMatches[0].player.name] = result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
+
+    return [
+      numbers
+    ]
   }
 
   // to test : /checkPlayer?player1=Genaro Alberto Olivieri&player2=Francesco Passaro
