@@ -37,6 +37,10 @@ export default class TennisliveClient {
 
         try {
           newPlayerData = await new PlayerService().getPlayerDetailHtml(prevMatch.player.url, false)
+
+          // console.log('>>>>>newPlayerData')
+          // console.log(newPlayerData)
+
         } catch(ex) {
           console.error(ex)
         }
