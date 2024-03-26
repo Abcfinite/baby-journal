@@ -3,7 +3,7 @@ import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { dobToAge } from "./src/utils/conversion"
 import { Player } from '../../clients/tennislive-client/src/types/player';
 import PlayerAdapter from '../player-adapter/index';
-// import Analysis from "@/utils/analysis";
+import Analysis from "./src/utils/analysis";
 
 export default class MatchAdapter {
 
@@ -42,12 +42,13 @@ export default class MatchAdapter {
       yellowFlag: {
         playedBefore: this.playedBefore(player1, player2),
         manualCheck: [
-          'retired InTheLast 60 days'
+          'retired InTheLast 60 days',
+          'non fav highest ranking is top 20'
         ]
       },
       benchmarkPlayer: {
         bothPlayed: this.benchmarkPlayer(player1, player2),
-        // previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
+        previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
       },
       // historian: {
       //   fileNo: winFilteredfileNo,
@@ -57,21 +58,6 @@ export default class MatchAdapter {
         player2: player2Age,
       },
     }
-  }
-
-  async prevPlayerAnalysis(player1: Player, player2: Player) {
-    const result = await new PlayerAdapter().matchesSummary(
-      player1.parsedPreviousMatches[0].player.name,
-      player2.parsedPreviousMatches[0].player.name,
-      1, 1)
-
-    const numbers = {}
-    numbers[player1.parsedPreviousMatches[0].player.name] = result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number
-    numbers[player2.parsedPreviousMatches[0].player.name] = result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
-
-    return [
-      numbers
-    ]
   }
 
   // to test : /checkPlayer?player1=Genaro Alberto Olivieri&player2=Francesco Passaro
