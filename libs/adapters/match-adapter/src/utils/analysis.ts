@@ -55,14 +55,17 @@ export default class Analysis {
       p2Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
     }
 
-    return [
-      p1_v_p1won,
-      p2_v_p1won,
-      p2_v_p2won,
-      p1_v_p2won
-    ]
-
     return {
+      players: {
+        p1LastWon: playerLabels.player1.lastWon.player.name,
+        p2LastWon: playerLabels.player2.lastWon.player.name
+      },
+      numbers: {
+        p1_v_p1won,
+        p2_v_p1won,
+        p2_v_p2won,
+        p1_v_p2won
+      },
     }
   }
 

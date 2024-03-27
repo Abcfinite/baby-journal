@@ -2,8 +2,10 @@
 // fetch info on the sport event
 
 import { Player } from "./src/types/player";
-import PlayerService from "./src/services/playerService";
+import { SportEvent } from "@/types/sportEvent";
 import MatchesDetailParser from "./src/parsers/matchesDetailParser";
+import PlayerService from "./src/services/playerService";
+import ScheduleService from "./src/services/scheduleService";
 
 export default class TennisliveClient {
 
@@ -37,10 +39,6 @@ export default class TennisliveClient {
 
         try {
           newPlayerData = await new PlayerService().getPlayerDetailHtml(prevMatch.player.url, false)
-
-          // console.log('>>>>>newPlayerData')
-          // console.log(newPlayerData)
-
         } catch(ex) {
           console.error(ex)
         }
@@ -54,5 +52,10 @@ export default class TennisliveClient {
     )
 
     return player
+  }
+
+  async getSchedule() : Promise<SportEvent[]> {
+    const result = await new ScheduleService().getSchedule()
+    return result
   }
 }
