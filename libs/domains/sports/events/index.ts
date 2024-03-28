@@ -1,4 +1,5 @@
 import PlayerAdapter from '@abcfinite/player-adapter'
+import ScheduleAdapter from '@abcfinite/schedule-adapter'
 import { Handler } from 'aws-lambda';
 
 export const checkPlayer: Handler = async (event: any) => {
@@ -14,17 +15,43 @@ export const checkPlayer: Handler = async (event: any) => {
       body: 'missing parameters'
     }
   } else {
-    const result = await new PlayerAdapter().checkPlayer(
-      player1, player2,
-      parseFloat(player1Odd), parseFloat(player2Odd))
+    var result
 
-    response = {
-      statusCode: 200,
-      body: JSON.stringify(result,
-        null,
-        2
-      ),
-    };
+    try {
+      result = await new PlayerAdapter().checkPlayer(
+        player1, player2,
+        parseFloat(player1Odd), parseFloat(player2Odd))
+
+      response = {
+        statusCode: 200,
+        body: JSON.stringify(result,
+          null,
+          2
+        ),
+      }
+    } catch {
+      response = {
+        statusCode: 400,
+        body: 'one of player not found',
+      }
+    }
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+
+
+export const getSchedule: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().getSchedule()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
   }
 
   return new Promise((resolve) => {

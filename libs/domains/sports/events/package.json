@@ -4,6 +4,7 @@
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "dependencies": {
     "@abcfinite/player-adapter": "0.0.1",
+    "@abcfinite/schedule-adapter": "0.0.1",
     "lodash.get": "^4.4.2"
   },
   "jest": {

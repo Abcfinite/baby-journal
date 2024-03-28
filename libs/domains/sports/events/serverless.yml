@@ -47,3 +47,10 @@ functions:
       - http:
           path: /checkPlayer
           method: get
+  schedule:
+    handler: index.getSchedule
+    timeout: 45
+    events:
+      - http:
+          path: /schedule
+          method: get

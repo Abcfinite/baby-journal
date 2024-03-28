@@ -1,3 +1,4 @@
+import ScheduleParser from "../parsers/scheduleParser"
 import { SportEvent } from "../types/sportEvent"
 import HttpApiClient from "@abcfinite/http-api-client"
 
@@ -20,7 +21,7 @@ export default class ScheduleService {
         headers,
       )
 
-    return []
+    return ScheduleParser.parse(result.value as string)
   }
 
 }
