@@ -21,13 +21,63 @@ export default class ScheduleAdapter {
 
     console.log('>>>>sportEventsNeedCheck>>>',sportEventsNeedCheck.length)
 
-    const result = await new PlayerAdapter().checkPlayerObject(
-      sportEventsNeedCheck[0].player1, sportEventsNeedCheck[0].player2)
+    var result
 
-    await new S3ClientCustom()
-      .putFile('tennis-match-schedule',
-        sportEventsNeedCheck[0].id+'.json',
-        JSON.stringify(result))
+    if (sportEventsNeedCheck.length == 0) {
+      const fileContent = []
+      await Promise.all(
+        fileList.map( async file => {
+          const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
+          fileContent.push(JSON.parse(content))
+        })
+      )
+
+      const sorted = fileContent.sort((a,b) => {
+        const a_p1vp1wonP1 =  _.get(a, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
+        const a_p2vp1wonP2 =  _.get(a, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
+        const a_p2vp2wonP2 =  _.get(a, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
+        const a_p1vp2wonP1 =  _.get(a, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
+
+
+        const b_p1vp1wonP1 =  _.get(b, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
+        const b_p2vp1wonP2 =  _.get(b, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
+        const b_p2vp2wonP2 =  _.get(b, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
+        const b_p1vp2wonP1 =  _.get(b, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
+
+        const aCal = (Math.abs(a_p1vp1wonP1 - a_p2vp1wonP2) + Math.abs(a_p2vp2wonP2 - a_p1vp2wonP1)) / 2
+        const bCal = (Math.abs(b_p1vp1wonP1 - b_p2vp1wonP2) + Math.abs(b_p2vp2wonP2 - b_p1vp2wonP1)) / 2
+
+        return bCal - aCal
+      })
+
+      return sorted.filter(e =>
+        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0) !== 0 &&
+        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0) !== 0 &&
+        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0) !== 0 &&
+        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0) !== 0 &&
+        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1Won', 0) !== 0 &&
+        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p1Won', 0) !== 0 &&
+        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2Won', 0) !== 0 &&
+        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p2Won', 0) !== 0
+      )
+
+    } else {
+      try {
+        result = await new PlayerAdapter().checkPlayerObject(
+          sportEventsNeedCheck[0].player1, sportEventsNeedCheck[0].player2)
+
+        await new S3ClientCustom()
+          .putFile('tennis-match-schedule',
+            sportEventsNeedCheck[0].id+'.json',
+            JSON.stringify(result))
+      } catch(ex) {
+        result = 'error'
+        await new S3ClientCustom()
+          .putFile('tennis-match-schedule',
+            sportEventsNeedCheck[0].id+'.json',
+            JSON.stringify('{}'))
+      }
+    }
 
     return result
   }
