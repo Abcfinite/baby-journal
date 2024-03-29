@@ -1,31 +1,34 @@
 import _ from "lodash"
 import { putItem } from '@abcfinite/dynamodb-client'
+import S3ClientCustom from '@abcfinite/s3-client-custom'
 import TennisliveClient from '@abcfinite/tennislive-client'
-import { Player } from '../../clients/tennislive-client/src/types/player';
-import { SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent";
+import { Player } from '../../clients/tennislive-client/src/types/player'
+import { SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
+import PlayerAdapter from '@abcfinite/player-adapter'
 
 export default class ScheduleAdapter {
   async getSchedule() {
     const sportEvents = await new TennisliveClient().getSchedule()
 
-    console.log('>>sportEvents>>length:',sportEvents.length)
+    const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
 
-    //safe to dynamodb
-    Promise.all(
-      sportEvents.map(async event => {
-        const sportEvent = event as SportEvent
-        const eventRecord = {
-          Id: sportEvent.id,
-          Player1Name: sportEvent.player1.name,
-          Player2Name: sportEvent.player2.name,
-          Player1Url: sportEvent.player1.url,
-          Player2Url: sportEvent.player2.url,
-        }
+    const fileListIds = fileList.map(file => file.replace('.json', ''))
+    const sportEventIds = sportEvents.map(se => se.id)
+    const sportEventIdsNotCheckedYet = sportEventIds.filter(id => !fileListIds.includes(id))
 
-        await putItem('Sport-Events', eventRecord)
-      })
-    )
+    // get first sportEvent that not checked
+    const sportEventsNeedCheck = sportEvents.filter(spe => sportEventIdsNotCheckedYet.includes(spe.id))
 
-    return sportEvents
+    console.log('>>>>sportEventsNeedCheck>>>',sportEventsNeedCheck.length)
+
+    const result = await new PlayerAdapter().checkPlayerObject(
+      sportEventsNeedCheck[0].player1, sportEventsNeedCheck[0].player2)
+
+    await new S3ClientCustom()
+      .putFile('tennis-match-schedule',
+        sportEventsNeedCheck[0].id+'.json',
+        JSON.stringify(result))
+
+    return result
   }
 }

@@ -1,7 +1,7 @@
 // manually find sport event
 // fetch info on the sport event
 
-import { Player } from "./src/types/player";
+import { Player } from './src/types/player';
 import { SportEvent } from "@/types/sportEvent";
 import MatchesDetailParser from "./src/parsers/matchesDetailParser";
 import PlayerService from "./src/services/playerService";
@@ -12,23 +12,27 @@ export default class TennisliveClient {
   constructor() {
   }
 
-  async getPlayer(playerName: string) : Promise<Player>{
-    let playerDetailUrl = null
-    if (playerName === 'li tu') {
-      playerDetailUrl = 'https://www.tennislive.net/atp/li-tu/'
-    } else if (playerName === 'lin zhu') {
-      playerDetailUrl = 'https://www.tennislive.net/wta/lin-zhu/'
-    } else if (playerName === 'ipek oz') {
-      playerDetailUrl = 'https://www.tennislive.net/wta/ipek-oz/'
-    } else if (playerName === 'luca nardi') {
-      playerDetailUrl = 'https://www.tennislive.net/atp/luca-nardi/'
-    } else if (playerName === 'yue yuan') {
-      playerDetailUrl = 'https://www.tennislive.net/wta/yue-yuan-/'
-    } else {
-      playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
-    }
+  async getPlayer(playerName?: string, playerUrl?: string) : Promise<Player>{
 
-    if (playerDetailUrl === null || playerDetailUrl === undefined) return {} as any
+    let playerDetailUrl = playerUrl
+
+    if (playerDetailUrl === null) {
+      if (playerName === 'li tu') {
+        playerDetailUrl = 'https://www.tennislive.net/atp/li-tu/'
+      } else if (playerName === 'lin zhu') {
+        playerDetailUrl = 'https://www.tennislive.net/wta/lin-zhu/'
+      } else if (playerName === 'ipek oz') {
+        playerDetailUrl = 'https://www.tennislive.net/wta/ipek-oz/'
+      } else if (playerName === 'luca nardi') {
+        playerDetailUrl = 'https://www.tennislive.net/atp/luca-nardi/'
+      } else if (playerName === 'yue yuan') {
+        playerDetailUrl = 'https://www.tennislive.net/wta/yue-yuan-/'
+      } else {
+        playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
+      }
+
+      if (playerDetailUrl === null || playerDetailUrl === undefined) return {} as any
+    }
 
     const player = await new PlayerService().getPlayerDetailHtml(playerDetailUrl)
     new MatchesDetailParser().parse(player)

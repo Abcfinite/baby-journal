@@ -49,7 +49,7 @@ functions:
           method: get
   schedule:
     handler: index.getSchedule
-    timeout: 45
+    timeout: 300
     events:
       - http:
           path: /schedule
