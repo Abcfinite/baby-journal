@@ -33,35 +33,54 @@ export default class ScheduleAdapter {
       )
 
       const sorted = fileContent.sort((a,b) => {
-        const a_p1vp1wonP1 =  _.get(a, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
-        const a_p2vp1wonP2 =  _.get(a, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
-        const a_p2vp2wonP2 =  _.get(a, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
-        const a_p1vp2wonP1 =  _.get(a, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
+        const rankingDifferentA = _.get(a, 'rankingDifferent', 1000)
+        const rankingDifferentB = _.get(b, 'rankingDifferent', 1000)
 
-
-        const b_p1vp1wonP1 =  _.get(b, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
-        const b_p2vp1wonP2 =  _.get(b, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
-        const b_p2vp2wonP2 =  _.get(b, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
-        const b_p1vp2wonP1 =  _.get(b, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
-
-        const aCal = (Math.abs(a_p1vp1wonP1 - a_p2vp1wonP2) + Math.abs(a_p2vp2wonP2 - a_p1vp2wonP1)) / 2
-        const bCal = (Math.abs(b_p1vp1wonP1 - b_p2vp1wonP2) + Math.abs(b_p2vp2wonP2 - b_p1vp2wonP1)) / 2
-
-        return bCal - aCal
+        return rankingDifferentB - rankingDifferentA
       })
 
-      return sorted.filter(e =>
-        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0) !== 0 &&
-        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0) !== 0 &&
-        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0) !== 0 &&
-        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0) !== 0 &&
-        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1Won', 0) !== 0 &&
-        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p1Won', 0) !== 0 &&
-        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2Won', 0) !== 0 &&
-        _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p2Won', 0) !== 0
-      )
+      return sorted.filter(e => {
+        const wlP1 = _.get(e, 'analysis.winLoseRanking.player1', 0)
+        const wlP2 = _.get(e, 'analysis.winLoseRanking.player2', 0)
 
-    } else {
+        const gap = Math.abs(wlP1 - wlP2)
+
+        const p1vp1wonp1 = _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
+        const p2vp1wonp2 = _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
+        const p2vp2wonp2 = _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
+        const p1vp2wonp1 = _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
+        const p1vp1wonp1Won = _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1Won', 0)
+        const p2vp1wonp2Won = _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p1Won', 0)
+        const p2vp2wonp2Won = _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2Won', 0)
+        const p1vp2wonp1Won = _.get(e, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p2Won', 0)
+
+        if (wlP1 === wlP2 ) {
+          return false
+        } else if (wlP1 > wlP2) {
+          console.log('>>a>>', _.get(e, 'player1.name', ''))
+          console.log(gap)
+          console.log((p1vp1wonp1 - p1vp1wonp1Won) - (p2vp1wonp2 - p2vp1wonp2Won))
+          console.log((p1vp2wonp1 - p1vp2wonp1Won) - (p2vp2wonp2 - p2vp2wonp2Won))
+
+          return gap < (p1vp1wonp1 - p1vp1wonp1Won) - (p2vp1wonp2 - p2vp1wonp2Won) ||
+            gap < (p1vp2wonp1 - p1vp2wonp1Won) - (p2vp2wonp2 - p2vp2wonp2Won)
+        } else {
+
+          console.log('>>a>>', _.get(e, 'player1.name', ''))
+          console.log(gap)
+          console.log((p2vp1wonp2 - p2vp1wonp2Won) - (p1vp1wonp1 - p1vp1wonp1Won))
+          console.log((p2vp2wonp2 - p2vp2wonp2Won) - (p1vp2wonp1 - p1vp2wonp1Won))
+
+          return gap < (p2vp1wonp2 - p2vp1wonp2Won) - (p1vp1wonp1 - p1vp1wonp1Won) ||
+            gap < (p2vp2wonp2 - p2vp2wonp2Won) - (p1vp2wonp1 - p1vp2wonp1Won)
+
+        }
+      })
+
+      // return sorted
+
+    }
+    else {
       try {
         result = await new PlayerAdapter().checkPlayerObject(
           sportEventsNeedCheck[0].player1, sportEventsNeedCheck[0].player2)
