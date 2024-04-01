@@ -15,6 +15,7 @@ export default class ScheduleAdapter {
     const client = new SQSClient({ region: 'ap-southeast-2' });
     const sportEvents = await new TennisliveClient().getSchedule()
     const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
+    const fileContent = []
 
     var requestResult = 'error'
 
@@ -22,7 +23,28 @@ export default class ScheduleAdapter {
     console.log('>>>>checled number: ', fileList.length)
 
     if (sportEvents.length === fileList.length) {
-      return 'finish'
+      await Promise.all(
+        fileList.map( async file => {
+          const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
+          fileContent.push(JSON.parse(content))
+        })
+      )
+
+      const filtered = fileContent.filter(e => {
+        const wlP1 = _.get(e, 'analysis.winLoseRanking.player1', 0)
+        const wlP2 = _.get(e, 'analysis.winLoseRanking.player2', 0)
+
+        return wlP1 !== wlP2
+      })
+
+      const sorted = filtered.sort((a,b) => {
+        const gapA = _.get(a, 'analysis.gap', 0)
+        const gapB = _.get(b, 'analysis.gap', 0)
+
+        return gapB - gapA
+      })
+
+      return sorted
     }
 
 
@@ -112,28 +134,6 @@ export default class ScheduleAdapter {
 
     // if (sportEventsNeedCheck.length == 0) {
     //   const fileContent = []
-    //   await Promise.all(
-    //     fileList.map( async file => {
-    //       const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
-    //       fileContent.push(JSON.parse(content))
-    //     })
-    //   )
-
-    //   const filtered = fileContent.filter(e => {
-    //     const wlP1 = _.get(e, 'analysis.winLoseRanking.player1', 0)
-    //     const wlP2 = _.get(e, 'analysis.winLoseRanking.player2', 0)
-
-    //     return wlP1 !== wlP2
-    //   })
-
-    //   const sorted = filtered.sort((a,b) => {
-    //     const gapA = _.get(a, 'analysis.gap', 0)
-    //     const gapB = _.get(b, 'analysis.gap', 0)
-
-    //     return gapB - gapA
-    //   })
-
-    //   return sorted
     // }
     // else {
     //   try {
