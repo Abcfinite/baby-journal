@@ -81,19 +81,19 @@ export default class Analysis {
   }
 
   getGap(sportEventAnalysis: {}) {
-    const wlP1 = _.get(sportEventAnalysis, 'analysis.winLoseRanking.player1', 0)
-    const wlP2 = _.get(sportEventAnalysis, 'analysis.winLoseRanking.player2', 0)
+    const wlP1 = _.get(sportEventAnalysis, 'winLoseRanking.player1', 0)
+    const wlP2 = _.get(sportEventAnalysis, 'winLoseRanking.player2', 0)
 
     const gap = Math.abs(wlP1 - wlP2)
 
-    const p1vp1wonp1 = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
-    const p2vp1wonp2 = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
-    const p2vp2wonp2 = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
-    const p1vp2wonp1 = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
-    const p1vp1wonp1Won = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1Won', 0)
-    const p2vp1wonp2Won = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p1Won', 0)
-    const p2vp2wonp2Won = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2Won', 0)
-    const p1vp2wonp1Won = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p2Won', 0)
+    const p1vp1wonp1 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
+    const p2vp1wonp2 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
+    const p2vp2wonp2 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
+    const p1vp2wonp1 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
+    const p1vp1wonp1Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1Won', 0)
+    const p2vp1wonp2Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p1Won', 0)
+    const p2vp2wonp2Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2Won', 0)
+    const p1vp2wonp1Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p2Won', 0)
 
     var cal1 = (p2vp1wonp2 - p2vp1wonp2Won) - (p1vp1wonp1 - p1vp1wonp1Won)
     var cal2 = (p2vp2wonp2 - p2vp2wonp2Won) - (p1vp2wonp1 - p1vp2wonp1Won)

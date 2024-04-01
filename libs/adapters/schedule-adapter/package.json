@@ -7,6 +7,7 @@
       "@abcfinite/s3-client-custom": "0.0.1",
       "@abcfinite/tennislive-client": "0.0.1",
       "@abcfinite/player-adapter": "0.0.1",
+      "@aws-sdk/client-sqs": "^3.540.0",
       "lodash.get": "^4.4.2"
   },
   "jest": {

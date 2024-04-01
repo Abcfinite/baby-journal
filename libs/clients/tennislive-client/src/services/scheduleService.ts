@@ -12,6 +12,9 @@ export default class ScheduleService {
     const scheduleHtmlfileList = await new S3ClientCustom().getFileList('tennis-match-schedule-html')
     var htmlResult = ''
 
+    console.log('>>>scheduleHtmlfileList>>>')
+    console.log(scheduleHtmlfileList)
+
     if (scheduleHtmlfileList.length === 0) {
       const headers = {
         Host: 'www.tennislive.net',
@@ -29,7 +32,7 @@ export default class ScheduleService {
       htmlResult = result.value as string
       await new S3ClientCustom().putFile('tennis-match-schedule-html', 'schedule.html', htmlResult)
     } else {
-      htmlResult = scheduleHtmlfileList[0]
+      htmlResult = await new S3ClientCustom().getFile('tennis-match-schedule-html', scheduleHtmlfileList[0])
     }
 
     return ScheduleParser.parse(htmlResult)
