@@ -10,16 +10,18 @@ export default class ScheduleAdapter {
   async getSchedule() {
     const sportEvents = await new TennisliveClient().getSchedule()
 
+    return 'test'
+
     const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
 
     const fileListIds = fileList.map(file => file.replace('.json', ''))
-    const sportEventIds = sportEvents.map(se => se.id)
-    const sportEventIdsNotCheckedYet = sportEventIds.filter(id => !fileListIds.includes(id))
+    // const sportEventIds = sportEvents.map(se => se.id)
+    // const sportEventIdsNotCheckedYet = sportEventIds.filter(id => !fileListIds.includes(id))
 
     // get first sportEvent that not checked
-    const sportEventsNeedCheck = sportEvents.filter(spe => sportEventIdsNotCheckedYet.includes(spe.id))
+    // const sportEventsNeedCheck = sportEvents.filter(spe => sportEventIdsNotCheckedYet.includes(spe.id))
 
-    console.log('>>>>sportEventsNeedCheck>>>',sportEventsNeedCheck.length)
+    // console.log('>>>>sportEventsNeedCheck>>>',sportEventsNeedCheck.length)
 
     var result
 
@@ -39,17 +41,11 @@ export default class ScheduleAdapter {
         return wlP1 !== wlP2
       })
 
-
       const sorted = filtered.sort((a,b) => {
-        // var gapA = this.getGap(a)
-        // var gapB = this.getGap(b)
-        // console.log('>>>>>gapA>>>', gapA)
-        // console.log('>>>>>gapB>>>', gapB)
-        return this.getGap(b) - this.getGap(a)
-      })
+        const gapA = _.get(a, 'analysis.gap', 0)
+        const gapB = _.get(b, 'analysis.gap', 0)
 
-      sorted.map(s => {
-        console.log('>>>>gap>>>', s.gap)
+        return gapB - gapA
       })
 
       return sorted
@@ -73,35 +69,5 @@ export default class ScheduleAdapter {
     // }
 
     // return result
-  }
-
-  getGap(sportEventAnalysis: {}) {
-    const wlP1 = _.get(sportEventAnalysis, 'analysis.winLoseRanking.player1', 0)
-    const wlP2 = _.get(sportEventAnalysis, 'analysis.winLoseRanking.player2', 0)
-
-    const gap = Math.abs(wlP1 - wlP2)
-
-    const p1vp1wonp1 = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
-    const p2vp1wonp2 = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
-    const p2vp2wonp2 = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
-    const p1vp2wonp1 = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
-    const p1vp1wonp1Won = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1Won', 0)
-    const p2vp1wonp2Won = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p1Won', 0)
-    const p2vp2wonp2Won = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2Won', 0)
-    const p1vp2wonp1Won = _.get(sportEventAnalysis, 'analysis.benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p2Won', 0)
-
-    var cal1 = (p2vp1wonp2 - p2vp1wonp2Won) - (p1vp1wonp1 - p1vp1wonp1Won)
-    var cal2 = (p2vp2wonp2 - p2vp2wonp2Won) - (p1vp2wonp1 - p1vp2wonp1Won)
-
-    if (wlP1 > wlP2) {
-      cal1 = (p1vp1wonp1 - p1vp1wonp1Won) - (p2vp1wonp2 - p2vp1wonp2Won)
-      cal2 = (p1vp2wonp1 - p1vp2wonp1Won) - (p2vp2wonp2 - p2vp2wonp2Won)
-    }
-
-    const result = gap - cal1 > gap - cal2 ? gap - cal2 : gap - cal1
-
-    sportEventAnalysis['gap'] = result
-
-    return result
   }
 }

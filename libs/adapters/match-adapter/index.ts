@@ -24,7 +24,7 @@ export default class MatchAdapter {
     const player1 = _.get(playerDetail, 'player1', {}) as Player
     const player2 = _.get(playerDetail, 'player2', {}) as Player
 
-    return {
+    const analysisResult = {
       winLoseRanking: {
         player1: player1WL,
         player2: player2WL,
@@ -50,14 +50,15 @@ export default class MatchAdapter {
         bothPlayed: this.benchmarkPlayer(player1, player2),
         previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
       },
-      // historian: {
-      //   fileNo: winFilteredfileNo,
-      // },
       age: {
         player1: player1Age,
         player2: player2Age,
       },
     }
+
+    analysisResult['gap'] = new Analysis().getGap(analysisResult)
+
+    return analysisResult
   }
 
   // to test : /checkPlayer?player1=Genaro Alberto Olivieri&player2=Francesco Passaro
