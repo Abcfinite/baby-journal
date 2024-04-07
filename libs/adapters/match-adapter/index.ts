@@ -29,6 +29,7 @@ export default class MatchAdapter {
         player1: player1WL,
         player2: player2WL,
       },
+      similarOpponent: this.similarOpponent(player1, player2),
       highLowRanking: this.highLowRanking(player1, player2),
       betAgainstOdd: {
         nonFavPlayerWonToHigherLevelThanFav: this.nonFavPlayerWonToHigherLevelThanFav(playerDetail)
@@ -59,6 +60,40 @@ export default class MatchAdapter {
     analysisResult['gap'] = new Analysis().getGap(analysisResult)
 
     return analysisResult
+  }
+
+  similarOpponent(player1: Player, player2: Player) {
+    var player1AvgRanking = this.avgRanking(player1.currentRanking, player1.highestRanking)
+    var player2AvgRanking = this.avgRanking(player2.currentRanking, player2.highestRanking)
+    var p1prevMatches = []
+    var p2prevMatches = []
+
+    player1.parsedPreviousMatches.forEach(pm => {
+      pm['avg_ranking_gap'] = Math.abs(player2AvgRanking - this.avgRanking(pm.player.currentRanking, pm.player.highestRanking))
+      p1prevMatches.push(pm)
+    })
+
+    player2.parsedPreviousMatches.forEach(pm => {
+      pm['avg_ranking_gap'] = Math.abs(player1AvgRanking - this.avgRanking(pm.player.currentRanking, pm.player.highestRanking))
+      p2prevMatches.push(pm)
+    })
+
+    const p1Sorted = p1prevMatches.sort((a, b) => {
+      return a['avg_ranking_gap'] - b['avg_ranking_gap']
+    })
+
+    const p2Sorted = p2prevMatches.sort((a, b) => {
+      return a['avg_ranking_gap'] - b['avg_ranking_gap']
+    })
+
+    return {
+      player1: p1Sorted[0],
+      player2: p2Sorted[0]
+    }
+  }
+
+  avgRanking(currentRanking: number, highestRanking: number) {
+    return currentRanking + ((currentRanking + highestRanking)/2)
   }
 
   // to test : /checkPlayer?player1=Genaro Alberto Olivieri&player2=Francesco Passaro

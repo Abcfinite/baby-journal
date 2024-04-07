@@ -20,9 +20,9 @@ export default class ScheduleAdapter {
     var requestResult = 'error'
 
     console.log('>>>>total schedule number: ', sportEvents.length)
-    console.log('>>>>checled number: ', fileList.length)
+    console.log('>>>>checked number: ', fileList.length)
 
-    if (sportEvents.length === fileList.length) {
+    if (sportEvents.length - 3 < fileList.length) {
       await Promise.all(
         fileList.map( async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
@@ -30,6 +30,7 @@ export default class ScheduleAdapter {
         })
       )
 
+      /// by gap
       const filtered = fileContent.filter(e => {
         const wlP1 = _.get(e, 'analysis.winLoseRanking.player1', 0)
         const wlP2 = _.get(e, 'analysis.winLoseRanking.player2', 0)
@@ -43,6 +44,14 @@ export default class ScheduleAdapter {
 
         return gapB - gapA
       })
+
+      /// sort by ranking diff
+      // const sorted = fileContent.sort((a,b) => {
+      //   const rankingA = _.get(a, 'analysis.highLowRanking.rankingDiff', 0)
+      //   const rankingB = _.get(b, 'analysis.highLowRanking.rankingDiff', 0)
+
+      //   return rankingB - rankingA
+      // })
 
       return sorted
     }
@@ -73,6 +82,7 @@ export default class ScheduleAdapter {
         })
       )
 
+      return 'message queue successfully'
 
     } else {
 
@@ -119,40 +129,5 @@ export default class ScheduleAdapter {
     }
 
     return requestResult
-
-
-    // const fileListIds = fileList.map(file => file.replace('.json', ''))
-    // const sportEventIds = sportEvents.map(se => se.id)
-    // const sportEventIdsNotCheckedYet = sportEventIds.filter(id => !fileListIds.includes(id))
-
-    // // get first sportEvent that not checked
-    // const sportEventsNeedCheck = sportEvents.filter(spe => sportEventIdsNotCheckedYet.includes(spe.id))
-
-    // console.log('>>>>sportEventsNeedCheck>>>',sportEventsNeedCheck.length)
-
-    // var result
-
-    // if (sportEventsNeedCheck.length == 0) {
-    //   const fileContent = []
-    // }
-    // else {
-    //   try {
-    //     result = await new PlayerAdapter().checkPlayerObject(
-    //       sportEventsNeedCheck[0].player1, sportEventsNeedCheck[0].player2)
-
-    //     await new S3ClientCustom()
-    //       .putFile('tennis-match-schedule',
-    //         sportEventsNeedCheck[0].id+'.json',
-    //         JSON.stringify(result))
-    //   } catch(ex) {
-    //     result = 'error'
-    //     await new S3ClientCustom()
-    //       .putFile('tennis-match-schedule',
-    //         sportEventsNeedCheck[0].id+'.json',
-    //         JSON.stringify('{}'))
-    //   }
-    // }
-
-    // return result
   }
 }

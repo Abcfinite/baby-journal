@@ -6,17 +6,3 @@ services:
     volumes:
       - .:/opt/app
       - ~/.aws/:/root/.aws:ro
-  elasticmq:
-    image: softwaremill/elasticmq-native
-    container_name: 'sls-elasticmq'
-    ports:
-        - 9324:9324
-        - 9325:9325
-    volumes:
-        - ./elasticmq.conf:/opt/elasticmq.conf
-    networks:
-        - queuenetwork
-
-networks:
-  queuenetwork:
-    driver: bridge
