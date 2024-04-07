@@ -23,6 +23,11 @@ export default class S3ClientCustom {
 
       while (isTruncated) {
         const { Contents, IsTruncated, NextContinuationToken } = await client.send(command);
+
+        if (Contents === null || Contents === undefined) {
+          return []
+        }
+
         Contents.map((c) => fileList.push(c.Key));
         isTruncated = IsTruncated;
         command.input.ContinuationToken = NextContinuationToken;

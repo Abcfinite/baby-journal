@@ -20,6 +20,7 @@
     "downlevelIteration": true,
     "sourceMap": true,
     "paths": {
+      "@abcfinite/schedule-adapter": ["./libs/adapters/schedule-adapter"],
       "@abcfinite/player-adapter": ["./libs/adapters/player-adapter"],
       "@abcfinite/match-adapter": ["./libs/adapters/match-adapter"],
       "@abcfinite/bet-adapter": ["./libs/adapters/bet-adapter"],

@@ -6,6 +6,12 @@ plugins:
   - serverless-webpack
   - serverless-offline
 
+constructs:
+  myqueue:
+    type: queue
+    worker:
+      handler: src/messageConsumer.handler
+
 provider:
   name: aws
   runtime: nodejs16.x
@@ -46,4 +52,11 @@ functions:
     events:
       - http:
           path: /checkPlayer
+          method: get
+  schedule:
+    handler: index.getSchedule
+    timeout: 900
+    events:
+      - http:
+          path: /schedule
           method: get
