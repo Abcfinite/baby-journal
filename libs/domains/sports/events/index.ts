@@ -1,5 +1,6 @@
 import PlayerAdapter from '@abcfinite/player-adapter'
 import ScheduleAdapter from '@abcfinite/schedule-adapter'
+import FinishedAdapter from '@abcfinite/finished-adapter'
 import { Handler } from 'aws-lambda';
 
 export const checkPlayer: Handler = async (event: any) => {
@@ -45,6 +46,22 @@ export const checkPlayer: Handler = async (event: any) => {
 
 export const getSchedule: Handler = async (event: any) => {
   var result = await new ScheduleAdapter().getSchedule()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+
+export const getFinished: Handler = async (event: any) => {
+  var result = await new FinishedAdapter().getFinished()
 
   var response = {
     statusCode: 200,
