@@ -12,7 +12,81 @@ import { SQSClient, SendMessageCommand,
 
 export default class ScheduleAdapter {
   async getFinished() {
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-result-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
     const sportEvents = await new TennisliveClient().getFinished()
+
+    // check queue in SQS
+    const getQueueAttrCommand = new GetQueueAttributesCommand({
+      QueueUrl: queueUrl,
+      AttributeNames: ['All']
+    });
+
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+    if (sqsMessageNumber === 0) {
+      // get schedule and put it in the SQS
+      // this part will not timeout
+
+      await Promise.all(
+        sportEvents.map(async sporte => {
+          const input = {
+            QueueUrl: queueUrl,
+            MessageBody: JSON.stringify(sporte),
+            DelaySeconds: 10,
+          };
+          const command = new SendMessageCommand(input);
+          await client.send(command);
+        })
+      )
+
+      return 'message queue successfully'
+
+    } else {
+
+      // loop while sqs has message
+      // this part might timeout after 15mins
+      while(sqsMessageNumber > 0) {
+        const receiveMessageCommand  = new ReceiveMessageCommand({
+          MaxNumberOfMessages: 1,
+          MessageAttributeNames: ["All"],
+          QueueUrl: queueUrl,
+          WaitTimeSeconds: 20,
+          VisibilityTimeout: 20,
+        })
+
+        const receiveMessageCommandResult = await client.send(receiveMessageCommand);
+
+        var sportEvent = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
+
+        try {
+          var checkPlayerResult = await new PlayerAdapter().checkPlayerObject(
+            sportEvent.player1, sportEvent.player2)
+
+          await new S3ClientCustom()
+            .putFile('tennis-match-finished',
+            sportEvent.id+'.json',
+              JSON.stringify(checkPlayerResult))
+        } catch(ex) {
+          await new S3ClientCustom()
+            .putFile('tennis-match-finished',
+            sportEvent.id+'.json',
+              JSON.stringify(sportEvent))
+        }
+
+        await client.send(
+          new DeleteMessageCommand({
+            QueueUrl: queueUrl,
+            ReceiptHandle: receiveMessageCommandResult.Messages[0].ReceiptHandle,
+          }),
+        );
+
+        getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+        sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+      }
+    }
+
     return sportEvents
   }
 }

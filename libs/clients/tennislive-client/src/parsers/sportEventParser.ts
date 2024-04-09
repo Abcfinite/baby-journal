@@ -74,4 +74,9 @@ export default class SportEventParser {
     const p2Name = player2.name.split(' ')[0]
     return p1Name+'#'+p2Name+'#'+formattedDate
   }
+
+  static parseResult(html: string) {
+    const root = parse(html);
+    const matchColumns = root.getElementsByTagName("td").filter(div => div.attributes.class === "match")
+  }
 }

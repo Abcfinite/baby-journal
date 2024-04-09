@@ -29,11 +29,13 @@ export default class PlayerAdapter {
     const tennisLiveClient = new TennisliveClient()
     const player1 = await tennisLiveClient.getPlayer(null, player1Object.url)
     const player2 = await tennisLiveClient.getPlayer(null, player2Object.url)
+    var p10match = {}
+    var p20match = {}
 
     const date = new Date();
     const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
     const result = {
-      stage: '',
+      winner: 0,
       type: player1.type,
       date: formattedDate,
       analysis: {},
