@@ -24,12 +24,15 @@ export default class MatchAdapter {
     const player1 = _.get(playerDetail, 'player1', {}) as Player
     const player2 = _.get(playerDetail, 'player2', {}) as Player
 
+    var wlScore = this.winLoseScore(player1, player2)
+
     const analysisResult = {
       winLoseRanking: {
         player1: player1WL,
         player2: player2WL,
       },
-      winLoseScore: this.winLoseScore(player1, player2),
+      winLoseScore: wlScore,
+      knn: await new Analysis().knn(player1, player2, wlScore),
       highLowRanking: this.highLowRanking(player1, player2),
       betAgainstOdd: {
         nonFavPlayerWonToHigherLevelThanFav: this.nonFavPlayerWonToHigherLevelThanFav(playerDetail)
@@ -49,7 +52,7 @@ export default class MatchAdapter {
       },
       benchmarkPlayer: {
         bothPlayed: this.benchmarkPlayer(player1, player2),
-        previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
+        // previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
       },
       age: {
         player1: player1Age,
@@ -57,13 +60,9 @@ export default class MatchAdapter {
       },
     }
 
-    analysisResult['gap'] = new Analysis().getGap(analysisResult)
+    // analysisResult['gap'] = new Analysis().getGap(analysisResult)
 
     return analysisResult
-  }
-
-  avgRanking(currentRanking: number, highestRanking: number) {
-    return currentRanking - ((currentRanking - highestRanking)/2)
   }
 
   // to test : /checkPlayer?player1=Genaro Alberto Olivieri&player2=Francesco Passaro
@@ -102,14 +101,10 @@ export default class MatchAdapter {
   }
 
   wlScore(player: Player) {
-    const playerAvgRanking = this.avgRanking(player.currentRanking, player.highestRanking)
-    console.log('>>>playerAvgRanking>>', playerAvgRanking)
+    const playerAvgRanking = Analysis.avgRanking(player.currentRanking, player.highestRanking)
     var pScore = 0
     player.parsedPreviousMatches.slice(0,9).forEach((pm, index) => {
-      const pmAvgRangking = this.avgRanking(pm.player.currentRanking, pm.player.highestRanking)
-      console.log('>>>>pm>>>', pm.player.name)
-      console.log('>>>>pm>>avgRanking>>', pmAvgRangking)
-      console.log('>>>>pScore>>>', pScore)
+      const pmAvgRangking = Analysis.avgRanking(pm.player.currentRanking, pm.player.highestRanking)
       if (pm.result === 'win') {
         // // 650 v 350
         if (playerAvgRanking > pmAvgRangking) {

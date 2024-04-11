@@ -62,6 +62,11 @@ export default class TennisliveClient {
 
   async getFinished() : Promise<SportEvent[]> {
     const finishedSportEvents = await new FinishedService().getFinished()
+
+    finishedSportEvents.forEach(se => {
+      se.url
+    })
+
     return finishedSportEvents
   }
 }

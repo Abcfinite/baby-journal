@@ -8,6 +8,29 @@ export default class FinishedService {
   constructor() {
   }
 
+  async getResult(se: SportEvent) : Promise<SportEvent> {
+    const headers = {
+      Host: 'www.tennislive.net',
+      Referer: process.env.TENNISLIVE_HOST
+    }
+
+    const httpApiClient = new HttpApiClient()
+
+    let result = await httpApiClient.get(
+        process.env.TENNISLIVE_HOST!,
+        se.url.replace(process.env.TENNISLIVE_HOST!, '') ,
+        headers,
+      )
+
+    var htmlResult = result.value as string
+
+    // console.log('>>>>htmlResult')
+    // console.log(htmlResult.)
+
+    return {} as SportEvent
+
+  }
+
   async getFinished() : Promise<SportEvent[]> {
     const finishedHtmlfileList = await new S3ClientCustom().getFileList('tennis-match-finished-html')
     var htmlResult = ''

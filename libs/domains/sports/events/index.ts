@@ -30,7 +30,8 @@ export const checkPlayer: Handler = async (event: any) => {
           2
         ),
       }
-    } catch {
+    } catch (ex){
+      console.error(ex)
       response = {
         statusCode: 400,
         body: 'one of player not found',
