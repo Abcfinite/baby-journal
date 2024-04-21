@@ -24,15 +24,16 @@ export default class MatchAdapter {
     const player1 = _.get(playerDetail, 'player1', {}) as Player
     const player2 = _.get(playerDetail, 'player2', {}) as Player
 
-    var wlScore = this.winLoseScore(player1, player2)
+    // const wlScore = this.winLoseScore(player1, player2)
+    const winLoseRanking = {
+      player1: player1WL,
+      player2: player2WL,
+    }
 
     const analysisResult = {
-      winLoseRanking: {
-        player1: player1WL,
-        player2: player2WL,
-      },
-      winLoseScore: wlScore,
-      knn: await new Analysis().knn(player1, player2, wlScore),
+      winLoseRanking: winLoseRanking,
+      // winLoseScore: wlScore,
+      // knn: await new Analysis().knn(player1, player2, wlScore, winLoseRanking),
       highLowRanking: this.highLowRanking(player1, player2),
       betAgainstOdd: {
         nonFavPlayerWonToHigherLevelThanFav: this.nonFavPlayerWonToHigherLevelThanFav(playerDetail)
@@ -52,7 +53,7 @@ export default class MatchAdapter {
       },
       benchmarkPlayer: {
         bothPlayed: this.benchmarkPlayer(player1, player2),
-        // previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
+        previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
       },
       age: {
         player1: player1Age,
@@ -60,7 +61,7 @@ export default class MatchAdapter {
       },
     }
 
-    // analysisResult['gap'] = new Analysis().getGap(analysisResult)
+    analysisResult['gap'] = new Analysis().getGap(analysisResult)
 
     return analysisResult
   }

@@ -7,13 +7,14 @@ export default class SportEventParser {
     const root = parse(html);
     const matchColumns = root.getElementsByTagName("td").filter(div => div.attributes.class === "match")
     const singleOnly = matchColumns.filter(col => !col.text.includes('/'))
-    const date = new Date();
-    const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+    const date = new Date()
+    const formattedDate = date.toISOString().substring(0, 10)
 
     var player1: Player
     var player2: Player
     var sportEvent: SportEvent
     var sportEvents: SportEvent[] = []
+    var sportEventIndex = 0
 
     singleOnly.forEach((playerHtml, index) => {
       if (index%2 === 0) {
@@ -47,16 +48,27 @@ export default class SportEventParser {
           parsedPreviousMatches: []
         }
 
+        const timeAndStage = root.querySelectorAll('.beg')[sportEventIndex].textContent
+
+        //correct Date format : 2024-04-21T03:30:00+0200
+        const eventTime = new Date(`${formattedDate}T${timeAndStage.substring(0,5)}+0200`).getTime()
+        const newEventDateTime = new Date(eventTime)
+        const newEventDate = newEventDateTime.toLocaleDateString(undefined, {timeZone: 'Australia/Sydney'}).replaceAll('/','.')
+        const newEventTime = newEventDateTime.toLocaleTimeString(undefined, {timeZone: 'Australia/Sydney', hour12: false})
+
         sportEvent = {
           player1: player1,
           player2: player2,
-          id: this.createId(player1, player2, formattedDate),
+          id: this.createId(player1, player2, newEventDate),
           url: '',
-          date: formattedDate,
+          stage: timeAndStage.substring(5),
+          date: newEventDate,
+          time: newEventTime,
           competitionName: '',
         }
 
         sportEvents.push(sportEvent)
+        sportEventIndex++
       }
     })
 

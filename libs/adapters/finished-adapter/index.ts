@@ -61,8 +61,7 @@ export default class ScheduleAdapter {
         var sportEvent = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
 
         try {
-          var checkPlayerResult = await new PlayerAdapter().checkPlayerObject(
-            sportEvent.player1, sportEvent.player2)
+          var checkPlayerResult = await new PlayerAdapter().checkSportEvent(sportEvent)
 
           await new S3ClientCustom()
             .putFile('tennis-match-finished',
