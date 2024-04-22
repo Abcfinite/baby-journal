@@ -8,6 +8,7 @@ import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
   ReceiveMessageCommand, GetQueueAttributesCommand,
   DeleteMessageCommand } from "@aws-sdk/client-sqs";
+import { toCsv } from "./src/utils/builder"
 
 export default class ScheduleAdapter {
   async getSchedule() {
@@ -16,7 +17,7 @@ export default class ScheduleAdapter {
     const resultFile = await new S3ClientCustom().getFile('tennis-match-schedule', 'result.json')
 
     if (resultFile !== undefined) {
-      return 'csv'
+      return toCsv(resultFile)
     }
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
