@@ -179,8 +179,17 @@ export default class MatchAdapter {
     const p1names = player1.parsedPreviousMatches.map(p => p.player.name)
     const p2names = player2.parsedPreviousMatches.map(p => p.player.name)
     let intersection = p1names.filter(x => p2names.includes(x));
+    let uIntersection = Array.from(new Set(intersection))
 
-    return intersection
+    const p1Win = _.get(player1, 'parsedPreviousMatches', []).filter(pm => uIntersection.includes(pm.player.name) && pm.result === 'win')
+    const p2Win = _.get(player2, 'parsedPreviousMatches', []).filter(pm => uIntersection.includes(pm.player.name) && pm.result === 'win')
+
+    return {
+      names: intersection,
+      player1Score: p1Win.length ,
+      player2Score: p2Win.length,
+      total: uIntersection.length
+    }
   }
 
   async analyzeAge(isATP: boolean = true) {
