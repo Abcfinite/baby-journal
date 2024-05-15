@@ -2,34 +2,32 @@ import { SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 
 export const toCsv = (jsonString: string) : string => {
   const csvHeader = [
+    'id',
     'date',
     'time',
     'stage',
     'DO NOT BET',
     'just won fin',
     'just retired',
-    'fav BENCHMARK',
-    'non fav BENCHMARK',
-    'BENCHMARK gap',
+    'fav BM',
+    'non fav BM',
+    'BM gap',
     'fav p',
     'fav e',
     'fav form',
     'non fav p',
     'non fav e',
     'non fav form',
-    'fav avg ranking',
+    'form gap',
     'non fav highest ranking',
+    'fav current ranking',
     'ranking gap',
     'fav WL score',
     'non fav WL score',
     'WL score gap',
     'last won gap',
     'r',
-    'p',
-    'pr',
-    '',
-    'fav current ranking',
-    'fav highest ranking'
+    '3 set',
   ].join(',')
 
   var resultArray = [csvHeader]
@@ -39,7 +37,9 @@ export const toCsv = (jsonString: string) : string => {
 
   jsonArray.forEach(m => {
     var fav1 = m['player1']['currentRanking'] < m['player2']['currentRanking']
-    resultArray.push([m['date'],
+    resultArray.push([
+      '',
+      m['date'],
       m['time'],
       m['stage'],
       fav1? m['lostToLowerRankingThanOpponent']['player1']['number'] > 0 : m['lostToLowerRankingThanOpponent']['player2']['number'] > 0,
@@ -56,6 +56,7 @@ export const toCsv = (jsonString: string) : string => {
       '',
       '',
       fav1? m['player2']['highestRanking'] : m['player1']['highestRanking'],
+      fav1? m['player1']['currentRanking'] : m['player2']['currentRanking'],
       '',
       fav1? m['analysis']['winLoseRanking']['player1'] : m['analysis']['winLoseRanking']['player2'],
       fav1? m['analysis']['winLoseRanking']['player2'] : m['analysis']['winLoseRanking']['player1'],
@@ -63,10 +64,6 @@ export const toCsv = (jsonString: string) : string => {
       m['analysis']['gap'],
       '',
       '',
-      '',
-      '',
-      fav1 ? m['player1']['currentRanking'] : m['player2']['currentRanking'],
-      fav1 ? m['player1']['highestRanking'] : m['player2']['highestRanking'],
     ].join(','))
   })
 
