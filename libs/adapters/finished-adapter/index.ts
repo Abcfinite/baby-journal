@@ -6,6 +6,8 @@ import { Player } from '../../clients/tennislive-client/src/types/player'
 import { SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { getFinished } from '../../domains/sports/events/index';
+import csv from 'csv-parser';
+import fs from 'fs';
 import { SQSClient, SendMessageCommand,
   ReceiveMessageCommand, GetQueueAttributesCommand,
   DeleteMessageCommand } from "@aws-sdk/client-sqs";
@@ -88,4 +90,21 @@ export default class ScheduleAdapter {
 
     return sportEvents
   }
+
+
+  async getValueSummary() {
+    const csvFile = await new S3ClientCustom().getFile('tennis-match-finished', 'finished.csv') as any
+    const results = [];
+
+    fs.createReadStream(csvFile)
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => {
+        console.log(results);
+        // [
+        //   { NAME: 'Daffy Duck', AGE: '24' },
+        //   { NAME: 'Bugs Bunny', AGE: '22' }
+        // ]
+      });
+    }
 }

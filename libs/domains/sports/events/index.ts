@@ -77,3 +77,19 @@ export const getFinished: Handler = async (event: any) => {
   })
 }
 
+export const getValueSummary: Handler = async (event: any) => {
+  var result = await new FinishedAdapter().getValueSummary()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+

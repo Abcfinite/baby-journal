@@ -15,6 +15,7 @@ export const toCsv = (jsonString: string) : string => {
     'fav p',
     'fav e',
     'fav form',
+    'form stalled',
     'non fav p',
     'non fav e',
     'non fav form',
@@ -27,7 +28,12 @@ export const toCsv = (jsonString: string) : string => {
     'WL score gap',
     'last won gap',
     'r',
+    '1st set won',
     '3 set',
+    'value',
+    'green',
+    'orange',
+    'red'
   ].join(',')
 
   var resultArray = [csvHeader]
@@ -51,6 +57,7 @@ export const toCsv = (jsonString: string) : string => {
       fav1? m['player1']['name'] : m['player2']['name'],
       '',
       '',
+      '',
       fav1? m['player2']['name'] : m['player1']['name'],
       '',
       '',
@@ -64,6 +71,11 @@ export const toCsv = (jsonString: string) : string => {
       m['analysis']['gap'],
       '',
       '',
+      '',
+      '',
+      '',
+      '',
+      ''
     ].join(','))
   })
 
