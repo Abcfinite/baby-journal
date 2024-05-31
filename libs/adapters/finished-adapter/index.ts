@@ -6,8 +6,9 @@ import { Player } from '../../clients/tennislive-client/src/types/player'
 import { SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { getFinished } from '../../domains/sports/events/index';
-import csv from 'csv-parser';
-import fs from 'fs';
+import * as csv from 'fast-csv'
+import * as fs from 'fs';
+import { Readable } from 'stream'
 import { SQSClient, SendMessageCommand,
   ReceiveMessageCommand, GetQueueAttributesCommand,
   DeleteMessageCommand } from "@aws-sdk/client-sqs";
@@ -96,15 +97,25 @@ export default class ScheduleAdapter {
     const csvFile = await new S3ClientCustom().getFile('tennis-match-finished', 'finished.csv') as any
     const results = [];
 
-    fs.createReadStream(csvFile)
-      .pipe(csv())
-      .on('data', (data) => results.push(data))
-      .on('end', () => {
-        console.log(results);
-        // [
-        //   { NAME: 'Daffy Duck', AGE: '24' },
-        //   { NAME: 'Bugs Bunny', AGE: '22' }
-        // ]
-      });
-    }
+    console.log('>>>>>0')
+    Readable.from(csvFile)
+      .pipe(csv.parse({ headers: true }))
+      .on('error', error => console.error(error))
+    .on('data', row => console.log(row))
+    .on('end', (rowCount: number) => console.log(`Parsed ${rowCount} rows`));
+
+    console.log('>>>>>1')
+
+      // .pipe(csv())
+    //   .on('data', (data) => results.push(data))
+    //   .on('end', () => {
+    //     console.log(results);
+    //     // [
+    //     //   { NAME: 'Daffy Duck', AGE: '24' },
+    //     //   { NAME: 'Bugs Bunny', AGE: '22' }
+    //     // ]
+    //   });
+
+    return 'test';
+  }
 }
