@@ -92,30 +92,77 @@ export default class ScheduleAdapter {
     return sportEvents
   }
 
+  async putValueSummary(valueSummary: {}) {
+    const todayObj: Array<any> = await this.getToday()
+
+    todayObj.forEach(row => {
+      const summary = valueSummary[row.value]
+
+      row['value-total'] = 0
+      row['won-percentage'] = 0
+
+      if (summary !== undefined && summary !== null) {
+        row['value-total'] = summary.total
+        row['won-percentage'] = summary.won_percentage
+      }
+    });
+
+    return todayObj
+  }
+
+  async getToday(): Promise<Array<any>> {
+    const csvFile = await new S3ClientCustom().getFile('tennis-match-schedule', 'today.csv') as any
+    const rows = []
+
+    return new Promise((resolve, reject) => {
+      Readable.from(csvFile)
+      .pipe(csv.parse({ headers: true }))
+      .on('error', error => reject(error))
+      .on('data', row => this.dataReceived(row, rows))
+      .on('end', _ => {
+        resolve(rows)
+      });
+    })
+  }
 
   async getValueSummary() {
     const csvFile = await new S3ClientCustom().getFile('tennis-match-finished', 'finished.csv') as any
-    const results = [];
+    const rows = []
 
-    console.log('>>>>>0')
-    Readable.from(csvFile)
+    return new Promise((resolve, reject) => {
+      Readable.from(csvFile)
       .pipe(csv.parse({ headers: true }))
-      .on('error', error => console.error(error))
-    .on('data', row => console.log(row))
-    .on('end', (rowCount: number) => console.log(`Parsed ${rowCount} rows`));
+      .on('error', error => reject(error))
+      .on('data', row => this.dataReceived(row, rows))
+      .on('end', _ => {
+        resolve(this.valueSummaryEnd(rows))
+      });
+    })
+  }
 
-    console.log('>>>>>1')
+  async dataReceived(row, rows) {
+    rows.push(row)
+  }
 
-      // .pipe(csv())
-    //   .on('data', (data) => results.push(data))
-    //   .on('end', () => {
-    //     console.log(results);
-    //     // [
-    //     //   { NAME: 'Daffy Duck', AGE: '24' },
-    //     //   { NAME: 'Bugs Bunny', AGE: '22' }
-    //     // ]
-    //   });
+  async valueSummaryEnd(rows) {
+    const values = rows.map(row => row.value)
+    const uniqueVal = [...new Set(values)]
+    const valSet = {}
 
-    return 'test';
+    console.log('>>>>rows')
+    console.log(rows)
+
+    uniqueVal.forEach(val => {
+      const total = rows.filter(r => r.value === val ).length
+      const won = rows.filter(r => r.value === val && r['r'] === '1').length
+      const won_percentage = won/total * 100
+      valSet[val as string] = {
+        total,
+        won,
+        won_percentage
+      }
+    })
+
+    return valSet
   }
 }
