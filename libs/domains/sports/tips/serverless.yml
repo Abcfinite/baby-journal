@@ -22,8 +22,6 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - "arn:aws:dynamodb:ap-southeast-2:*:table/tips"
-  environment:
-    MATCHSTAT_COOKIE: ${env:matchstat_cookie}
 
 custom:
   webpack:

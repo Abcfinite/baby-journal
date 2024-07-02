@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "dependencies": {
+    "@abcfinite/tips-adapter": "0.0.1",
     "lodash.get": "^4.4.2"
   },
   "jest": {
