@@ -12,17 +12,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ TipsAdapter)
 /* harmony export */ });
-/* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! node-html-parser */ "node-html-parser");
-/* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_html_parser__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @abcfinite/s3-client-custom */ "../../../clients/s3-client-custom/index.ts");
-
+/* harmony import */ var _clients_betapi_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../clients/betapi-client */ "../../../clients/betapi-client/index.ts");
 
 class TipsAdapter {
     async getTips() {
-        const matchStatFile = await new _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__["default"]().getFile('tennis-matchstat', 'matchstat.html');
-        const matchStatHtml = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_0__.parse)(matchStatFile);
-        const predictions = matchStatHtml.getElementsByTagName("div").filter(div => div.attributes.class === "prediction-table-container");
-        console.log('>>>>>predictions>>>', predictions.length);
+        // const matchStatFile = await new S3ClientCustom().getFile('tennis-matchstat', 'matchstat.html')
+        // const matchStatHtml = parse(matchStatFile)
+        // const predictions = matchStatHtml.getElementsByTagName('div').filter(div => div.attributes.class === 'prediction-table-container')
+        // console.log('>>>>>predictions>>>', predictions.length)
+        // predictions.forEach(pred => {
+        //   const pName = pred.querySelector('.player-name-pt');
+        //   console.log('>>>>name>>>>', pName.text)
+        //   const aOdds = pred.querySelector('a');
+        //   console.log('>>>>odds>>>>', aOdds.text.replaceAll(/\s/g,''))
+        //   const predPercentage = pred.querySelector('.prediction-item.item-border');
+        //   console.log('>>>>odds>>>>', predPercentage.text.replaceAll(/\s/g,'').replaceAll(/\%/g,''))
+        // })
+        new _clients_betapi_client__WEBPACK_IMPORTED_MODULE_0__["default"]().getEvents();
         return 'success';
     }
 }
@@ -30,119 +36,116 @@ class TipsAdapter {
 
 /***/ }),
 
-/***/ "../../../clients/s3-client-custom/index.ts":
-/*!**************************************************!*\
-  !*** ../../../clients/s3-client-custom/index.ts ***!
-  \**************************************************/
+/***/ "../../../clients/betapi-client/index.ts":
+/*!***********************************************!*\
+  !*** ../../../clients/betapi-client/index.ts ***!
+  \***********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ S3ClientCustom)
+/* harmony export */   "default": () => (/* binding */ BetapiClient)
 /* harmony export */ });
-/* harmony import */ var _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @aws-sdk/client-s3 */ "@aws-sdk/client-s3");
-/* harmony import */ var _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _src_parsers_pagingParser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/parsers/pagingParser */ "../../../clients/betapi-client/src/parsers/pagingParser.ts");
+/* harmony import */ var _http_api_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../http-api-client */ "../../../clients/http-api-client/index.ts");
 
-class S3ClientCustom {
-    constructor() { }
-    async getFileList(bucketName) {
-        const client = new _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__.S3Client({});
-        const command = new _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__.ListObjectsV2Command({
-            Bucket: bucketName,
-            // The default and maximum number of keys returned is 1000. This limits it to
-            // one for demonstration purposes.
-            MaxKeys: 1,
-        });
-        try {
-            let isTruncated = true;
-            const fileList = [];
-            while (isTruncated) {
-                const { Contents, IsTruncated, NextContinuationToken } = await client.send(command);
-                if (Contents === null || Contents === undefined) {
-                    return [];
-                }
-                Contents.map((c) => fileList.push(c.Key));
-                isTruncated = IsTruncated;
-                command.input.ContinuationToken = NextContinuationToken;
-            }
-            return fileList;
-        }
-        catch (err) {
-            console.error(err);
-        }
+
+class BetapiClient {
+    constructor() {
     }
-    async getFile(bucketName, fileName) {
-        const client = new _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__.S3Client({});
-        const command = new _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__.GetObjectCommand({
-            Bucket: bucketName,
-            Key: fileName,
-        });
-        try {
-            const response = await client.send(command);
-            // The Body object also has 'transformToByteArray' and 'transformToWebStream' methods.
-            const str = await response.Body.transformToString();
-            return str;
-        }
-        catch (err) {
-            console.error(err);
-        }
-    }
-    async deleteAllFiles(bucketName) {
-        const fileList = await this.getFileList(bucketName);
-        const client = new _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__.S3Client({});
-        await Promise.all(fileList.map(async (f) => {
-            const command = new _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__.DeleteObjectCommand({
-                Bucket: bucketName,
-                Key: f,
-            });
-            try {
-                const response = await client.send(command);
-                return response;
-            }
-            catch (err) {
-                console.error(err);
-            }
-        }));
-        return 'success';
-    }
-    async putFile(bucketName, fileName, content) {
-        const client = new _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__.S3Client({});
-        const command = new _aws_sdk_client_s3__WEBPACK_IMPORTED_MODULE_0__.PutObjectCommand({
-            Bucket: bucketName,
-            Key: fileName,
-            Body: content,
-        });
-        try {
-            const response = await client.send(command);
-            console.log(response);
-        }
-        catch (err) {
-            console.error(err);
-        }
-        return 'success';
+    async getEvents() {
+        const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_1__["default"]();
+        const result = await httpApiClient.get('https://api.b365api.com', '/v1/bet365/upcoming?sport_id=13&token=196561-yXe5Z8ulO9UAvk&day=20240703');
+        const paging = _src_parsers_pagingParser__WEBPACK_IMPORTED_MODULE_0__["default"].parse(result.value['pager']);
+        const numberOfPageTurn = Math.floor(paging.total / paging.perPage);
+        console.log('>>>>>numberOfPageTurn');
+        console.log(numberOfPageTurn);
+        return [];
     }
 }
 
 
 /***/ }),
 
-/***/ "@aws-sdk/client-s3":
-/*!*************************************!*\
-  !*** external "@aws-sdk/client-s3" ***!
-  \*************************************/
-/***/ ((module) => {
+/***/ "../../../clients/betapi-client/src/parsers/pagingParser.ts":
+/*!******************************************************************!*\
+  !*** ../../../clients/betapi-client/src/parsers/pagingParser.ts ***!
+  \******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-module.exports = require("@aws-sdk/client-s3");
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ PagingParser)
+/* harmony export */ });
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+
+class PagingParser {
+    static parse(pager) {
+        return {
+            page: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'page', 0),
+            perPage: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'per_page', 0),
+            total: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'total', 0),
+        };
+    }
+}
+
 
 /***/ }),
 
-/***/ "node-html-parser":
-/*!***********************************!*\
-  !*** external "node-html-parser" ***!
-  \***********************************/
+/***/ "../../../clients/http-api-client/index.ts":
+/*!*************************************************!*\
+  !*** ../../../clients/http-api-client/index.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ HttpApiClient)
+/* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "axios");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+
+class HttpApiClient {
+    constructor() { }
+    async get(baseUrl, path, headers, params = {}) {
+        let axiosResponse;
+        let response = {
+            value: null,
+            status: null,
+            statusText: null,
+            hasValue: false,
+            hasError: false,
+            errorText: null,
+        };
+        axiosResponse = await axios__WEBPACK_IMPORTED_MODULE_0___default().get(baseUrl + path, { headers, params });
+        response.status = axiosResponse.status;
+        response.value = axiosResponse.data;
+        response.hasValue = axiosResponse.data !== undefined && axiosResponse.data !== null;
+        return response;
+    }
+}
+
+
+/***/ }),
+
+/***/ "axios":
+/*!************************!*\
+  !*** external "axios" ***!
+  \************************/
 /***/ ((module) => {
 
-module.exports = require("node-html-parser");
+module.exports = require("axios");
+
+/***/ }),
+
+/***/ "lodash":
+/*!*************************!*\
+  !*** external "lodash" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = require("lodash");
 
 /***/ })
 

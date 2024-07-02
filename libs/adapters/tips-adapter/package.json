@@ -5,6 +5,7 @@
   "main": "index.ts",
   "dependencies": {
       "@abcfinite/s3-client-custom": "0.0.1",
+      "@abcfinite/betapi-client": "0.0.1",
       "node-html-parser": "^6.1.12",
       "lodash.get": "^4.4.2"
   },
