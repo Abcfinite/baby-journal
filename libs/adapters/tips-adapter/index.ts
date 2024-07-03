@@ -8,7 +8,7 @@ export default class TipsAdapter {
   async getTips() {
     const matchStatFile = await new S3ClientCustom().getFile('tennis-matchstat', 'matchstat.html')
 
-    const predictionCols: Array<Prediction> = []
+    let predictionCols: Array<Prediction> = []
     const matchStatHtml = parse(matchStatFile)
     const predictions = matchStatHtml.getElementsByTagName('div').filter(div => div.attributes.class === 'ms-prediction-table')
 
@@ -32,9 +32,15 @@ export default class TipsAdapter {
 
     const events = await new BetapiClient().getEvents()
 
-    console.log('>>>events')
-    console.log(events.length)
+    predictionCols = predictionCols.map(p => {
+      const e = events.find(e => e.player1.split(' ')[0] === p.player1.split(' ')[0])
+      if (e !== undefined && e !== null) {
+        p.player2 = e.player2
+        p.time = e.time
+      }
+      return p
+    })
 
-    return  predictionCols.map(p => `${p.time},${p.player1},${p.percentage},${p.odds}`).join('\r\n')
+    return  predictionCols.map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
   }
 }

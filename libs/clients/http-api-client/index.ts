@@ -1,4 +1,5 @@
 import { HttpResponse } from './src/types/http-response';
+import * as https from 'https';
 import axios, { AxiosResponse } from 'axios'
 
 export default class HttpApiClient {
@@ -23,10 +24,16 @@ export default class HttpApiClient {
     }
 
     try {
-      axiosResponse = await axios.get(
+      let instance = axios.create({
+        timeout: 60000, //optional
+        httpsAgent: new https.Agent({ keepAlive: true }),
+        maxBodyLength: Infinity,
+      })
+      axiosResponse = await instance.get(
         baseUrl+path,
-        { headers, params, timeout: 10000 }
+        { headers, params }
       )
+
       response.status = axiosResponse.status
       response.value = axiosResponse.data
       response.hasValue = axiosResponse.data !== undefined && axiosResponse.data !== null
