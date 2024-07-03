@@ -12,8 +12,6 @@ export default class TipsAdapter {
     const matchStatHtml = parse(matchStatFile)
     const predictions = matchStatHtml.getElementsByTagName('div').filter(div => div.attributes.class === 'ms-prediction-table')
 
-    console.log('>>>>>predictions>>>', predictions.length)
-
     predictions.forEach(pred => {
       const pTime = pred.querySelector('.prediction-time');
       const pName = pred.querySelector('.player-name-pt');
@@ -21,9 +19,9 @@ export default class TipsAdapter {
       const predPercentage = pred.querySelector('.prediction-item.item-border');
 
       const prediction: Prediction = {
-        time: pTime.text.replaceAll(/\s/g,''),
-        player1: pName.text.replaceAll(/\s/g,''),
-        odds: aOdds.text.replaceAll(/\s/g,''),
+        time: pTime.text.replaceAll(/\s/g,'').split('/')[0],
+        player1: pName.text.trim(),
+        odds: ((Math.round(Number(aOdds.text.replaceAll(/\s/g,'')) * 100) / 100) - 1).toFixed(2),
         percentage: predPercentage.text.replaceAll(/\s/g,'').replaceAll(/\%/g,''),
       }
 
@@ -32,10 +30,11 @@ export default class TipsAdapter {
       }
     })
 
-    // new BetapiClient().getEvents()
+    const events = await new BetapiClient().getEvents()
+
+    console.log('>>>events')
+    console.log(events.length)
 
     return  predictionCols.map(p => `${p.time},${p.player1},${p.percentage},${p.odds}`).join('\r\n')
-
-
   }
 }

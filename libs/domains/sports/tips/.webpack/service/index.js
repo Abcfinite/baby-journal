@@ -15,6 +15,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! node-html-parser */ "node-html-parser");
 /* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_html_parser__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @abcfinite/s3-client-custom */ "../../../clients/s3-client-custom/index.ts");
+/* harmony import */ var _clients_betapi_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../clients/betapi-client */ "../../../clients/betapi-client/index.ts");
+
 
 
 class TipsAdapter {
@@ -23,24 +25,169 @@ class TipsAdapter {
         const predictionCols = [];
         const matchStatHtml = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_0__.parse)(matchStatFile);
         const predictions = matchStatHtml.getElementsByTagName('div').filter(div => div.attributes.class === 'ms-prediction-table');
-        console.log('>>>>>predictions>>>', predictions.length);
         predictions.forEach(pred => {
             const pTime = pred.querySelector('.prediction-time');
             const pName = pred.querySelector('.player-name-pt');
             const aOdds = pred.querySelector('.odds-item.item-border');
             const predPercentage = pred.querySelector('.prediction-item.item-border');
             const prediction = {
-                time: pTime.text.replaceAll(/\s/g, ''),
-                player1: pName.text.replaceAll(/\s/g, ''),
-                odds: aOdds.text.replaceAll(/\s/g, ''),
+                time: pTime.text.replaceAll(/\s/g, '').split('/')[0],
+                player1: pName.text.trim(),
+                odds: ((Math.round(Number(aOdds.text.replaceAll(/\s/g, '')) * 100) / 100) - 1).toFixed(2),
                 percentage: predPercentage.text.replaceAll(/\s/g, '').replaceAll(/\%/g, ''),
             };
             if (!prediction.player1.includes('over')) {
                 predictionCols.push(prediction);
             }
         });
-        // new BetapiClient().getEvents()
+        const events = await new _clients_betapi_client__WEBPACK_IMPORTED_MODULE_2__["default"]().getEvents();
+        console.log('>>>events');
+        console.log(events.length);
         return predictionCols.map(p => `${p.time},${p.player1},${p.percentage},${p.odds}`).join('\r\n');
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/betapi-client/index.ts":
+/*!***********************************************!*\
+  !*** ../../../clients/betapi-client/index.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ BetapiClient)
+/* harmony export */ });
+/* harmony import */ var _src_parsers_pagingParser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/parsers/pagingParser */ "../../../clients/betapi-client/src/parsers/pagingParser.ts");
+/* harmony import */ var _http_api_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../http-api-client */ "../../../clients/http-api-client/index.ts");
+/* harmony import */ var _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./src/parsers/eventParser */ "../../../clients/betapi-client/src/parsers/eventParser.ts");
+
+
+
+class BetapiClient {
+    constructor() {
+    }
+    async getEvents() {
+        const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_1__["default"]();
+        const result = await httpApiClient.get('https://api.b365api.com', '/v3/events/upcoming?sport_id=13&token=196561-yXe5Z8ulO9UAvk&page=1');
+        let fullIncomingEvents = [];
+        const paging = _src_parsers_pagingParser__WEBPACK_IMPORTED_MODULE_0__["default"].parse(result.value['pager']);
+        const numberOfPageTurn = Math.floor(paging.total / paging.perPage);
+        const pageOneEvents = result.value['results'].map(r => {
+            return _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(r);
+        });
+        fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents);
+        let fetchPageActions = [];
+        for (let page = 0; page < numberOfPageTurn; page++) {
+            fetchPageActions.push(this.getEveryPage(page, fullIncomingEvents));
+        }
+        fullIncomingEvents = await Promise.all(fetchPageActions);
+        return fullIncomingEvents;
+    }
+    async getEveryPage(page, fullIncomingEvents) {
+        const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_1__["default"]();
+        const loopResult = await httpApiClient.get('https://api.b365api.com', `/v3/events/upcoming?sport_id=13&token=196561-yXe5Z8ulO9UAvk&page=${2 + page}`);
+        const parsedEvents = loopResult.value['results'].map(r => {
+            return _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(r);
+        });
+        fullIncomingEvents = fullIncomingEvents.concat(parsedEvents);
+        return fullIncomingEvents;
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/betapi-client/src/parsers/eventParser.ts":
+/*!*****************************************************************!*\
+  !*** ../../../clients/betapi-client/src/parsers/eventParser.ts ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EventParser)
+/* harmony export */ });
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+
+class EventParser {
+    static parse(event) {
+        return {
+            id: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(event, 'id', ''),
+            time: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(event, 'time', ''),
+            player1: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(event, 'home.name', ''),
+            player2: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(event, 'away.name', '')
+        };
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/betapi-client/src/parsers/pagingParser.ts":
+/*!******************************************************************!*\
+  !*** ../../../clients/betapi-client/src/parsers/pagingParser.ts ***!
+  \******************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ PagingParser)
+/* harmony export */ });
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+
+class PagingParser {
+    static parse(pager) {
+        return {
+            page: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'page', 0),
+            perPage: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'per_page', 0),
+            total: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'total', 0),
+        };
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/http-api-client/index.ts":
+/*!*************************************************!*\
+  !*** ../../../clients/http-api-client/index.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ HttpApiClient)
+/* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "axios");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+
+class HttpApiClient {
+    constructor() { }
+    async get(baseUrl, path, headers, params = {}) {
+        let axiosResponse;
+        let response = {
+            value: null,
+            status: null,
+            statusText: null,
+            hasValue: false,
+            hasError: false,
+            errorText: null,
+        };
+        try {
+            axiosResponse = await axios__WEBPACK_IMPORTED_MODULE_0___default().get(baseUrl + path, { headers, params, timeout: 10000 });
+            response.status = axiosResponse.status;
+            response.value = axiosResponse.data;
+            response.hasValue = axiosResponse.data !== undefined && axiosResponse.data !== null;
+        }
+        catch (err) {
+            console.error(err);
+        }
+        return response;
     }
 }
 
@@ -150,6 +297,26 @@ class S3ClientCustom {
 /***/ ((module) => {
 
 module.exports = require("@aws-sdk/client-s3");
+
+/***/ }),
+
+/***/ "axios":
+/*!************************!*\
+  !*** external "axios" ***!
+  \************************/
+/***/ ((module) => {
+
+module.exports = require("axios");
+
+/***/ }),
+
+/***/ "lodash":
+/*!*************************!*\
+  !*** external "lodash" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = require("lodash");
 
 /***/ }),
 
