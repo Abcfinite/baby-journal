@@ -31,7 +31,7 @@ class TipsAdapter {
             const aOdds = pred.querySelector('.odds-item.item-border');
             const predPercentage = pred.querySelector('.prediction-item.item-border');
             const prediction = {
-                time: pTime.text.replaceAll(/\s/g, '').split('/')[0],
+                date: pTime.text.replaceAll(/\s/g, '').split('/')[0],
                 player1: pName.text.trim(),
                 odds: ((Math.round(Number(aOdds.text.replaceAll(/\s/g, '')) * 100) / 100) - 1).toFixed(2),
                 percentage: predPercentage.text.replaceAll(/\s/g, '').replaceAll(/\%/g, ''),
@@ -44,12 +44,21 @@ class TipsAdapter {
         predictionCols = predictionCols.map(p => {
             const e = events.find(e => e.player1.split(' ')[0] === p.player1.split(' ')[0]);
             if (e !== undefined && e !== null) {
+                console.log('>>>>p2 : ', e.player2);
+                console.log('>>>time : ', e.time);
                 p.player2 = e.player2;
-                p.time = e.time;
+                p.date = new Date(Number(e.time)).toISOString();
+                p.time = new Date(Number(e.time)).toLocaleTimeString();
             }
             return p;
         });
-        return predictionCols.map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n');
+        return predictionCols.map(p => {
+            if (p.player2 != null) {
+                return `${p.date},${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`;
+            }
+            return `${p.date},00:00,${p.player1},${p.player2},${p.percentage},${p.odds}`;
+        }).join('\r\n');
+        // return  [].map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
     }
 }
 
@@ -77,10 +86,7 @@ class BetapiClient {
     }
     async getEvents() {
         const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_1__["default"]();
-        console.log('>>>>0');
         const result = await httpApiClient.get('https://api.b365api.com', '/v3/events/upcoming', null, { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk' });
-        console.log('>>>>1');
-        console.log(result);
         let fullIncomingEvents = [];
         const paging = _src_parsers_pagingParser__WEBPACK_IMPORTED_MODULE_0__["default"].parse(result.value['pager']);
         const numberOfPageTurn = Math.floor(paging.total / paging.perPage);
@@ -95,9 +101,9 @@ class BetapiClient {
         // fullIncomingEvents = await Promise.all(fetchPageActions)
         return fullIncomingEvents;
     }
-    async getEveryPage(page, fullIncomingEvents) {
+    async getEveryPage(pageNo, fullIncomingEvents) {
         const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_1__["default"]();
-        const loopResult = await httpApiClient.get('https://api.b365api.com', `/v3/events/upcoming?sport_id=13&token=196561-yXe5Z8ulO9UAvk&page=${2 + page}`);
+        const loopResult = await httpApiClient.get('https://api.b365api.com', '/v3/events/upcoming', null, { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk', page: 2 + pageNo });
         const parsedEvents = loopResult.value['results'].map(r => {
             return _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(r);
         });

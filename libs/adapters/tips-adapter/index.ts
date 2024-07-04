@@ -19,7 +19,7 @@ export default class TipsAdapter {
       const predPercentage = pred.querySelector('.prediction-item.item-border');
 
       const prediction: Prediction = {
-        time: pTime.text.replaceAll(/\s/g,'').split('/')[0],
+        date: pTime.text.replaceAll(/\s/g,'').split('/')[0],
         player1: pName.text.trim(),
         odds: ((Math.round(Number(aOdds.text.replaceAll(/\s/g,'')) * 100) / 100) - 1).toFixed(2),
         percentage: predPercentage.text.replaceAll(/\s/g,'').replaceAll(/\%/g,''),
@@ -35,12 +35,22 @@ export default class TipsAdapter {
     predictionCols = predictionCols.map(p => {
       const e = events.find(e => e.player1.split(' ')[0] === p.player1.split(' ')[0])
       if (e !== undefined && e !== null) {
+        console.log('>>>>p2 : ', e.player2)
+        console.log('>>>time : ', e.time)
         p.player2 = e.player2
-        p.time = e.time
+        p.date = new Date(Number(e.time)).toISOString()
+        p.time = new Date(Number(e.time)).toLocaleTimeString()
       }
       return p
     })
 
-    return  predictionCols.map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
+    return  predictionCols.map(p => {
+      if (p.player2 != null) {
+        return `${p.date},${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`
+      }
+
+      return `${p.date},00:00,${p.player1},${p.player2},${p.percentage},${p.odds}`
+    }).join('\r\n')
+    // return  [].map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
   }
 }

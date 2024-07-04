@@ -12,17 +12,12 @@ export default class BetapiClient {
   async getEvents() : Promise<Array<Event>>{
     const httpApiClient = new HttpApiClient()
 
-    console.log('>>>>0')
-
     const result = await httpApiClient.get(
       'https://api.b365api.com',
       '/v3/events/upcoming',
       null,
       { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk' }
     )
-
-    console.log('>>>>1')
-    console.log(result)
 
     let fullIncomingEvents: Array<Event> = []
 
@@ -45,12 +40,15 @@ export default class BetapiClient {
     return fullIncomingEvents
   }
 
-  async getEveryPage(page: number, fullIncomingEvents: Array<Event>) {
+  async getEveryPage(pageNo: number, fullIncomingEvents: Array<Event>) {
     const httpApiClient = new HttpApiClient()
     const loopResult = await httpApiClient.get(
       'https://api.b365api.com',
-      `/v3/events/upcoming?sport_id=13&token=196561-yXe5Z8ulO9UAvk&page=${2+page}`
+      '/v3/events/upcoming',
+      null,
+      { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk', page: 2+pageNo }
     )
+
     const parsedEvents = loopResult.value['results'].map(r => {
       return EventParser.parse(r)
     })

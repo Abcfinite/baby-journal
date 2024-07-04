@@ -1,5 +1,6 @@
 export type Prediction = {
-    time: string,
+    date?: string,
+    time?: string,
     player1: string,
     player2?: string,
     odds: string,
