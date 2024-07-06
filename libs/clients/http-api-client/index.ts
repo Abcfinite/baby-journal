@@ -25,10 +25,9 @@ export default class HttpApiClient {
 
     try {
       let instance = axios.create({
-        timeout: 60000, //optional
-        httpsAgent: new https.Agent({ keepAlive: true }),
-        maxBodyLength: Infinity,
+        timeout: 10000, //optional
       })
+
       axiosResponse = await instance.get(
         baseUrl+path,
         { headers, params }

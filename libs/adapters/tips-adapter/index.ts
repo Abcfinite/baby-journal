@@ -33,14 +33,17 @@ export default class TipsAdapter {
     const events = await new BetapiClient().getEvents()
 
     predictionCols = predictionCols.map(p => {
-      const e = events.find(e => e.player1.split(' ')[0] === p.player1.split(' ')[0])
+      const e = events.find(e => e.player1.split(' ')[0] === p.player1.split(' ')[0] )
+
       if (e !== undefined && e !== null) {
-        console.log('>>>>p2 : ', e.player2)
-        console.log('>>>time : ', e.time)
         p.player2 = e.player2
-        p.date = new Date(Number(e.time)).toISOString()
-        p.time = new Date(Number(e.time)).toLocaleTimeString()
+
+        console.log('>>>>e.time', e.time)
+
+        p.date = new Date(Number(e.time) * 1000).toLocaleDateString()
+        p.time = new Date(Number(e.time) * 1000).toLocaleTimeString()
       }
+
       return p
     })
 

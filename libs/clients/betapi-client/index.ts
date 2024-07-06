@@ -30,17 +30,20 @@ export default class BetapiClient {
 
     fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents)
 
-    // let fetchPageActions = []
-    // for (let page=0; page < numberOfPageTurn; page++) {
-    //   fetchPageActions.push(this.getEveryPage(page, fullIncomingEvents))
-    // }
+    let fetchPageActions = []
+    for (let page=0; page < numberOfPageTurn; page++) {
+      fetchPageActions.push(this.getEveryPage(page))
+      // fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
+    }
 
-    // fullIncomingEvents = await Promise.all(fetchPageActions)
+    let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
+
+    parsedEvents.map(pe => fullIncomingEvents = fullIncomingEvents.concat(pe))
 
     return fullIncomingEvents
   }
 
-  async getEveryPage(pageNo: number, fullIncomingEvents: Array<Event>) {
+  async getEveryPage(pageNo: number) {
     const httpApiClient = new HttpApiClient()
     const loopResult = await httpApiClient.get(
       'https://api.b365api.com',
@@ -53,8 +56,6 @@ export default class BetapiClient {
       return EventParser.parse(r)
     })
 
-    fullIncomingEvents = fullIncomingEvents.concat(parsedEvents)
-
-    return fullIncomingEvents
+    return parsedEvents
   }
 }

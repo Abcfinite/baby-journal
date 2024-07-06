@@ -44,11 +44,10 @@ class TipsAdapter {
         predictionCols = predictionCols.map(p => {
             const e = events.find(e => e.player1.split(' ')[0] === p.player1.split(' ')[0]);
             if (e !== undefined && e !== null) {
-                console.log('>>>>p2 : ', e.player2);
-                console.log('>>>time : ', e.time);
                 p.player2 = e.player2;
-                p.date = new Date(Number(e.time)).toISOString();
-                p.time = new Date(Number(e.time)).toLocaleTimeString();
+                console.log('>>>>e.time', e.time);
+                p.date = new Date(Number(e.time) * 1000).toLocaleDateString();
+                p.time = new Date(Number(e.time) * 1000).toLocaleTimeString();
             }
             return p;
         });
@@ -94,21 +93,22 @@ class BetapiClient {
             return _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(r);
         });
         fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents);
-        // let fetchPageActions = []
-        // for (let page=0; page < numberOfPageTurn; page++) {
-        //   fetchPageActions.push(this.getEveryPage(page, fullIncomingEvents))
-        // }
-        // fullIncomingEvents = await Promise.all(fetchPageActions)
+        let fetchPageActions = [];
+        for (let page = 0; page < numberOfPageTurn; page++) {
+            fetchPageActions.push(this.getEveryPage(page));
+            // fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
+        }
+        let parsedEvents = await Promise.all(fetchPageActions);
+        parsedEvents.map(pe => fullIncomingEvents = fullIncomingEvents.concat(pe));
         return fullIncomingEvents;
     }
-    async getEveryPage(pageNo, fullIncomingEvents) {
+    async getEveryPage(pageNo) {
         const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_1__["default"]();
         const loopResult = await httpApiClient.get('https://api.b365api.com', '/v3/events/upcoming', null, { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk', page: 2 + pageNo });
         const parsedEvents = loopResult.value['results'].map(r => {
             return _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(r);
         });
-        fullIncomingEvents = fullIncomingEvents.concat(parsedEvents);
-        return fullIncomingEvents;
+        return parsedEvents;
     }
 }
 
@@ -178,11 +178,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ HttpApiClient)
 /* harmony export */ });
-/* harmony import */ var https__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! https */ "https");
-/* harmony import */ var https__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(https__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "axios");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
-
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "axios");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 
 class HttpApiClient {
     constructor() { }
@@ -197,10 +194,8 @@ class HttpApiClient {
             errorText: null,
         };
         try {
-            let instance = axios__WEBPACK_IMPORTED_MODULE_1___default().create({
-                timeout: 60000, //optional
-                httpsAgent: new https__WEBPACK_IMPORTED_MODULE_0__.Agent({ keepAlive: true }),
-                maxBodyLength: Infinity,
+            let instance = axios__WEBPACK_IMPORTED_MODULE_0___default().create({
+                timeout: 10000, //optional
             });
             axiosResponse = await instance.get(baseUrl + path, { headers, params });
             response.status = axiosResponse.status;
@@ -350,16 +345,6 @@ module.exports = require("lodash");
 /***/ ((module) => {
 
 module.exports = require("node-html-parser");
-
-/***/ }),
-
-/***/ "https":
-/*!************************!*\
-  !*** external "https" ***!
-  \************************/
-/***/ ((module) => {
-
-module.exports = require("https");
 
 /***/ })
 
