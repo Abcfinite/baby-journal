@@ -1,8 +1,8 @@
-# EVENTS SERVICE
+# TIPS SERVICE
 
 ## offline
 
-DOMAIN=sports SERVICE=events make offline
+DOMAIN=sports SERVICE=tips make offline
 
 ## Deployment
 
