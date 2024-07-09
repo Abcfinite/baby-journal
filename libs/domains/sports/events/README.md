@@ -2,7 +2,7 @@
 
 ## offline
 
-DOMAIN=sports SERVICE=bets make offline
+DOMAIN=sports SERVICE=events make offline
 
 ## Deployment
 

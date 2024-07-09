@@ -6,7 +6,7 @@ import { Prediction } from './src/types/prediction';
 
 export default class TipsAdapter {
   async getTips() {
-    const matchStatFile = await new S3ClientCustom().getFile('tennis-matchstat', 'matchstat.html')
+    const matchStatFile = await new S3ClientCustom().getFile('tennis-match-schedule-html', 'matchstat.html')
 
     let predictionCols: Array<Prediction> = []
     const matchStatHtml = parse(matchStatFile)

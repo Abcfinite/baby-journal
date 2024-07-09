@@ -19,7 +19,8 @@ export default class PlayerAdapter {
   }
 
   async checkSportEvent(sportEvent: SportEvent) {
-    const result = await this.matchesSummaryBySportEvent(sportEvent)
+    // const result = await this.matchesSummaryBySportEvent(sportEvent)
+    const result = await this.matchesSummary(sportEvent.player1.name , sportEvent.player2.name, 1, 1.1)
 
     result.analysis = await new MatchAdapter().similarMatch(result)
 

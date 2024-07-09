@@ -81,6 +81,59 @@ export default class SportEventParser {
     return sportEvents
   }
 
+  static parseMatchstatCompare(csv: string): SportEvent[] {
+    const items = csv.split('\n')
+
+    console.log('>>>>items')
+    console.log(items)
+
+    return items.map(i => {
+      const player1 = {
+        name: i.split(',')[0],
+        url: '',
+        id: '',
+        country: '',
+        dob: '',
+        currentRanking: 0,
+        highestRanking: 0,
+        matchesTotal: 0,
+        matchesWon: 0,
+        type: '',
+        previousMatches: undefined,
+        parsedPreviousMatches: []
+      }
+
+      const player2 = {
+        name: i.split(',')[1],
+        url: '',
+        id: '',
+        country: '',
+        dob: '',
+        currentRanking: 0,
+        highestRanking: 0,
+        matchesTotal: 0,
+        matchesWon: 0,
+        type: '',
+        previousMatches: undefined,
+        parsedPreviousMatches: []
+      }
+
+      const date = new Date()
+      const newEventDate = date.toLocaleDateString(undefined, {timeZone: 'Australia/Sydney'}).replaceAll('/','.')
+
+      return {
+        player1: player1,
+        player2: player2,
+        id: this.createId(player1, player2, newEventDate),
+        url: '',
+        stage: '',
+        date: '',
+        time: '',
+        competitionName: '',
+      }
+    })
+  }
+
   static createId(player1: Player, player2: Player, formattedDate: string) {
     const p1Name = player1.name.split(' ')[0]
     const p2Name = player2.name.split(' ')[0]

@@ -34,4 +34,10 @@ export default class ScheduleService {
 
     return ScheduleParser.parse(htmlResult)
   }
+
+  async getMatchstatCompareSchedule() : Promise<SportEvent[]> {
+    const csv = await new S3ClientCustom().getFile('tennis-match-schedule-html', 'matchstat_compare.csv')
+
+    return ScheduleParser.parseMatchstatCompare(csv)
+  }
 }

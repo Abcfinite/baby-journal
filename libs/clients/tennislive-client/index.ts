@@ -56,7 +56,8 @@ export default class TennisliveClient {
   }
 
   async getSchedule() : Promise<SportEvent[]> {
-    const result = await new ScheduleService().getSchedule()
+    // const result = await new ScheduleService().getSchedule()
+    const result = await new ScheduleService().getMatchstatCompareSchedule()
     return result
   }
 
