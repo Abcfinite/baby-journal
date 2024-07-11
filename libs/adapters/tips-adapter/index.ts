@@ -13,14 +13,17 @@ export default class TipsAdapter {
     const predictions = matchStatHtml.getElementsByTagName('div').filter(div => div.attributes.class === 'ms-prediction-table')
 
     predictions.forEach(pred => {
-      const pTime = pred.querySelector('.prediction-time');
-      const pName = pred.querySelector('.player-name-pt');
-      const aOdds = pred.querySelector('.odds-item.item-border');
-      const predPercentage = pred.querySelector('.prediction-item.item-border');
+      const pTitle = pred.querySelector('.prediction-title a').getAttribute('href')
+      const pTime = pred.querySelector('.prediction-time')
+      const aOdds = pred.querySelector('.odds-item.item-border')
+      const predPercentage = pred.querySelector('.prediction-item.item-border')
+
+      const linkSplitted = decodeURIComponent(pTitle).split('/')
 
       const prediction: Prediction = {
         date: pTime.text.replaceAll(/\s/g,'').split('/')[0],
-        player1: pName.text.trim(),
+        player1: linkSplitted[5],
+        player2: linkSplitted[6],
         odds: ((Math.round(Number(aOdds.text.replaceAll(/\s/g,'')) * 100) / 100) - 1).toFixed(2),
         percentage: predPercentage.text.replaceAll(/\s/g,'').replaceAll(/\%/g,''),
       }
@@ -32,22 +35,13 @@ export default class TipsAdapter {
 
     const events = await new BetapiClient().getEvents()
 
-    let isP1 = true
     predictionCols = predictionCols.map(p => {
-      let e = events.find(e => e.player1.split(' ')[0] === p.player1.split(' ')[0] )
-      isP1 = true
-
-      if (e === undefined || e === null) {
-        e = events.find(e => e.player2.split(' ')[0] === p.player1.split(' ')[0] )
-        isP1 = false
-      }
+      let e = events.find(e => e.player1.toLowerCase() === p.player1.toLowerCase() ||  e.player2.toLowerCase() === p.player1.toLowerCase())
 
       if (e !== undefined && e !== null) {
-        p.player2 = isP1 ? e.player2 : e.player1
         p.date = new Date(Number(e.time) * 1000).toLocaleDateString()
-        p.time = new Date(Number(e.time) * 1000).toLocaleString('en-US', {timeZone: 'Australia/Sydney'}).split(',')[1]
+        p.time = new Date(Number(e.time) * 1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'}).split(',')[1]
       }
-
       return p
     })
 
