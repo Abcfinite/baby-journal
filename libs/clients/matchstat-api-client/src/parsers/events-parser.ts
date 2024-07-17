@@ -5,8 +5,7 @@ export default class EventsParser {
     constructor() {}
 
     parse = (results : Array<HttpResponse>) => {
-        results.map(r => {
-            const event = new EventParser().parse(r)
-        })
+        const cols = results.map(r =>  new EventParser().parse(r))
+        return cols.flat()
     }
 }

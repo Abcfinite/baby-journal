@@ -173,8 +173,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ MatchstatApiClient)
 /* harmony export */ });
-/* harmony import */ var _services_match_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./services/match-service */ "../../../clients/matchstat-api-client/services/match-service.ts");
-/* harmony import */ var _parsers_events_parser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./parsers/events-parser */ "../../../clients/matchstat-api-client/parsers/events-parser.ts");
+/* harmony import */ var _src_services_match_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/services/match-service */ "../../../clients/matchstat-api-client/src/services/match-service.ts");
+/* harmony import */ var _src_parsers_events_parser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/parsers/events-parser */ "../../../clients/matchstat-api-client/src/parsers/events-parser.ts");
 
 
 class MatchstatApiClient {
@@ -184,21 +184,24 @@ class MatchstatApiClient {
         let result;
         let pageNo = 1;
         do {
-            result = await new _services_match_service__WEBPACK_IMPORTED_MODULE_0__["default"]().getTodayMatch(pageNo.toString());
+            result = await new _src_services_match_service__WEBPACK_IMPORTED_MODULE_0__["default"]().getTodayMatch(pageNo.toString());
             resultCols.push(result);
             pageNo++;
         } while (result.value['hasNextPage']);
-        const events = new _parsers_events_parser__WEBPACK_IMPORTED_MODULE_1__["default"]().parse(resultCols);
+        const events = new _src_parsers_events_parser__WEBPACK_IMPORTED_MODULE_1__["default"]().parse(resultCols);
+        console.log('>>>>>events');
+        console.log(events);
+        return events;
     }
 }
 
 
 /***/ }),
 
-/***/ "../../../clients/matchstat-api-client/parsers/event-parser.ts":
-/*!*********************************************************************!*\
-  !*** ../../../clients/matchstat-api-client/parsers/event-parser.ts ***!
-  \*********************************************************************/
+/***/ "../../../clients/matchstat-api-client/src/parsers/event-parser.ts":
+/*!*************************************************************************!*\
+  !*** ../../../clients/matchstat-api-client/src/parsers/event-parser.ts ***!
+  \*************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -208,8 +211,25 @@ __webpack_require__.r(__webpack_exports__);
 class EventParser {
     constructor() {
         this.parse = (result) => {
-            result.value['data'].map(e => {
-                console.log(e);
+            return result.value['data'].map(e => {
+                const p1 = {
+                    id: e['player1']['id'],
+                    name: e['player1']['name'],
+                    countryAcr: e['player1']['countryAcr'],
+                };
+                const p2 = {
+                    id: e['player2']['id'],
+                    name: e['player2']['name'],
+                    countryAcr: e['player2']['countryAcr'],
+                };
+                return {
+                    id: e['id'],
+                    date: e['date'],
+                    roundId: e['roundId'],
+                    tournamentId: e['tournamentId'],
+                    player1: p1,
+                    player2: p2
+                };
             });
         };
     }
@@ -218,24 +238,23 @@ class EventParser {
 
 /***/ }),
 
-/***/ "../../../clients/matchstat-api-client/parsers/events-parser.ts":
-/*!**********************************************************************!*\
-  !*** ../../../clients/matchstat-api-client/parsers/events-parser.ts ***!
-  \**********************************************************************/
+/***/ "../../../clients/matchstat-api-client/src/parsers/events-parser.ts":
+/*!**************************************************************************!*\
+  !*** ../../../clients/matchstat-api-client/src/parsers/events-parser.ts ***!
+  \**************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ EventsParser)
 /* harmony export */ });
-/* harmony import */ var _event_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event-parser */ "../../../clients/matchstat-api-client/parsers/event-parser.ts");
+/* harmony import */ var _event_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event-parser */ "../../../clients/matchstat-api-client/src/parsers/event-parser.ts");
 
 class EventsParser {
     constructor() {
         this.parse = (results) => {
-            results.map(r => {
-                const event = new _event_parser__WEBPACK_IMPORTED_MODULE_0__["default"]().parse(r);
-            });
+            const cols = results.map(r => new _event_parser__WEBPACK_IMPORTED_MODULE_0__["default"]().parse(r));
+            return cols.flat();
         };
     }
 }
@@ -243,10 +262,10 @@ class EventsParser {
 
 /***/ }),
 
-/***/ "../../../clients/matchstat-api-client/services/match-service.ts":
-/*!***********************************************************************!*\
-  !*** ../../../clients/matchstat-api-client/services/match-service.ts ***!
-  \***********************************************************************/
+/***/ "../../../clients/matchstat-api-client/src/services/match-service.ts":
+/*!***************************************************************************!*\
+  !*** ../../../clients/matchstat-api-client/src/services/match-service.ts ***!
+  \***************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);

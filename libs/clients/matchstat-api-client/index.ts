@@ -1,6 +1,6 @@
 import { HttpResponse } from '@abcfinite/http-api-client/src/types/http-response';
-import MatchService from './services/match-service';
-import EventsParser from './parsers/events-parser';
+import MatchService from './src/services/match-service';
+import EventsParser from './src/parsers/events-parser';
 
 export default class MatchstatApiClient {
 
@@ -17,5 +17,10 @@ export default class MatchstatApiClient {
     } while(result.value['hasNextPage'])
 
     const events = new EventsParser().parse(resultCols)
+
+    console.log('>>>>>events')
+    console.log(events)
+
+    return events
   }
 }
