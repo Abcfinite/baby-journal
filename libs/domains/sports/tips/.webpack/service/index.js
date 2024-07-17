@@ -16,6 +16,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_html_parser__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @abcfinite/s3-client-custom */ "../../../clients/s3-client-custom/index.ts");
 /* harmony import */ var _clients_betapi_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../clients/betapi-client */ "../../../clients/betapi-client/index.ts");
+/* harmony import */ var fast_csv__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fast-csv */ "fast-csv");
+/* harmony import */ var fast_csv__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fast_csv__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var stream__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! stream */ "stream");
+/* harmony import */ var stream__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(stream__WEBPACK_IMPORTED_MODULE_4__);
+
+
 
 
 
@@ -68,6 +74,44 @@ class TipsAdapter {
             return `${p.date},00:00,${p.stage},${p.player1},${p.player2},${p.percentage},${p.odds}`;
         }).join('\r\n');
         // return  [].map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
+    }
+    async getCombineTips() {
+        const matchStatCsvRowsCol = await this.matchStatCsvRows();
+        const todayCsvCol = await this.todayCsvRows();
+        return matchStatCsvRowsCol.map(m => {
+            const cMatch = todayCsvCol.find(tm => m['fp'].toLowerCase() === tm['fav p'].toLowerCase());
+            let percentage = '0,0';
+            if (cMatch !== null && cMatch !== undefined) {
+                percentage = `${cMatch['match no']},${cMatch['win percentage']}`;
+            }
+            return `${m['date']},${m['time']},${m['stage']},${m['fp']},${m['nfp']},${m['wp']},${m['odds']},${percentage}`;
+        }).join('\r\n');
+    }
+    async todayCsvRows() {
+        const matchStatCsv = await new _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__["default"]().getFile('tennis-match-schedule', 'today.csv');
+        const rows = [];
+        return new Promise((resolve, reject) => {
+            stream__WEBPACK_IMPORTED_MODULE_4__.Readable.from(matchStatCsv)
+                .pipe(fast_csv__WEBPACK_IMPORTED_MODULE_3__.parse({ headers: true }))
+                .on('error', error => reject(error))
+                .on('data', row => rows.push(row))
+                .on('end', _ => {
+                resolve(rows);
+            });
+        });
+    }
+    async matchStatCsvRows() {
+        const matchStatCsv = await new _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__["default"]().getFile('tennis-match-schedule-html', 'matchstat_filtered.csv');
+        const rows = [];
+        return new Promise((resolve, reject) => {
+            stream__WEBPACK_IMPORTED_MODULE_4__.Readable.from(matchStatCsv)
+                .pipe(fast_csv__WEBPACK_IMPORTED_MODULE_3__.parse({ headers: true }))
+                .on('error', error => reject(error))
+                .on('data', row => rows.push(row))
+                .on('end', _ => {
+                resolve(rows);
+            });
+        });
     }
 }
 
@@ -338,6 +382,16 @@ module.exports = require("axios");
 
 /***/ }),
 
+/***/ "fast-csv":
+/*!***************************!*\
+  !*** external "fast-csv" ***!
+  \***************************/
+/***/ ((module) => {
+
+module.exports = require("fast-csv");
+
+/***/ }),
+
 /***/ "lodash":
 /*!*************************!*\
   !*** external "lodash" ***!
@@ -355,6 +409,16 @@ module.exports = require("lodash");
 /***/ ((module) => {
 
 module.exports = require("node-html-parser");
+
+/***/ }),
+
+/***/ "stream":
+/*!*************************!*\
+  !*** external "stream" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = require("stream");
 
 /***/ })
 
@@ -434,12 +498,23 @@ var __webpack_exports__ = {};
   \******************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getCombineTips: () => (/* binding */ getCombineTips),
 /* harmony export */   getLatestTips: () => (/* binding */ getLatestTips)
 /* harmony export */ });
 /* harmony import */ var _abcfinite_tips_adapter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/tips-adapter */ "../../../adapters/tips-adapter/index.ts");
 
 const getLatestTips = async (event) => {
     const result = await new _abcfinite_tips_adapter__WEBPACK_IMPORTED_MODULE_0__["default"]().getTips();
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify(result, null, 2),
+    };
+    return new Promise((resolve) => {
+        resolve(response);
+    });
+};
+const getCombineTips = async (event) => {
+    const result = await new _abcfinite_tips_adapter__WEBPACK_IMPORTED_MODULE_0__["default"]().getCombineTips();
     const response = {
         statusCode: 200,
         body: JSON.stringify(result, null, 2),
