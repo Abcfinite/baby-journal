@@ -5,6 +5,7 @@ import BetapiClient from "../../clients/betapi-client";
 import { Prediction } from './src/types/prediction';
 import * as csv from 'fast-csv'
 import { Readable } from 'stream'
+import MatchstatApiClient from "../../clients/matchstat-api-client";
 
 export default class TipsAdapter {
   async getTips() {
@@ -13,6 +14,7 @@ export default class TipsAdapter {
     let predictionCols: Array<Prediction> = []
     const matchStatHtml = parse(matchStatFile)
     const predictions = matchStatHtml.getElementsByTagName('div').filter(div => div.attributes.class === 'ms-prediction-table')
+
 
     predictions.forEach(pred => {
       const pTitle = pred.querySelector('.prediction-title a').getAttribute('href')
@@ -42,22 +44,23 @@ export default class TipsAdapter {
       }
     })
 
-    const events = await new BetapiClient().getEvents()
+    // const events = await new BetapiClient().getEvents()
+    const events = await new MatchstatApiClient().getTodayMatches()
 
-    predictionCols = predictionCols.map(p => {
-      let e = events.find(e => e.player1.toLowerCase() === p.player1.toLowerCase() ||  e.player2.toLowerCase() === p.player1.toLowerCase())
+    // predictionCols = predictionCols.map(p => {
+    //   let e = events.find(e => e.player1.toLowerCase() === p.player1.toLowerCase() ||  e.player2.toLowerCase() === p.player1.toLowerCase())
 
-      if (e !== undefined && e !== null) {
-        p.date = new Date(Number(e.time) * 1000).toLocaleDateString()
-        const localDateTime = new Date(Number(e.time) * 1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'}).split(',')
-        p.time = localDateTime[1]
+    //   if (e !== undefined && e !== null) {
+    //     p.date = new Date(Number(e.time) * 1000).toLocaleDateString()
+    //     const localDateTime = new Date(Number(e.time) * 1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'}).split(',')
+    //     p.time = localDateTime[1]
 
-        if (p.time !== null && p.time !== undefined ) {
-          p.date = localDateTime[0]
-        }
-      }
-      return p
-    })
+    //     if (p.time !== null && p.time !== undefined ) {
+    //       p.date = localDateTime[0]
+    //     }
+    //   }
+    //   return p
+    // })
 
     return  predictionCols.map(p => {
       if (p.time != null) {

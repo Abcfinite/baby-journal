@@ -31,6 +31,7 @@
       "@abcfinite/tennislive-client": ["./libs/client/tennislive-client"],
       "@abcfinite/betapi-client": ["./libs/client/betapi-client"],
       "@abcfinite/s3-client": ["./libs/client/s3-client-custom"],
+      "@abcfinite/matchstat-api-client": ["./libs/client/matchstat-api-client"],
     }
   }
 }

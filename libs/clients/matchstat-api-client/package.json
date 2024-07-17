@@ -1,11 +1,12 @@
 {
-  "name": "@abcfinite/matchstat-client",
-  "version": "0.0.4",
+  "name": "@abcfinite/matchstat-api-client",
+  "version": "0.0.1",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "main": "./index.ts",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.462.0",
-    "@aws-sdk/lib-dynamodb": "^3.462.0"
+    "@aws-sdk/lib-dynamodb": "^3.462.0",
+    "@abcfinite/http-api-client": "^0.0.2"
   },
   "scripts": {
     "build": "tsc"
