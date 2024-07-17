@@ -13,7 +13,7 @@ export default class MatchService {
 
         let result = await httpApiClient.get(
             'https://tennis-api-atp-wta-itf.p.rapidapi.com',
-            '/tennis/v2/atp/fixtures/2024-07-17/2024-07-18?pageNo='+pageNo ,
+            '/tennis/v2/atp/fixtures/2024-07-17/2024-07-19?pageNo='+pageNo ,
             headers,
           )
 

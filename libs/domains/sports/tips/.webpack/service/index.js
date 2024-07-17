@@ -54,27 +54,24 @@ class TipsAdapter {
                 predictionCols.push(prediction);
             }
         });
-        // const events = await new BetapiClient().getEvents()
         const events = await new _clients_matchstat_api_client__WEBPACK_IMPORTED_MODULE_4__["default"]().getTodayMatches();
-        // predictionCols = predictionCols.map(p => {
-        //   let e = events.find(e => e.player1.toLowerCase() === p.player1.toLowerCase() ||  e.player2.toLowerCase() === p.player1.toLowerCase())
-        //   if (e !== undefined && e !== null) {
-        //     p.date = new Date(Number(e.time) * 1000).toLocaleDateString()
-        //     const localDateTime = new Date(Number(e.time) * 1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'}).split(',')
-        //     p.time = localDateTime[1]
-        //     if (p.time !== null && p.time !== undefined ) {
-        //       p.date = localDateTime[0]
-        //     }
-        //   }
-        //   return p
-        // })
+        predictionCols = predictionCols.map(p => {
+            let e = events.find(e => e.player1.name.toLowerCase() === p.player1.toLowerCase() || e.player2.name.toLowerCase() === p.player1.toLowerCase());
+            console.log('>>>>event');
+            console.log(e);
+            if (e !== undefined && e !== null) {
+                const currentLocalDate = new Date(Date.parse(e.date)).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' }).split(',');
+                p.date = currentLocalDate[0];
+                p.time = currentLocalDate[1].trim();
+            }
+            return p;
+        });
         return predictionCols.map(p => {
             if (p.time != null) {
                 return `${p.date},${p.time},${p.stage},${p.player1},${p.player2},${p.percentage},${p.odds}`;
             }
             return `${p.date},00:00,${p.stage},${p.player1},${p.player2},${p.percentage},${p.odds}`;
         }).join('\r\n');
-        // return  [].map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
     }
     async getCombineTips() {
         const matchStatCsvRowsCol = await this.matchStatCsvRows();
@@ -282,7 +279,7 @@ class MatchService {
             'x-rapidapi-host': 'tennis-api-atp-wta-itf.p.rapidapi.com',
             'x-rapidapi-key': '25a20073a7mshc8d4c9150074dbap1b8ae1jsnb855df84de3e'
         };
-        let result = await httpApiClient.get('https://tennis-api-atp-wta-itf.p.rapidapi.com', '/tennis/v2/atp/fixtures/2024-07-17/2024-07-18?pageNo=' + pageNo, headers);
+        let result = await httpApiClient.get('https://tennis-api-atp-wta-itf.p.rapidapi.com', '/tennis/v2/atp/fixtures/2024-07-17/2024-07-19?pageNo=' + pageNo, headers);
         return result;
     }
 }
