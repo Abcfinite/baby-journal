@@ -36,3 +36,10 @@ functions:
       - http:
           path: /tips
           method: get
+  getCombineTips:
+    handler: index.getCombineTips
+    timeout: 900
+    events:
+      - http:
+          path: /combine
+          method: get

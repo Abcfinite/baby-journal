@@ -3,6 +3,8 @@ import { parse } from 'node-html-parser';
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import BetapiClient from "../../clients/betapi-client";
 import { Prediction } from './src/types/prediction';
+import * as csv from 'fast-csv'
+import { Readable } from 'stream'
 
 export default class TipsAdapter {
   async getTips() {
@@ -65,5 +67,53 @@ export default class TipsAdapter {
       return `${p.date},00:00,${p.stage},${p.player1},${p.player2},${p.percentage},${p.odds}`
     }).join('\r\n')
     // return  [].map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
+  }
+
+
+  async getCombineTips() {
+    const matchStatCsvRowsCol: any = await this.matchStatCsvRows()
+    const todayCsvCol: any = await this.todayCsvRows()
+
+
+    return matchStatCsvRowsCol.map(m => {
+      const cMatch = todayCsvCol.find(tm => m['fp'].toLowerCase() === tm['fav p'].toLowerCase())
+
+      let percentage = '0,0'
+      if (cMatch !== null && cMatch !== undefined) {
+        percentage = `${cMatch['match no']},${cMatch['win percentage']}`
+      }
+
+      return `${m['date']},${m['time']},${m['stage']},${m['fp']},${m['nfp']},${m['wp']},${m['odds']},${percentage}`
+    }).join('\r\n')
+  }
+
+  async todayCsvRows() {
+    const matchStatCsv = await new S3ClientCustom().getFile('tennis-match-schedule', 'today.csv')
+    const rows = []
+
+    return new Promise((resolve, reject) => {
+      Readable.from(matchStatCsv)
+      .pipe(csv.parse({ headers: true }))
+      .on('error', error => reject(error))
+      .on('data', row => rows.push(row))
+      .on('end', _ => {
+        resolve(rows)
+      });
+    })
+  }
+
+  async matchStatCsvRows() {
+    const matchStatCsv = await new S3ClientCustom().getFile('tennis-match-schedule-html', 'matchstat_filtered.csv')
+    const rows = []
+
+    return new Promise((resolve, reject) => {
+      Readable.from(matchStatCsv)
+      .pipe(csv.parse({ headers: true }))
+      .on('error', error => reject(error))
+      .on('data', row => rows.push(row))
+      .on('end', _ => {
+        resolve(rows)
+      });
+    })
   }
 }

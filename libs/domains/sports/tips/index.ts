@@ -18,3 +18,19 @@ export const getLatestTips: Handler = async (event: any) => {
   })
 }
 
+export const getCombineTips: Handler = async (event: any) => {
+
+  const result = await new TipsAdapter().getCombineTips()
+
+  const response = {
+      statusCode: 200,
+      body: JSON.stringify(result,
+        null,
+        2
+      ),
+    }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
