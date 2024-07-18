@@ -48,13 +48,13 @@ export default class TipsAdapter {
     predictionCols = predictionCols.map(p => {
       let e = events.find(e => e.player1.name.toLowerCase() === p.player1.toLowerCase() ||  e.player2.name.toLowerCase() === p.player1.toLowerCase())
 
-      console.log('>>>>event')
-      console.log(e)
-
       if (e !== undefined && e !== null) {
         const currentLocalDate = new Date(Date.parse(e.date)).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'}).split(',')
         p.date = currentLocalDate[0]
         p.time = currentLocalDate[1].trim()
+      } else {
+        console.log('>>>>p not found')
+        console.log(p)
       }
       return p
     })

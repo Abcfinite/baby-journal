@@ -57,12 +57,14 @@ class TipsAdapter {
         const events = await new _clients_matchstat_api_client__WEBPACK_IMPORTED_MODULE_4__["default"]().getTodayMatches();
         predictionCols = predictionCols.map(p => {
             let e = events.find(e => e.player1.name.toLowerCase() === p.player1.toLowerCase() || e.player2.name.toLowerCase() === p.player1.toLowerCase());
-            console.log('>>>>event');
-            console.log(e);
             if (e !== undefined && e !== null) {
                 const currentLocalDate = new Date(Date.parse(e.date)).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' }).split(',');
                 p.date = currentLocalDate[0];
                 p.time = currentLocalDate[1].trim();
+            }
+            else {
+                console.log('>>>>p not found');
+                console.log(p);
             }
             return p;
         });
@@ -175,20 +177,33 @@ __webpack_require__.r(__webpack_exports__);
 
 
 class MatchstatApiClient {
-    constructor() { }
-    async getTodayMatches() {
-        let resultCols = [];
-        let result;
-        let pageNo = 1;
-        do {
-            result = await new _src_services_match_service__WEBPACK_IMPORTED_MODULE_0__["default"]().getTodayMatch(pageNo.toString());
-            resultCols.push(result);
-            pageNo++;
-        } while (result.value['hasNextPage']);
-        const events = new _src_parsers_events_parser__WEBPACK_IMPORTED_MODULE_1__["default"]().parse(resultCols);
-        console.log('>>>>>events');
-        console.log(events);
-        return events;
+    constructor() {
+        this.getTodayMatches = async () => {
+            let completeEvents = [];
+            console.log('info: start fetch events');
+            const wtaEvents = await this.getMatchesBasedOnType('wta');
+            completeEvents = completeEvents.concat(wtaEvents);
+            console.log(`info: wta ${wtaEvents.length} events`);
+            const atpEvents = await this.getMatchesBasedOnType('atp');
+            completeEvents = completeEvents.concat(atpEvents);
+            console.log(`info: atp ${atpEvents.length} events`);
+            // const itfEvents = await this.getMatchesBasedOnType('itf')
+            // completeEvents = completeEvents.concat(itfEvents)
+            // console.log(`info: itf ${itfEvents.length} events`)
+            return completeEvents;
+        };
+        this.getMatchesBasedOnType = async (type) => {
+            let resultCols = [];
+            let result;
+            let pageNo = 1;
+            do {
+                result = await new _src_services_match_service__WEBPACK_IMPORTED_MODULE_0__["default"]().getTodayMatch(type, pageNo.toString());
+                resultCols.push(result);
+                pageNo++;
+            } while (result.value['hasNextPage']);
+            const events = new _src_parsers_events_parser__WEBPACK_IMPORTED_MODULE_1__["default"]().parse(resultCols);
+            return events;
+        };
     }
 }
 
@@ -273,13 +288,13 @@ __webpack_require__.r(__webpack_exports__);
 
 class MatchService {
     constructor() { }
-    async getTodayMatch(pageNo) {
+    async getTodayMatch(type, pageNo) {
         const httpApiClient = new _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
         const headers = {
             'x-rapidapi-host': 'tennis-api-atp-wta-itf.p.rapidapi.com',
             'x-rapidapi-key': '25a20073a7mshc8d4c9150074dbap1b8ae1jsnb855df84de3e'
         };
-        let result = await httpApiClient.get('https://tennis-api-atp-wta-itf.p.rapidapi.com', '/tennis/v2/atp/fixtures/2024-07-17/2024-07-19?pageNo=' + pageNo, headers);
+        let result = await httpApiClient.get('https://tennis-api-atp-wta-itf.p.rapidapi.com', `/tennis/v2/${type}/fixtures/2024-07-17/2024-07-19?pageNo=${pageNo}`, headers);
         return result;
     }
 }
