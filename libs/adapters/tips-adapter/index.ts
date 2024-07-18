@@ -1,10 +1,10 @@
 import _ from "lodash"
 import { parse } from 'node-html-parser';
 import S3ClientCustom from '@abcfinite/s3-client-custom'
-import BetapiClient from "../../clients/betapi-client";
 import { Prediction } from './src/types/prediction';
 import * as csv from 'fast-csv'
 import { Readable } from 'stream'
+import MatchstatApiClient from "../../clients/matchstat-api-client";
 
 export default class TipsAdapter {
   async getTips() {
@@ -13,6 +13,7 @@ export default class TipsAdapter {
     let predictionCols: Array<Prediction> = []
     const matchStatHtml = parse(matchStatFile)
     const predictions = matchStatHtml.getElementsByTagName('div').filter(div => div.attributes.class === 'ms-prediction-table')
+
 
     predictions.forEach(pred => {
       const pTitle = pred.querySelector('.prediction-title a').getAttribute('href')
@@ -42,19 +43,18 @@ export default class TipsAdapter {
       }
     })
 
-    const events = await new BetapiClient().getEvents()
+    const events = await new MatchstatApiClient().getTodayMatches()
 
     predictionCols = predictionCols.map(p => {
-      let e = events.find(e => e.player1.toLowerCase() === p.player1.toLowerCase() ||  e.player2.toLowerCase() === p.player1.toLowerCase())
+      let e = events.find(e => e.player1.name.toLowerCase() === p.player1.toLowerCase() ||  e.player2.name.toLowerCase() === p.player1.toLowerCase())
 
       if (e !== undefined && e !== null) {
-        p.date = new Date(Number(e.time) * 1000).toLocaleDateString()
-        const localDateTime = new Date(Number(e.time) * 1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'}).split(',')
-        p.time = localDateTime[1]
-
-        if (p.time !== null && p.time !== undefined ) {
-          p.date = localDateTime[0]
-        }
+        const currentLocalDate = new Date(Date.parse(e.date)).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'}).split(',')
+        p.date = currentLocalDate[0]
+        p.time = currentLocalDate[1].trim()
+      } else {
+        console.log('>>>>p not found')
+        console.log(p)
       }
       return p
     })
@@ -66,7 +66,6 @@ export default class TipsAdapter {
 
       return `${p.date},00:00,${p.stage},${p.player1},${p.player2},${p.percentage},${p.odds}`
     }).join('\r\n')
-    // return  [].map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
   }
 
 

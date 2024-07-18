@@ -15,11 +15,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! node-html-parser */ "node-html-parser");
 /* harmony import */ var node_html_parser__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(node_html_parser__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @abcfinite/s3-client-custom */ "../../../clients/s3-client-custom/index.ts");
-/* harmony import */ var _clients_betapi_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../clients/betapi-client */ "../../../clients/betapi-client/index.ts");
-/* harmony import */ var fast_csv__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fast-csv */ "fast-csv");
-/* harmony import */ var fast_csv__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fast_csv__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var stream__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! stream */ "stream");
-/* harmony import */ var stream__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(stream__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var fast_csv__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! fast-csv */ "fast-csv");
+/* harmony import */ var fast_csv__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(fast_csv__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var stream__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! stream */ "stream");
+/* harmony import */ var stream__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(stream__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _clients_matchstat_api_client__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../clients/matchstat-api-client */ "../../../clients/matchstat-api-client/index.ts");
 
 
 
@@ -54,16 +54,17 @@ class TipsAdapter {
                 predictionCols.push(prediction);
             }
         });
-        const events = await new _clients_betapi_client__WEBPACK_IMPORTED_MODULE_2__["default"]().getEvents();
+        const events = await new _clients_matchstat_api_client__WEBPACK_IMPORTED_MODULE_4__["default"]().getTodayMatches();
         predictionCols = predictionCols.map(p => {
-            let e = events.find(e => e.player1.toLowerCase() === p.player1.toLowerCase() || e.player2.toLowerCase() === p.player1.toLowerCase());
+            let e = events.find(e => e.player1.name.toLowerCase() === p.player1.toLowerCase() || e.player2.name.toLowerCase() === p.player1.toLowerCase());
             if (e !== undefined && e !== null) {
-                p.date = new Date(Number(e.time) * 1000).toLocaleDateString();
-                const localDateTime = new Date(Number(e.time) * 1000).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' }).split(',');
-                p.time = localDateTime[1];
-                if (p.time !== null && p.time !== undefined) {
-                    p.date = localDateTime[0];
-                }
+                const currentLocalDate = new Date(Date.parse(e.date)).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' }).split(',');
+                p.date = currentLocalDate[0];
+                p.time = currentLocalDate[1].trim();
+            }
+            else {
+                console.log('>>>>p not found');
+                console.log(p);
             }
             return p;
         });
@@ -73,7 +74,6 @@ class TipsAdapter {
             }
             return `${p.date},00:00,${p.stage},${p.player1},${p.player2},${p.percentage},${p.odds}`;
         }).join('\r\n');
-        // return  [].map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
     }
     async getCombineTips() {
         const matchStatCsvRowsCol = await this.matchStatCsvRows();
@@ -91,8 +91,8 @@ class TipsAdapter {
         const matchStatCsv = await new _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__["default"]().getFile('tennis-match-schedule', 'today.csv');
         const rows = [];
         return new Promise((resolve, reject) => {
-            stream__WEBPACK_IMPORTED_MODULE_4__.Readable.from(matchStatCsv)
-                .pipe(fast_csv__WEBPACK_IMPORTED_MODULE_3__.parse({ headers: true }))
+            stream__WEBPACK_IMPORTED_MODULE_3__.Readable.from(matchStatCsv)
+                .pipe(fast_csv__WEBPACK_IMPORTED_MODULE_2__.parse({ headers: true }))
                 .on('error', error => reject(error))
                 .on('data', row => rows.push(row))
                 .on('end', _ => {
@@ -104,118 +104,14 @@ class TipsAdapter {
         const matchStatCsv = await new _abcfinite_s3_client_custom__WEBPACK_IMPORTED_MODULE_1__["default"]().getFile('tennis-match-schedule-html', 'matchstat_filtered.csv');
         const rows = [];
         return new Promise((resolve, reject) => {
-            stream__WEBPACK_IMPORTED_MODULE_4__.Readable.from(matchStatCsv)
-                .pipe(fast_csv__WEBPACK_IMPORTED_MODULE_3__.parse({ headers: true }))
+            stream__WEBPACK_IMPORTED_MODULE_3__.Readable.from(matchStatCsv)
+                .pipe(fast_csv__WEBPACK_IMPORTED_MODULE_2__.parse({ headers: true }))
                 .on('error', error => reject(error))
                 .on('data', row => rows.push(row))
                 .on('end', _ => {
                 resolve(rows);
             });
         });
-    }
-}
-
-
-/***/ }),
-
-/***/ "../../../clients/betapi-client/index.ts":
-/*!***********************************************!*\
-  !*** ../../../clients/betapi-client/index.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ BetapiClient)
-/* harmony export */ });
-/* harmony import */ var _src_parsers_pagingParser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/parsers/pagingParser */ "../../../clients/betapi-client/src/parsers/pagingParser.ts");
-/* harmony import */ var _http_api_client__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../http-api-client */ "../../../clients/http-api-client/index.ts");
-/* harmony import */ var _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./src/parsers/eventParser */ "../../../clients/betapi-client/src/parsers/eventParser.ts");
-
-
-
-class BetapiClient {
-    constructor() {
-    }
-    async getEvents() {
-        const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_1__["default"]();
-        const result = await httpApiClient.get('https://api.b365api.com', '/v3/events/upcoming', null, { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk' });
-        let fullIncomingEvents = [];
-        const paging = _src_parsers_pagingParser__WEBPACK_IMPORTED_MODULE_0__["default"].parse(result.value['pager']);
-        const numberOfPageTurn = Math.floor(paging.total / paging.perPage);
-        const pageOneEvents = result.value['results'].map(r => {
-            return _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(r);
-        });
-        fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents);
-        let fetchPageActions = [];
-        for (let page = 0; page < numberOfPageTurn; page++) {
-            fetchPageActions.push(this.getEveryPage(page));
-            // fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
-        }
-        let parsedEvents = await Promise.all(fetchPageActions);
-        parsedEvents.map(pe => fullIncomingEvents = fullIncomingEvents.concat(pe));
-        return fullIncomingEvents;
-    }
-    async getEveryPage(pageNo) {
-        const httpApiClient = new _http_api_client__WEBPACK_IMPORTED_MODULE_1__["default"]();
-        const loopResult = await httpApiClient.get('https://api.b365api.com', '/v3/events/upcoming', null, { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk', page: 2 + pageNo });
-        const parsedEvents = loopResult.value['results'].map(r => {
-            return _src_parsers_eventParser__WEBPACK_IMPORTED_MODULE_2__["default"].parse(r);
-        });
-        return parsedEvents;
-    }
-}
-
-
-/***/ }),
-
-/***/ "../../../clients/betapi-client/src/parsers/eventParser.ts":
-/*!*****************************************************************!*\
-  !*** ../../../clients/betapi-client/src/parsers/eventParser.ts ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ EventParser)
-/* harmony export */ });
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
-
-class EventParser {
-    static parse(event) {
-        return {
-            id: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(event, 'id', ''),
-            time: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(event, 'time', ''),
-            player1: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(event, 'home.name', ''),
-            player2: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(event, 'away.name', '')
-        };
-    }
-}
-
-
-/***/ }),
-
-/***/ "../../../clients/betapi-client/src/parsers/pagingParser.ts":
-/*!******************************************************************!*\
-  !*** ../../../clients/betapi-client/src/parsers/pagingParser.ts ***!
-  \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ PagingParser)
-/* harmony export */ });
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "lodash");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
-
-class PagingParser {
-    static parse(pager) {
-        return {
-            page: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'page', 0),
-            perPage: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'per_page', 0),
-            total: lodash__WEBPACK_IMPORTED_MODULE_0___default().get(pager, 'total', 0),
-        };
     }
 }
 
@@ -260,6 +156,146 @@ class HttpApiClient {
             console.error(err);
         }
         return response;
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/matchstat-api-client/index.ts":
+/*!******************************************************!*\
+  !*** ../../../clients/matchstat-api-client/index.ts ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ MatchstatApiClient)
+/* harmony export */ });
+/* harmony import */ var _src_services_match_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/services/match-service */ "../../../clients/matchstat-api-client/src/services/match-service.ts");
+/* harmony import */ var _src_parsers_events_parser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/parsers/events-parser */ "../../../clients/matchstat-api-client/src/parsers/events-parser.ts");
+
+
+class MatchstatApiClient {
+    constructor() {
+        this.getTodayMatches = async () => {
+            let completeEvents = [];
+            console.log('info: start fetch events');
+            const wtaEvents = await this.getMatchesBasedOnType('wta');
+            completeEvents = completeEvents.concat(wtaEvents);
+            console.log(`info: wta ${wtaEvents.length} events`);
+            const atpEvents = await this.getMatchesBasedOnType('atp');
+            completeEvents = completeEvents.concat(atpEvents);
+            console.log(`info: atp ${atpEvents.length} events`);
+            // const itfEvents = await this.getMatchesBasedOnType('itf')
+            // completeEvents = completeEvents.concat(itfEvents)
+            // console.log(`info: itf ${itfEvents.length} events`)
+            return completeEvents;
+        };
+        this.getMatchesBasedOnType = async (type) => {
+            let resultCols = [];
+            let result;
+            let pageNo = 1;
+            do {
+                result = await new _src_services_match_service__WEBPACK_IMPORTED_MODULE_0__["default"]().getTodayMatch(type, pageNo.toString());
+                resultCols.push(result);
+                pageNo++;
+            } while (result.value['hasNextPage']);
+            const events = new _src_parsers_events_parser__WEBPACK_IMPORTED_MODULE_1__["default"]().parse(resultCols);
+            return events;
+        };
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/matchstat-api-client/src/parsers/event-parser.ts":
+/*!*************************************************************************!*\
+  !*** ../../../clients/matchstat-api-client/src/parsers/event-parser.ts ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EventParser)
+/* harmony export */ });
+class EventParser {
+    constructor() {
+        this.parse = (result) => {
+            return result.value['data'].map(e => {
+                const p1 = {
+                    id: e['player1']['id'],
+                    name: e['player1']['name'],
+                    countryAcr: e['player1']['countryAcr'],
+                };
+                const p2 = {
+                    id: e['player2']['id'],
+                    name: e['player2']['name'],
+                    countryAcr: e['player2']['countryAcr'],
+                };
+                return {
+                    id: e['id'],
+                    date: e['date'],
+                    roundId: e['roundId'],
+                    tournamentId: e['tournamentId'],
+                    player1: p1,
+                    player2: p2
+                };
+            });
+        };
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/matchstat-api-client/src/parsers/events-parser.ts":
+/*!**************************************************************************!*\
+  !*** ../../../clients/matchstat-api-client/src/parsers/events-parser.ts ***!
+  \**************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EventsParser)
+/* harmony export */ });
+/* harmony import */ var _event_parser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./event-parser */ "../../../clients/matchstat-api-client/src/parsers/event-parser.ts");
+
+class EventsParser {
+    constructor() {
+        this.parse = (results) => {
+            const cols = results.map(r => new _event_parser__WEBPACK_IMPORTED_MODULE_0__["default"]().parse(r));
+            return cols.flat();
+        };
+    }
+}
+
+
+/***/ }),
+
+/***/ "../../../clients/matchstat-api-client/src/services/match-service.ts":
+/*!***************************************************************************!*\
+  !*** ../../../clients/matchstat-api-client/src/services/match-service.ts ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ MatchService)
+/* harmony export */ });
+/* harmony import */ var _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @abcfinite/http-api-client */ "../../../clients/http-api-client/index.ts");
+
+class MatchService {
+    constructor() { }
+    async getTodayMatch(type, pageNo) {
+        const httpApiClient = new _abcfinite_http_api_client__WEBPACK_IMPORTED_MODULE_0__["default"]();
+        const headers = {
+            'x-rapidapi-host': 'tennis-api-atp-wta-itf.p.rapidapi.com',
+            'x-rapidapi-key': '25a20073a7mshc8d4c9150074dbap1b8ae1jsnb855df84de3e'
+        };
+        let result = await httpApiClient.get('https://tennis-api-atp-wta-itf.p.rapidapi.com', `/tennis/v2/${type}/fixtures/2024-07-17/2024-07-19?pageNo=${pageNo}`, headers);
+        return result;
     }
 }
 
@@ -389,16 +425,6 @@ module.exports = require("axios");
 /***/ ((module) => {
 
 module.exports = require("fast-csv");
-
-/***/ }),
-
-/***/ "lodash":
-/*!*************************!*\
-  !*** external "lodash" ***!
-  \*************************/
-/***/ ((module) => {
-
-module.exports = require("lodash");
 
 /***/ }),
 
