@@ -38,6 +38,7 @@ export default class PlayerAdapter {
     const date = new Date();
     const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
     const result = {
+      id: sportEvent.id,
       winner: 0,
       type: player1.type,
       time: sportEvent.time,
@@ -47,9 +48,9 @@ export default class PlayerAdapter {
       higherRanking: getHigherRanking(player1, player2),
       rankingDifferent: getRankingDiff(player1, player2),
       winPercentage: winPercentage(player1, player2),
-      wonL5: (_.get(player1, 'parsedPreviousMatches', null) || _.get(player2, 'parsedPreviousMatches', null)) !== null ? wonL5(player1, player2) : {},
-      wonL10: (_.get(player1, 'parsedPreviousMatches', null) || _.get(player2, 'parsedPreviousMatches', null)) !== null ? wonL10(player1, player2): {},
-      wonL20: (_.get(player1, 'parsedPreviousMatches', null) || _.get(player2, 'parsedPreviousMatches', null)) !== null ? wonL20(player1, player2): {},
+      wonL5: wonL5(player1, player2),
+      wonL10: wonL10(player1, player2),
+      wonL20: wonL20(player1, player2),
       lostToLowerRanking: lostToLowerRanking(player1, player2),
       lostToLowerRankingThanOpponent: lostToLowerRankingThanOpponent(player1, player2),
       winfromHigherRanking: winfromHigherRanking(player1, player2),
@@ -71,6 +72,7 @@ export default class PlayerAdapter {
     const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.name, null)
 
     const result = {
+      id: sportEvent.id,
       type: player1.type,
       date: sportEvent.date,
       time: sportEvent.time,

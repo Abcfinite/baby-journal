@@ -1,3 +1,4 @@
+import _ from "lodash"
 import { Player } from "@abcfinite/tennislive-client/src/types/player";
 
 export const getHigherRanking = (player1: Player, player2: Player) : string => {
@@ -31,8 +32,8 @@ export const winPercentage = (player1: Player, player2: Player) : any => {
 }
 
 export const wonL20 = (player1: Player, player2: Player) : any => {
-  const p1w = player1.parsedPreviousMatches.filter(m => m.result === 'win')
-  const p2w = player2.parsedPreviousMatches.filter(m => m.result === 'win')
+  const p1w = _.get(player1, 'parsedPreviousMatches', []).filter(m => m.result === 'win')
+  const p2w = _.get(player2, 'parsedPreviousMatches', []).filter(m => m.result === 'win')
   return {
     player1: player1.name + ' => ' + p1w.length,
     player2: player2.name + ' => ' + p2w.length
@@ -40,8 +41,8 @@ export const wonL20 = (player1: Player, player2: Player) : any => {
 }
 
 export const wonL10 = (player1: Player, player2: Player) : any => {
-  const p1w = player1.parsedPreviousMatches.filter((m, idx) => m.result === 'win' && idx < 10)
-  const p2w = player2.parsedPreviousMatches.filter((m, idx) => m.result === 'win' && idx < 10)
+  const p1w = _.get(player1, 'parsedPreviousMatches', []).filter((m, idx) => m.result === 'win' && idx < 10)
+  const p2w = _.get(player2, 'parsedPreviousMatches', []).filter((m, idx) => m.result === 'win' && idx < 10)
   return {
     player1: player1.name + ' => ' + p1w.length,
     player2: player2.name + ' => ' + p2w.length
@@ -49,8 +50,8 @@ export const wonL10 = (player1: Player, player2: Player) : any => {
 }
 
 export const wonL5 = (player1: Player, player2: Player) : any => {
-  const p1w = player1.parsedPreviousMatches.filter((m, idx) => m.result === 'win' && idx < 5)
-  const p2w = player2.parsedPreviousMatches.filter((m, idx) => m.result === 'win' && idx < 5)
+  const p1w = _.get(player1, 'parsedPreviousMatches', []).filter((m, idx) => m.result === 'win' && idx < 5)
+  const p2w = _.get(player2, 'parsedPreviousMatches', []).filter((m, idx) => m.result === 'win' && idx < 5)
   return {
     player1: player1.name + ' => ' + p1w.length,
     player2: player2.name + ' => ' + p2w.length

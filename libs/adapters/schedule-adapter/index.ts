@@ -30,6 +30,7 @@ export default class ScheduleAdapter {
 
         const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
         const sportEvent = playerNamesToSportEvent(event.player1, event.player2)
+        sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()
 
