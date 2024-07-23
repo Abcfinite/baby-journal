@@ -2,7 +2,7 @@ import PagingParser from './src/parsers/pagingParser';
 import HttpApiClient from '../http-api-client'
 import { Event } from './src/types/event';
 import EventParser from './src/parsers/eventParser';
-import { parse } from 'node-html-parser';
+import CacheService from './src/services/cache-service';
 
 export default class BetapiClient {
 
@@ -10,6 +10,12 @@ export default class BetapiClient {
   }
 
   async getEvents() : Promise<Array<Event>>{
+    const eventCache = await new CacheService().getEventCache()
+
+    if (eventCache !== null && eventCache !== undefined) {
+      return JSON.parse(eventCache)
+    }
+
     const httpApiClient = new HttpApiClient()
 
     const result = await httpApiClient.get(
@@ -39,6 +45,8 @@ export default class BetapiClient {
     let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
 
     parsedEvents.map(pe => fullIncomingEvents = fullIncomingEvents.concat(pe))
+
+    new CacheService().setEventCache(JSON.stringify(fullIncomingEvents))
 
     return fullIncomingEvents
   }

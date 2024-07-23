@@ -4,7 +4,8 @@
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "main": "./index.ts",
   "dependencies": {
-    "@abcfinite/dynamodb-client": "0.0.4"
+    "@abcfinite/s3-client-custom": "0.0.1",
+    "@abcfinite/http-api-client": "^0.0.2"
   },
   "scripts": {
     "build": "tsc"
