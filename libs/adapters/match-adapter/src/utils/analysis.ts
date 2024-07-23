@@ -2,6 +2,7 @@ import { Player } from "@abcfinite/tennislive-client/src/types/player";
 import PlayerAdapter from "../../../player-adapter";
 import _ from "lodash";
 import S3ClientCustom from "@abcfinite/s3-client-custom";
+import { playerNamesToSportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent";
 
 export default class Analysis {
   async previousPlayersBenchmark(player1: Player, player2: Player) {
@@ -11,11 +12,11 @@ export default class Analysis {
       player2: this.playerLabel(player2)
     }
 
+    const sportEventP1a = playerNamesToSportEvent(player1.name, playerLabels.player1.lastWon.player.name)
 
     /// p1 vs p1 won
     let result = await new PlayerAdapter().matchesSummary(
-      player1.name,
-      playerLabels.player1.lastWon.player.name,
+      sportEventP1a,
       1, 1)
 
     const p1_v_p1won = {
@@ -23,11 +24,11 @@ export default class Analysis {
       p1Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
     }
 
+    const sportEventP1b = playerNamesToSportEvent(player2.name, playerLabels.player1.lastWon.player.name)
 
     /// p2 vs p1 won
     result = await new PlayerAdapter().matchesSummary(
-      player2.name,
-      playerLabels.player1.lastWon.player.name,
+      sportEventP1b,
       1, 1)
 
     const p2_v_p1won = {
@@ -35,10 +36,11 @@ export default class Analysis {
       p1Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
     }
 
+    const sportEventP2a = playerNamesToSportEvent(player2.name, playerLabels.player2.lastWon.player.name)
+
     /// p2 vs p2 won
     result = await new PlayerAdapter().matchesSummary(
-      player2.name,
-      playerLabels.player2.lastWon.player.name,
+      sportEventP2a,
       1, 1)
 
     const p2_v_p2won = {
@@ -46,10 +48,11 @@ export default class Analysis {
       p2Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
     }
 
+    const sportEventP2b = playerNamesToSportEvent(player1.name, playerLabels.player2.lastWon.player.name)
+
     /// p1 vs p2 won
     result = await new PlayerAdapter().matchesSummary(
-      player1.name,
-      playerLabels.player2.lastWon.player.name,
+      sportEventP2b,
       1, 1)
 
     const p1_v_p2won = {

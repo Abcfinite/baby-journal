@@ -3,12 +3,13 @@ import { putItem } from '@abcfinite/dynamodb-client'
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import TennisliveClient from '@abcfinite/tennislive-client'
 import { Player } from '../../clients/tennislive-client/src/types/player'
-import { SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
+import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
   ReceiveMessageCommand, GetQueueAttributesCommand,
   DeleteMessageCommand } from "@aws-sdk/client-sqs";
 import { toCsv } from "./src/utils/builder"
+import BetapiClient from "@abcfinite/betapi-client"
 
 export default class ScheduleAdapter {
   async getSchedule() {
@@ -21,14 +22,30 @@ export default class ScheduleAdapter {
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
     const client = new SQSClient({ region: 'ap-southeast-2' });
-    const sportEvents = await new TennisliveClient().getSchedule()
+
+    // const sportEvents = await new TennisliveClient().getSchedule()
+    const events = await new BetapiClient().getEvents()
+    const sportEvents = []
+    events.forEach(event => {
+
+        const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
+        const sportEvent = playerNamesToSportEvent(event.player1, event.player2)
+        sportEvent.date = eventDateTime.split(',')[0].trim()
+        sportEvent.time = eventDateTime.split(',')[1].trim()
+
+        if (sportEvent.date === '23/07/2024') {
+          sportEvents.push(sportEvent)
+        }
+      }
+    )
+
     const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
     const fileContent = []
 
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sportEvents.length - 10 < fileList.length) {
+    if (sportEvents.length === fileList.length) {
       await Promise.all(
         fileList.map( async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
@@ -108,7 +125,6 @@ export default class ScheduleAdapter {
         })
 
         const receiveMessageCommandResult = await client.send(receiveMessageCommand);
-
         var sportEvent = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
 
         try {
@@ -119,6 +135,8 @@ export default class ScheduleAdapter {
             sportEvent.id+'.json',
               JSON.stringify(checkPlayerResult))
         } catch(ex) {
+          console.error('check sport event parse error')
+          console.error(ex)
           await new S3ClientCustom()
             .putFile('tennis-match-schedule',
             sportEvent.id+'.json',

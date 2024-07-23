@@ -1,5 +1,3 @@
-import { SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
-
 export const toCsv = (jsonString: string) : string => {
   const csvHeader = [
     'id',

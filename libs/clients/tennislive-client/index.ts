@@ -7,6 +7,7 @@ import MatchesDetailParser from "./src/parsers/matchesDetailParser";
 import PlayerService from "./src/services/playerService";
 import ScheduleService from "./src/services/scheduleService";
 import FinishedService from './src/services/finishedService';
+import BetapiClient from '../betapi-client';
 
 export default class TennisliveClient {
 
@@ -55,11 +56,14 @@ export default class TennisliveClient {
     return player
   }
 
-  async getSchedule() : Promise<SportEvent[]> {
-    // const result = await new ScheduleService().getSchedule()
-    const result = await new ScheduleService().getMatchstatCompareSchedule()
-    return result
-  }
+  // async getSchedule() : Promise<SportEvent[]> {
+  //   // const result = await new ScheduleService().getSchedule()
+  //   // const result = await new ScheduleService().getMatchstatCompareSchedule()
+
+  //   const events = await new BetapiClient().getEvents()
+
+  //   return result
+  // }
 
   async getFinished() : Promise<SportEvent[]> {
     const finishedSportEvents = await new FinishedService().getFinished()
