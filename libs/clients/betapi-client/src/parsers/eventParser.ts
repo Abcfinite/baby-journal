@@ -8,7 +8,8 @@ export default class EventParser {
         id: _.get(event, 'id', ''),
         time: _.get(event, 'time', ''),
         player1: _.get(event, 'home.name', ''),
-        player2: _.get(event, 'away.name', '')
+        player2: _.get(event, 'away.name', ''),
+        stage: _.get(event, 'round', '')
     }
   }
 }

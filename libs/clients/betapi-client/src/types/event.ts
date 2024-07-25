@@ -3,7 +3,7 @@ export type Event = {
   time: string,
   player1: string,
   player2: string,
-  // round: string,
+  stage: string,
 }
 
 // round

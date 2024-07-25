@@ -76,6 +76,7 @@ export default class PlayerAdapter {
       type: player1.type,
       date: sportEvent.date,
       time: sportEvent.time,
+      stage: sportEvent.stage,
       analysis: {},
       higherRanking: getHigherRanking(player1, player2),
       rankingDifferent: getRankingDiff(player1, player2),

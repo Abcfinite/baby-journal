@@ -1,8 +1,5 @@
 import _ from "lodash"
-import { putItem } from '@abcfinite/dynamodb-client'
 import S3ClientCustom from '@abcfinite/s3-client-custom'
-import TennisliveClient from '@abcfinite/tennislive-client'
-import { Player } from '../../clients/tennislive-client/src/types/player'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
@@ -27,14 +24,14 @@ export default class ScheduleAdapter {
     const events = await new BetapiClient().getEvents()
     const sportEvents = []
     events.forEach(event => {
-
         const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
         const sportEvent = playerNamesToSportEvent(event.player1, event.player2)
         sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()
+        sportEvent.stage = event.stage
 
-        if (sportEvent.date === '24/07/2024') {
+        if (sportEvent.date === '26/07/2024') {
           sportEvents.push(sportEvent)
         }
       }
