@@ -31,7 +31,7 @@ export default class ScheduleAdapter {
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
 
-        if (sportEvent.date === '26/07/2024') {
+        if (sportEvent.date === '27/07/2024' && !sportEvent.player1.name.includes('/')) {
           sportEvents.push(sportEvent)
         }
       }
