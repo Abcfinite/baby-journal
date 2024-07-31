@@ -10,11 +10,18 @@ import BetapiClient from "@abcfinite/betapi-client"
 
 export default class ScheduleAdapter {
   async getSchedule() {
+    const s3ClientCustom = new S3ClientCustom()
     var requestResult = 'error'
-    const resultFile = await new S3ClientCustom().getFile('tennis-match-schedule', 'result.json')
+    const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
 
-    if (resultFile !== undefined) {
-      return toCsv(resultFile)
+    if (resultFile) {
+      if (JSON.parse(resultFile)[0]['date'] === new Date().toLocaleDateString()) {
+        return toCsv(resultFile)
+      } else {
+        await s3ClientCustom.deleteAllFiles('betapi-cache')
+        await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
+        return 'betAPI cache and tennis scheduled cleared'
+      }
     }
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
@@ -31,7 +38,7 @@ export default class ScheduleAdapter {
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
 
-        if (sportEvent.date === '27/07/2024' && !sportEvent.player1.name.includes('/')) {
+        if (sportEvent.date === new Date().toLocaleDateString() && !sportEvent.player1.name.includes('/')) {
           sportEvents.push(sportEvent)
         }
       }
