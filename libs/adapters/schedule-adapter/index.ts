@@ -11,11 +11,14 @@ import BetapiClient from "@abcfinite/betapi-client"
 export default class ScheduleAdapter {
   async getSchedule() {
     const s3ClientCustom = new S3ClientCustom()
+    const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
+    const currentDate = currentDateTime.split(',')[0].trim()
+
     var requestResult = 'error'
     const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
 
     if (resultFile) {
-      if (JSON.parse(resultFile)[0]['date'] === new Date().toLocaleDateString()) {
+      if (JSON.parse(resultFile)[0]['date'] === currentDate) {
         return toCsv(resultFile)
       } else {
         await s3ClientCustom.deleteAllFiles('betapi-cache')
@@ -32,14 +35,13 @@ export default class ScheduleAdapter {
     const sportEvents = []
     events.forEach(event => {
         const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
-        const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
         const sportEvent = playerNamesToSportEvent(event.player1, event.player2)
         sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
 
-        if (sportEvent.date === currentDateTime.split(',')[0].trim() && !sportEvent.player1.name.includes('/')) {
+        if (sportEvent.date === currentDate && !sportEvent.player1.name.includes('/')) {
           sportEvents.push(sportEvent)
         }
       }
