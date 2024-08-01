@@ -32,13 +32,14 @@ export default class ScheduleAdapter {
     const sportEvents = []
     events.forEach(event => {
         const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
+        const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
         const sportEvent = playerNamesToSportEvent(event.player1, event.player2)
         sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
 
-        if (sportEvent.date === new Date().toLocaleDateString() && !sportEvent.player1.name.includes('/')) {
+        if (sportEvent.date === currentDateTime.split(',')[0].trim() && !sportEvent.player1.name.includes('/')) {
           sportEvents.push(sportEvent)
         }
       }
