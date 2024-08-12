@@ -1,13 +1,10 @@
 {
-  "name": "events-sports",
-  "version": "1.0.0",
+  "name": "@abcfinite/strategy-adapter",
+  "version": "0.0.1",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
+  "main": "index.ts",
   "dependencies": {
-    "@abcfinite/player-adapter": "0.0.1",
-    "@abcfinite/schedule-adapter": "0.0.1",
-    "@abcfinite/finished-adapter": "0.0.1",
-    "@abcfinite/strategy-adapter": "0.0.1",
-    "@abcfinite/betapi-client": "0.0.1",
+    "fast-csv": "^5.0.1",
     "lodash.get": "^4.4.2"
   },
   "jest": {
@@ -40,5 +37,8 @@
       "test",
       "src"
     ]
+  },
+  "scripts": {
+    "build": "tsc"
   }
 }

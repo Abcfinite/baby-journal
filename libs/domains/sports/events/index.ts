@@ -79,10 +79,6 @@ export const getFinished: Handler = async (event: any) => {
 
 export const getValueSummary: Handler = async (event: any) => {
   var valSummaryResult = await new FinishedAdapter().getValueSummary()
-
-  console.log('>>>>valSummaryResult')
-  console.log(valSummaryResult)
-
   var putResult = await new FinishedAdapter().putValueSummary(valSummaryResult)
 
   const result = []
@@ -102,3 +98,13 @@ export const getValueSummary: Handler = async (event: any) => {
   })
 }
 
+export const getStrategy: Handler = async (event: any) => {
+  var response = {
+    statusCode: 200,
+    body: 'strategy'
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}

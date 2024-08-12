@@ -74,3 +74,10 @@ functions:
       - http:
           path: /value-summary
           method: get
+  strategy:
+    handler: index.getStrategy
+    timeout: 900
+    events:
+      - http:
+          path: /strategy
+          method: get
