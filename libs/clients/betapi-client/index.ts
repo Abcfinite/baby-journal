@@ -22,7 +22,7 @@ export default class BetapiClient {
       'https://api.b365api.com',
       '/v3/events/upcoming',
       null,
-      { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk' }
+      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu' }
     )
 
     let fullIncomingEvents: Array<Event> = []
@@ -57,7 +57,7 @@ export default class BetapiClient {
       'https://api.b365api.com',
       '/v3/events/upcoming',
       null,
-      { sport_id: '13', token: '196561-yXe5Z8ulO9UAvk', page: 2+pageNo }
+      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', page: 2+pageNo }
     )
 
     const parsedEvents = loopResult.value['results'].map(r => {

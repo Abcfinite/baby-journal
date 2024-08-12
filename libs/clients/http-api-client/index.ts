@@ -29,7 +29,7 @@ export default class HttpApiClient {
 
       axiosResponse = await instance.get(
         baseUrl+path,
-        { headers, params }
+        { timeout: 25000, headers, params }
       )
 
       response.status = axiosResponse.status
