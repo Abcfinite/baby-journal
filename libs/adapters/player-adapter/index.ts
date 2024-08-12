@@ -5,11 +5,12 @@ import { getHigherRanking, getRankingDiff,
   winPercentage, wonL20, wonL10, wonL5, lostToLowerRanking,
   lostToLowerRankingThanOpponent, winFromHigherRankingThanOpponent,
   winfromHigherRanking } from './src/utils/comparePlayer';
-import { SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent";
+import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent";
 
 export default class PlayerAdapter {
   async checkPlayer(player1Name: string, player2Name: string, player1Odd: number, Player2Odd: number) {
-    const result = await this.matchesSummary(player1Name, player2Name, player1Odd, Player2Odd)
+    const sportEvent = playerNamesToSportEvent(player1Name, player2Name)
+    const result = await this.matchesSummary(sportEvent, player1Odd, Player2Odd)
 
     result.analysis = await new MatchAdapter().similarMatch(result)
 
@@ -18,7 +19,7 @@ export default class PlayerAdapter {
 
   async checkSportEvent(sportEvent: SportEvent) {
     // const result = await this.matchesSummaryBySportEvent(sportEvent)
-    const result = await this.matchesSummary(sportEvent.player1.name , sportEvent.player2.name, 1, 1.1)
+    const result = await this.matchesSummary(sportEvent, 1, 1.1)
 
     result.analysis = await new MatchAdapter().similarMatch(result)
 
@@ -35,6 +36,7 @@ export default class PlayerAdapter {
     const date = new Date();
     const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
     const result = {
+      id: sportEvent.id,
       winner: 0,
       type: player1.type,
       time: sportEvent.time,
@@ -62,16 +64,17 @@ export default class PlayerAdapter {
     return result
   }
 
-  async matchesSummary(player1Name: string, player2Name: string, player1Odd: number, Player2Odd: number) {
+  async matchesSummary(sportEvent: SportEvent, player1Odd: number, Player2Odd: number) {
     const tennisLiveClient = new TennisliveClient()
-    const player1 = await tennisLiveClient.getPlayer(player1Name, null)
-    const player2 = await tennisLiveClient.getPlayer(player2Name, null)
+    const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.name, null)
+    const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.name, null)
 
-    const date = new Date();
-    const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
     const result = {
+      id: sportEvent.id,
       type: player1.type,
-      date: formattedDate,
+      date: sportEvent.date,
+      time: sportEvent.time,
+      stage: sportEvent.stage,
       analysis: {},
       higherRanking: getHigherRanking(player1, player2),
       rankingDifferent: getRankingDiff(player1, player2),
