@@ -1,8 +1,10 @@
 import _ from "lodash"
 import { parse } from 'node-html-parser';
 import S3ClientCustom from '@abcfinite/s3-client-custom'
-import BetapiClient from "../../clients/betapi-client";
 import { Prediction } from './src/types/prediction';
+import * as csv from 'fast-csv'
+import { Readable } from 'stream'
+import MatchstatApiClient from "../../clients/matchstat-api-client";
 
 export default class TipsAdapter {
   async getTips() {
@@ -12,15 +14,26 @@ export default class TipsAdapter {
     const matchStatHtml = parse(matchStatFile)
     const predictions = matchStatHtml.getElementsByTagName('div').filter(div => div.attributes.class === 'ms-prediction-table')
 
+
     predictions.forEach(pred => {
-      const pTime = pred.querySelector('.prediction-time');
-      const pName = pred.querySelector('.player-name-pt');
-      const aOdds = pred.querySelector('.odds-item.item-border');
-      const predPercentage = pred.querySelector('.prediction-item.item-border');
+      const pTitle = pred.querySelector('.prediction-title a').getAttribute('href')
+      const pName = pred.querySelector('.player-name-pt').text.trim();
+      const pTimeStage = pred.querySelector('.prediction-time')
+      const pTimeStageArray = pTimeStage.text.replaceAll(/\s/g,'').split('/')
+      const aOdds = pred.querySelector('.odds-item.item-border')
+      const predPercentage = pred.querySelector('.prediction-item.item-border')
+
+      const linkSplitted = decodeURIComponent(pTitle).split('/')
+
+      if  (pName.toLowerCase().includes('over')) {
+        return
+      }
 
       const prediction: Prediction = {
-        date: pTime.text.replaceAll(/\s/g,'').split('/')[0],
-        player1: pName.text.trim(),
+        date: pTimeStageArray[0],
+        stage:  pTimeStageArray[1],
+        player1: pName,
+        player2: pName.toLowerCase() === linkSplitted[5].toLowerCase() ? linkSplitted[6] : linkSplitted[5],
         odds: ((Math.round(Number(aOdds.text.replaceAll(/\s/g,'')) * 100) / 100) - 1).toFixed(2),
         percentage: predPercentage.text.replaceAll(/\s/g,'').replaceAll(/\%/g,''),
       }
@@ -30,34 +43,76 @@ export default class TipsAdapter {
       }
     })
 
-    const events = await new BetapiClient().getEvents()
+    const events = await new MatchstatApiClient().getTodayMatches()
 
-    let isP1 = true
     predictionCols = predictionCols.map(p => {
-      let e = events.find(e => e.player1.split(' ')[0] === p.player1.split(' ')[0] )
-      isP1 = true
-
-      if (e === undefined || e === null) {
-        e = events.find(e => e.player2.split(' ')[0] === p.player1.split(' ')[0] )
-        isP1 = false
-      }
+      let e = events.find(e => e.player1.name.toLowerCase() === p.player1.toLowerCase() ||  e.player2.name.toLowerCase() === p.player1.toLowerCase())
 
       if (e !== undefined && e !== null) {
-        p.player2 = isP1 ? e.player2 : e.player1
-        p.date = new Date(Number(e.time) * 1000).toLocaleDateString()
-        p.time = new Date(Number(e.time) * 1000).toLocaleString('en-US', {timeZone: 'Australia/Sydney'}).split(',')[1]
+        const currentLocalDate = new Date(Date.parse(e.date)).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'}).split(',')
+        p.date = currentLocalDate[0]
+        p.time = currentLocalDate[1].trim()
+      } else {
+        console.log('>>>>p not found')
+        console.log(p)
       }
-
       return p
     })
 
     return  predictionCols.map(p => {
-      if (p.player2 != null) {
-        return `${p.date},${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`
+      if (p.time != null) {
+        return `${p.date},${p.time},${p.stage},${p.player1},${p.player2},${p.percentage},${p.odds}`
       }
 
-      return `${p.date},00:00,${p.player1},${p.player2},${p.percentage},${p.odds}`
+      return `${p.date},00:00,${p.stage},${p.player1},${p.player2},${p.percentage},${p.odds}`
     }).join('\r\n')
-    // return  [].map(p => `${p.time},${p.player1},${p.player2},${p.percentage},${p.odds}`).join('\r\n')
+  }
+
+
+  async getCombineTips() {
+    const matchStatCsvRowsCol: any = await this.matchStatCsvRows()
+    const todayCsvCol: any = await this.todayCsvRows()
+
+
+    return matchStatCsvRowsCol.map(m => {
+      const cMatch = todayCsvCol.find(tm => m['fp'].toLowerCase() === tm['fav p'].toLowerCase())
+
+      let percentage = '0,0'
+      if (cMatch !== null && cMatch !== undefined) {
+        percentage = `${cMatch['match no']},${cMatch['win percentage']}`
+      }
+
+      return `${m['date']},${m['time']},${m['stage']},${m['fp']},${m['nfp']},${m['wp']},${m['odds']},${percentage}`
+    }).join('\r\n')
+  }
+
+  async todayCsvRows() {
+    const matchStatCsv = await new S3ClientCustom().getFile('tennis-match-schedule', 'today.csv')
+    const rows = []
+
+    return new Promise((resolve, reject) => {
+      Readable.from(matchStatCsv)
+      .pipe(csv.parse({ headers: true }))
+      .on('error', error => reject(error))
+      .on('data', row => rows.push(row))
+      .on('end', _ => {
+        resolve(rows)
+      });
+    })
+  }
+
+  async matchStatCsvRows() {
+    const matchStatCsv = await new S3ClientCustom().getFile('tennis-match-schedule-html', 'matchstat_filtered.csv')
+    const rows = []
+
+    return new Promise((resolve, reject) => {
+      Readable.from(matchStatCsv)
+      .pipe(csv.parse({ headers: true }))
+      .on('error', error => reject(error))
+      .on('data', row => rows.push(row))
+      .on('end', _ => {
+        resolve(rows)
+      });
+    })
   }
 }

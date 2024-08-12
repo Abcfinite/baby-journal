@@ -1,8 +1,6 @@
 import _ from "lodash"
 import TennisliveClient from '@abcfinite/tennislive-client'
-import S3ClientCustom from '@abcfinite/s3-client-custom'
 import MatchAdapter from '@abcfinite/match-adapter'
-import { Player } from '../../clients/tennislive-client/src/types/player';
 import { getHigherRanking, getRankingDiff,
   winPercentage, wonL20, wonL10, wonL5, lostToLowerRanking,
   lostToLowerRankingThanOpponent, winFromHigherRankingThanOpponent,

@@ -1,5 +1,5 @@
 {
-  "name": "@abcfinite/betapi-client",
+  "name": "@abcfinite/matchstat-api-client",
   "version": "0.0.1",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "main": "./index.ts",
