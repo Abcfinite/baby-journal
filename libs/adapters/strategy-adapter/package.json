@@ -4,6 +4,7 @@
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "main": "index.ts",
   "dependencies": {
+    "@abcfinite/s3-client-custom": "0.0.1",
     "fast-csv": "^5.0.1",
     "lodash.get": "^4.4.2"
   },

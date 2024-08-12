@@ -1,6 +1,7 @@
 import PlayerAdapter from '@abcfinite/player-adapter'
 import ScheduleAdapter from '@abcfinite/schedule-adapter'
 import FinishedAdapter from '@abcfinite/finished-adapter'
+import StrategyAdapter from '@abcfinite/strategy-adapter'
 import { Handler } from 'aws-lambda';
 
 export const checkPlayer: Handler = async (event: any) => {
@@ -99,6 +100,9 @@ export const getValueSummary: Handler = async (event: any) => {
 }
 
 export const getStrategy: Handler = async (event: any) => {
+  await new StrategyAdapter().runIt()
+
+
   var response = {
     statusCode: 200,
     body: 'strategy'
