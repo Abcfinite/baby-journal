@@ -32,6 +32,7 @@ custom:
 functions:
   players:
     handler: index.getPlayer
+    timeout: 900
     events:
       - http:
           path: /players

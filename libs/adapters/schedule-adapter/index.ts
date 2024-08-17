@@ -11,7 +11,7 @@ import BetapiClient from "@abcfinite/betapi-client"
 export default class ScheduleAdapter {
   async getSchedule() {
     const s3ClientCustom = new S3ClientCustom()
-    const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
+    const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
     const currentDate = currentDateTime.split(',')[0].trim()
 
     var requestResult = 'error'
@@ -35,7 +35,7 @@ export default class ScheduleAdapter {
     const sportEvents = []
     events.forEach(event => {
         const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
-        const sportEvent = playerNamesToSportEvent(event.player1, event.player2)
+        const sportEvent = playerNamesToSportEvent(event.player1.id, event.player1.name, event.player2.id, event.player2.name)
         sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()

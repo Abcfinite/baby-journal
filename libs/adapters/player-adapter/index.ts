@@ -6,10 +6,11 @@ import { getHigherRanking, getRankingDiff,
   lostToLowerRankingThanOpponent, winFromHigherRankingThanOpponent,
   winfromHigherRanking } from './src/utils/comparePlayer';
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent";
+import BetapiClient from "../../clients/betapi-client";
 
 export default class PlayerAdapter {
   async checkPlayer(player1Name: string, player2Name: string, player1Odd: number, Player2Odd: number) {
-    const sportEvent = playerNamesToSportEvent(player1Name, player2Name)
+    const sportEvent = playerNamesToSportEvent('', player1Name, '', player2Name)
     const result = await this.matchesSummary(sportEvent, player1Odd, Player2Odd)
 
     result.analysis = await new MatchAdapter().similarMatch(result)
@@ -68,6 +69,11 @@ export default class PlayerAdapter {
     const tennisLiveClient = new TennisliveClient()
     const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.name, null)
     const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.name, null)
+
+    /// bet-api temporary
+    // console.log(`>>bet-api temporary>>${sportEvent.player1.id}>>>>${sportEvent.player1.name}>>>${sportEvent.player2.id}>>>${sportEvent.player2.name}`)
+    // await new BetapiClient().getPlayerEndedMatches(sportEvent.player1.id)
+    // await new BetapiClient().getPlayerEndedMatches(sportEvent.player2.id)
 
     const result = {
       id: sportEvent.id,

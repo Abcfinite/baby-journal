@@ -6,13 +6,13 @@ export default class EventParser {
     const homePlayerData = {
       id: _.get(event, 'home.id', ''),
       name: _.get(event, 'home.name', ''),
-      country: _.get(event, 'home.country', '')
+      country: _.get(event, 'home.cc', '')
     }
 
     const awayPlayerData = {
       id: _.get(event, 'away.id', ''),
       name: _.get(event, 'away.name', ''),
-      country: _.get(event, 'away.country', '')
+      country: _.get(event, 'away.cc', '')
     }
 
     const isP1Won = this.isPlayer1Won(_.get(event, 'ss'))
@@ -29,7 +29,11 @@ export default class EventParser {
     }
   }
 
-  isPlayer1Won = (score: string) : boolean => {
+  isPlayer1Won = (score?: string) : boolean => {
+    if (score === null || score === undefined) {
+      return null
+    }
+
     const sets = score.split(',')
 
     if (sets === null || sets === undefined) {

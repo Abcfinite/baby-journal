@@ -12,7 +12,7 @@ export default class Analysis {
       player2: this.playerLabel(player2)
     }
 
-    const sportEventP1a = playerNamesToSportEvent(player1.name, playerLabels.player1.lastWon.player.name)
+    const sportEventP1a = playerNamesToSportEvent('', player1.name, '', playerLabels.player1.lastWon.player.name)
 
     /// p1 vs p1 won
     let result = await new PlayerAdapter().matchesSummary(
@@ -24,7 +24,7 @@ export default class Analysis {
       p1Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
     }
 
-    const sportEventP1b = playerNamesToSportEvent(player2.name, playerLabels.player1.lastWon.player.name)
+    const sportEventP1b = playerNamesToSportEvent('', player2.name, '', playerLabels.player1.lastWon.player.name)
 
     /// p2 vs p1 won
     result = await new PlayerAdapter().matchesSummary(
@@ -36,7 +36,7 @@ export default class Analysis {
       p1Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
     }
 
-    const sportEventP2a = playerNamesToSportEvent(player2.name, playerLabels.player2.lastWon.player.name)
+    const sportEventP2a = playerNamesToSportEvent('', player2.name, '', playerLabels.player2.lastWon.player.name)
 
     /// p2 vs p2 won
     result = await new PlayerAdapter().matchesSummary(
@@ -48,7 +48,7 @@ export default class Analysis {
       p2Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
     }
 
-    const sportEventP2b = playerNamesToSportEvent(player1.name, playerLabels.player2.lastWon.player.name)
+    const sportEventP2b = playerNamesToSportEvent('', player1.name, '', playerLabels.player2.lastWon.player.name)
 
     /// p1 vs p2 won
     result = await new PlayerAdapter().matchesSummary(

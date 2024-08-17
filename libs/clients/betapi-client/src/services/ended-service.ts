@@ -2,12 +2,22 @@ import EventParser from '../parsers/eventParser'
 import PagingParser from '../parsers/pagingParser'
 import HttpApiClient from '@abcfinite/http-api-client'
 import CacheService from './cache-service'
+import { Event } from '../types/event';
 
 export default class EndedService {
     constructor() {}
 
     getEndedEventBasedOnPlayerId = async (playerId: string) => {
-        const resultFirstPage = await new HttpApiClient().get(this.getPlayerEndedMatchUrl(playerId, 1))
+        const httpApiClient = new HttpApiClient()
+        const resultFirstPage = await httpApiClient.get(
+          'https://api.b365api.com',
+          '/v3/events/ended',
+          null,
+          { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 1 }
+        )
+
+        console.log('>>>>resultFirstPage')
+        console.log(resultFirstPage)
 
         const paging = PagingParser.parse(resultFirstPage.value['pager'])
         const numberOfPageTurn = Math.floor(paging.total / paging.perPage)
@@ -18,29 +28,38 @@ export default class EndedService {
           return new EventParser().parse(r)
         })
 
+        console.log('>>>>pageOneEvents')
+        // console.log(pageOneEvents)
+
+
         fullEndedEvents = fullEndedEvents.concat(pageOneEvents)
 
         let fetchPageActions = []
         for (let page=0; page < numberOfPageTurn; page++) {
-          fetchPageActions.push(this.getEveryPage(page, playerId))
+          // fetchPageActions.push(this.getEveryPage(page, playerId))
+          fullEndedEvents = fullEndedEvents.concat(await this.getEveryPage(page, playerId))
         }
 
-        let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
+        console.log('>>>>fetchPageActions')
+        // console.log(fetchPageActions)
 
-        parsedEvents.map(pe => fullEndedEvents = fullEndedEvents.concat(pe))
+        // let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
 
-        new CacheService().setEventCache(JSON.stringify(fullEndedEvents))
+        // parsedEvents.map(pe => fullEndedEvents = fullEndedEvents.concat(pe))
+
+        // new CacheService().setPlayerCache(playerId, JSON.stringify(fullEndedEvents))
+
+        console.log('>>>>fullEndedEvents')
+        // console.log(fullEndedEvents)
 
         return fullEndedEvents
     }
-
-    getPlayerEndedMatchUrl = (playerId: string, pageNo: number): string => `https://api.b365api.com/v3/events/ended?sport_id=13&token=196561-oNn4lPf9A9Hwcu&team_id=${playerId}&page=${pageNo}`
 
     async getEveryPage(pageNo: number, playerId: string) {
         const httpApiClient = new HttpApiClient()
         const loopResult = await httpApiClient.get(
           'https://api.b365api.com',
-          '/v3/ended/upcoming',
+          '/v3/events/ended',
           null,
           { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 2+pageNo }
         )
