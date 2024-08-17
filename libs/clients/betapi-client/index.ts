@@ -31,7 +31,7 @@ export default class BetapiClient {
     const numberOfPageTurn = Math.floor(paging.total / paging.perPage)
 
     const pageOneEvents = result.value['results'].map(r => {
-      return EventParser.parse(r)
+      return new EventParser().parse(r)
     })
 
     fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents)
@@ -61,7 +61,7 @@ export default class BetapiClient {
     )
 
     const parsedEvents = loopResult.value['results'].map(r => {
-      return EventParser.parse(r)
+      return new EventParser().parse(r)
     })
 
     return parsedEvents

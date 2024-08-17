@@ -1,10 +1,20 @@
+import { Player } from "./player";
+
 export type Event = {
   id: string,
   time: string,
-  player1: string,
-  player2: string,
+  player1: Player,
+  player2: Player,
   stage: string,
+  score?: string,
+  player1won?: boolean,
+  retired?: number
 }
+
+// retired
+// 0 - no retired
+// 1 - player1
+// 2 - player2
 
 // round
 // 14 - q1
