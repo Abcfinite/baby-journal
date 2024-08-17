@@ -25,8 +25,8 @@ export const winPercentage = (player1: Player, player2: Player) : any => {
   const player1winPercentage = ( player1.matchesWon / player1.matchesTotal ) * 100
   const player2winPercentage = ( player2.matchesWon / player2.matchesTotal ) * 100
   return {
-    player1: player1.name + ' => ' + player1winPercentage+ '%',
-    player2: player2.name + ' => ' + player2winPercentage+ '%',
+    player1: { matchTotal: player1.matchesTotal, winPercentage: player1winPercentage },
+    player2: { matchTotal: player2.matchesTotal, winPercentage: player2winPercentage },
     diff: Math.abs(player1winPercentage - player2winPercentage) + '%'
   }
 }
