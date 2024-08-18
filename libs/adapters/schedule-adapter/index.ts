@@ -11,7 +11,7 @@ import BetapiClient from "@abcfinite/betapi-client"
 export default class ScheduleAdapter {
   async getSchedule() {
     const s3ClientCustom = new S3ClientCustom()
-    const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
+    const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
     const currentDate = currentDateTime.split(',')[0].trim()
 
     var requestResult = 'error'
@@ -32,10 +32,11 @@ export default class ScheduleAdapter {
 
     // const sportEvents = await new TennisliveClient().getSchedule()
     const events = await new BetapiClient().getEvents()
+
     const sportEvents = []
     events.forEach(event => {
-        const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: "Australia/Sydney"})
-        const sportEvent = playerNamesToSportEvent(event.player1, event.player2)
+        const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
+        const sportEvent = playerNamesToSportEvent(event.player1.id, event.player1.name, event.player2.id, event.player2.name)
         sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()
@@ -76,17 +77,8 @@ export default class ScheduleAdapter {
         return gapB - gapA
       })
 
-      /// sort by ranking diff
-      // const sorted = fileContent.sort((a,b) => {
-      //   const rankingA = _.get(a, 'analysis.highLowRanking.rankingDiff', 0)
-      //   const rankingB = _.get(b, 'analysis.highLowRanking.rankingDiff', 0)
-
-      //   return rankingB - rankingA
-      // })
-
       await new S3ClientCustom()
         .putFile('tennis-match-schedule','result.json', JSON.stringify(sorted))
-
 
       return sorted
     }
@@ -104,9 +96,12 @@ export default class ScheduleAdapter {
     if (sqsMessageNumber === 0) {
       // get schedule and put it in the SQS
       // this part will not timeout
-
       await Promise.all(
         sportEvents.map(async sporte => {
+
+          console.log('>>>>push to sqs>>>')
+          console.log(sporte)
+
           const input = {
             QueueUrl: queueUrl,
             MessageBody: JSON.stringify(sporte),
@@ -120,7 +115,6 @@ export default class ScheduleAdapter {
       return 'message queue successfully'
 
     } else {
-
       // loop while sqs has message
       // this part might timeout after 15mins
       while(sqsMessageNumber > 0) {
@@ -136,6 +130,10 @@ export default class ScheduleAdapter {
         var sportEvent = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
 
         try {
+
+          console.log('>>>>checkSportEvent')
+          console.log(sportEvent)
+
           var checkPlayerResult = await new PlayerAdapter().checkSportEvent(sportEvent)
 
           await new S3ClientCustom()

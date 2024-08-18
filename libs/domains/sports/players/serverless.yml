@@ -1,0 +1,39 @@
+service: sports-domain
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: ap-southeast-2
+  lambdaHashingVersion: '20201221'
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "arn:aws:dynamodb:ap-southeast-2:*:table/Bets"
+        - "arn:aws:dynamodb:ap-southeast-2:*:table/weight"
+
+custom:
+  webpack:
+    webpackConfig: './webpack.config.js'
+    packager: yarn
+
+functions:
+  players:
+    handler: index.getPlayer
+    timeout: 900
+    events:
+      - http:
+          path: /players
+          method: get

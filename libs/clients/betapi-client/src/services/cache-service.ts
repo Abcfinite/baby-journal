@@ -11,4 +11,8 @@ export default class CacheService {
     setEventCache = async (events: string) => {
         await new S3ClientCustom().putFile('betapi-cache', 'events.json', events) as any
     }
+
+    setPlayerCache = async (playerId: string, events: string) => {
+        await new S3ClientCustom().putFile('betapi-cache', `ended/players/${playerId}.json`, events) as any
+    }
 }

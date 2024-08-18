@@ -11,7 +11,7 @@ export type SportEvent = {
   player2: Player,
 }
 
-export const playerNamesToSportEvent = (player1Name: string, player2Name: string): SportEvent => {
+export const playerNamesToSportEvent = (player1Id: string, player1Name: string, player2Id: string, player2Name: string): SportEvent => {
   return {
     id: '',
     date: '',
@@ -20,7 +20,7 @@ export const playerNamesToSportEvent = (player1Name: string, player2Name: string
     url: '',
     competitionName: '',
     player1: {
-      id: '',
+      id: player1Id,
       name: player1Name,
       country: '',
       dob: '',
@@ -34,7 +34,7 @@ export const playerNamesToSportEvent = (player1Name: string, player2Name: string
       parsedPreviousMatches: null
     },
     player2: {
-      id: '',
+      id: player2Id,
       name: player2Name,
       country: '',
       dob: '',

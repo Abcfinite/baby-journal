@@ -3,13 +3,18 @@ import HttpApiClient from '../http-api-client'
 import { Event } from './src/types/event';
 import EventParser from './src/parsers/eventParser';
 import CacheService from './src/services/cache-service';
+import EndedService from './src/services/ended-service';
 
 export default class BetapiClient {
 
   constructor() {
   }
 
-  async getEvents() : Promise<Array<Event>>{
+  async getPlayerEndedMatches(playerId: string): Promise<Array<Event>> {
+    return await new EndedService().getEndedEventBasedOnPlayerId(playerId)
+  }
+
+  async getEvents() : Promise<Array<Event>> {
     const eventCache = await new CacheService().getEventCache()
 
     if (eventCache !== null && eventCache !== undefined) {
@@ -31,22 +36,22 @@ export default class BetapiClient {
     const numberOfPageTurn = Math.floor(paging.total / paging.perPage)
 
     const pageOneEvents = result.value['results'].map(r => {
-      return EventParser.parse(r)
+      return new EventParser().parse(r)
     })
 
     fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents)
 
     let fetchPageActions = []
     for (let page=0; page < numberOfPageTurn; page++) {
-      fetchPageActions.push(this.getEveryPage(page))
-      // fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
+      // fetchPageActions.push(this.getEveryPage(page))
+      fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
     }
 
     let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
 
     parsedEvents.map(pe => fullIncomingEvents = fullIncomingEvents.concat(pe))
 
-    new CacheService().setEventCache(JSON.stringify(fullIncomingEvents))
+    await new CacheService().setEventCache(JSON.stringify(fullIncomingEvents))
 
     return fullIncomingEvents
   }
@@ -61,7 +66,7 @@ export default class BetapiClient {
     )
 
     const parsedEvents = loopResult.value['results'].map(r => {
-      return EventParser.parse(r)
+      return new EventParser().parse(r)
     })
 
     return parsedEvents
