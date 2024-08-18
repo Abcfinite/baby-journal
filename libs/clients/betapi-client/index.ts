@@ -47,11 +47,11 @@ export default class BetapiClient {
       fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
     }
 
-    // let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
+    let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
 
-    // parsedEvents.map(pe => fullIncomingEvents = fullIncomingEvents.concat(pe))
+    parsedEvents.map(pe => fullIncomingEvents = fullIncomingEvents.concat(pe))
 
-    new CacheService().setEventCache(JSON.stringify(fullIncomingEvents))
+    await new CacheService().setEventCache(JSON.stringify(fullIncomingEvents))
 
     return fullIncomingEvents
   }

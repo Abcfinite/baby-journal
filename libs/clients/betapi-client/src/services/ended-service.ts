@@ -47,7 +47,7 @@ export default class EndedService {
 
         // parsedEvents.map(pe => fullEndedEvents = fullEndedEvents.concat(pe))
 
-        // new CacheService().setPlayerCache(playerId, JSON.stringify(fullEndedEvents))
+        await new CacheService().setPlayerCache(playerId, JSON.stringify(fullEndedEvents))
 
         console.log('>>>>fullEndedEvents')
         // console.log(fullEndedEvents)

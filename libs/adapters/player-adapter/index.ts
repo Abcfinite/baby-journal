@@ -22,6 +22,11 @@ export default class PlayerAdapter {
     // const result = await this.matchesSummaryBySportEvent(sportEvent)
     const result = await this.matchesSummary(sportEvent, 1, 1.1)
 
+    // bet-api temporary
+    console.log(`>>bet-api temporary>>${sportEvent.player1.id}>>>>${sportEvent.player1.name}>>>${sportEvent.player2.id}>>>${sportEvent.player2.name}`)
+    await new BetapiClient().getPlayerEndedMatches(sportEvent.player1.id)
+    await new BetapiClient().getPlayerEndedMatches(sportEvent.player2.id)
+
     result.analysis = await new MatchAdapter().similarMatch(result)
 
     return result
@@ -69,11 +74,6 @@ export default class PlayerAdapter {
     const tennisLiveClient = new TennisliveClient()
     const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.name, null)
     const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.name, null)
-
-    /// bet-api temporary
-    // console.log(`>>bet-api temporary>>${sportEvent.player1.id}>>>>${sportEvent.player1.name}>>>${sportEvent.player2.id}>>>${sportEvent.player2.name}`)
-    // await new BetapiClient().getPlayerEndedMatches(sportEvent.player1.id)
-    // await new BetapiClient().getPlayerEndedMatches(sportEvent.player2.id)
 
     const result = {
       id: sportEvent.id,
