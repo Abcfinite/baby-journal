@@ -16,8 +16,8 @@ export default class EndedService {
           { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 1 }
         )
 
-        console.log('>>>>resultFirstPage')
-        console.log(resultFirstPage)
+        // console.log('>>>>resultFirstPage')
+        // console.log(resultFirstPage)
 
         const paging = PagingParser.parse(resultFirstPage.value['pager'])
         const numberOfPageTurn = Math.floor(paging.total / paging.perPage)
@@ -28,7 +28,7 @@ export default class EndedService {
           return new EventParser().parse(r)
         })
 
-        console.log('>>>>pageOneEvents')
+        // console.log('>>>>pageOneEvents')
         // console.log(pageOneEvents)
 
 
@@ -40,7 +40,7 @@ export default class EndedService {
           fullEndedEvents = fullEndedEvents.concat(await this.getEveryPage(page, playerId))
         }
 
-        console.log('>>>>fetchPageActions')
+        // console.log('>>>>fetchPageActions')
         // console.log(fetchPageActions)
 
         // let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
@@ -49,7 +49,7 @@ export default class EndedService {
 
         await new CacheService().setPlayerCache(playerId, JSON.stringify(fullEndedEvents))
 
-        console.log('>>>>fullEndedEvents')
+        // console.log('>>>>fullEndedEvents')
         // console.log(fullEndedEvents)
 
         return fullEndedEvents
