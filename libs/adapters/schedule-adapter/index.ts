@@ -99,8 +99,8 @@ export default class ScheduleAdapter {
       await Promise.all(
         sportEvents.map(async sporte => {
 
-          console.log('>>>>push to sqs>>>')
-          console.log(sporte)
+          // console.log('>>>>push to sqs>>>')
+          // console.log(sporte)
 
           const input = {
             QueueUrl: queueUrl,
@@ -131,8 +131,8 @@ export default class ScheduleAdapter {
 
         try {
 
-          console.log('>>>>checkSportEvent')
-          console.log(sportEvent)
+          // console.log('>>>>checkSportEvent')
+          // console.log(sportEvent)
 
           var checkPlayerResult = await new PlayerAdapter().checkSportEvent(sportEvent)
 

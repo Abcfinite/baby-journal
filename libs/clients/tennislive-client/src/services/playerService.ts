@@ -23,7 +23,7 @@ export default class PlayerService {
       headers,
     )
 
-    return PlayerListParser.parse(result.value as string)
+    return PlayerListParser.parse(result.value as string, playerName)
   }
 
   async getPlayerDetailHtml(playerDetailUrl: string, keepPreviousMatches: boolean = true) : Promise<Player> {
