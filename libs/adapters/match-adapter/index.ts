@@ -96,32 +96,41 @@ export default class MatchAdapter {
 
   wlScore(player: Player) {
     const playerAvgRanking = Analysis.avgRanking(player.currentRanking, player.highestRanking)
+    const result = {}
+
     var pScore = 0
-    player.parsedPreviousMatches.slice(0,9).forEach((pm, index) => {
+    const realOrder = player.parsedPreviousMatches.slice(0,6)
+
+    realOrder.reverse().forEach((pm, index) => {
 
       var matchScore = 0
       if (pm.result === 'win') {
-        if(pm.player.currentRanking > player.currentRanking) {
+        // won, from higher ranking
+        if(pm.player.currentRanking < player.currentRanking) {
           matchScore = 2
         } else {
           matchScore = 1
         }
 
         matchScore = matchScore * this.stageMultiplier(pm, true)
+        pScore = pScore + matchScore
       } else {
-        if(pm.player.currentRanking > player.currentRanking) {
+        // lost, from higher ranking
+        if(pm.player.currentRanking < player.currentRanking) {
           matchScore = 1
         } else {
           matchScore = 2
         }
 
-        matchScore = matchScore * this.stageMultiplier(pm, true)
+        matchScore = matchScore * this.stageMultiplier(pm, false)
+        pScore = pScore - matchScore
       }
 
-      pScore = pScore + matchScore
+      console.log('>>>>',pm.player.name,'>>>>',pScore)
+      result[index] = pScore
     })
 
-    return pScore
+    return result
   }
 
   stageMultiplier(match: Match, won: boolean) : number {
