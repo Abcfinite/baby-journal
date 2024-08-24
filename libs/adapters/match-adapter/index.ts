@@ -4,6 +4,7 @@ import { dobToAge } from "./src/utils/conversion"
 import { Player } from '../../clients/tennislive-client/src/types/player';
 import PlayerAdapter from '../player-adapter/index';
 import Analysis from "./src/utils/analysis";
+import { Match } from "@abcfinite/tennislive-client/src/types/match";
 
 export default class MatchAdapter {
 
@@ -32,7 +33,7 @@ export default class MatchAdapter {
 
     const analysisResult = {
       winLoseRanking: winLoseRanking,
-      // winLoseScore: wlScore,
+      winLoseScore: this.winLoseScore(player1, player2),,
       // knn: await new Analysis().knn(player1, player2, wlScore, winLoseRanking),
       highLowRanking: this.highLowRanking(player1, player2),
       betAgainstOdd: {
@@ -86,18 +87,10 @@ export default class MatchAdapter {
     }
   }
 
-  // score for last 10 matches
-  // win
-  // * from higher avg ranking = +diff
-  // * from lower avg ranking = 0
-  // lost
-  // * from higher avg ranking = 0
-  // * from lower avg ranking => -diff
-  // multiply by how current. Most current 20
   winLoseScore(player1: Player, player2: Player) {
     return {
-      'player-1': this.wlScore(player1),
-      'player-2': this.wlScore(player2),
+      player1: this.wlScore(player1),
+      player2: this.wlScore(player2),
     }
   }
 
@@ -105,33 +98,55 @@ export default class MatchAdapter {
     const playerAvgRanking = Analysis.avgRanking(player.currentRanking, player.highestRanking)
     var pScore = 0
     player.parsedPreviousMatches.slice(0,9).forEach((pm, index) => {
-      const pmAvgRangking = Analysis.avgRanking(pm.player.currentRanking, pm.player.highestRanking)
+
+      var matchScore = 0
       if (pm.result === 'win') {
-        // // 650 v 350
-        if (playerAvgRanking > pmAvgRangking) {
-          // pScore = pScore + ((playerAvgRanking - pmAvgRangking) * (10 - index))
-          pScore = pScore + 100
+        if(pm.player.currentRanking > player.currentRanking) {
+          matchScore = 2
+        } else {
+          matchScore = 1
         }
-        //  else if (playerAvgRanking === pmAvgRangking) {
-        //   pScore = pScore + (10 - index)
-        // }
-        // console.log('>>>>win>>>', pScore)
-        pScore = pScore + 100
-      } else if (pm.result === 'lost') {
-        // // 650 v 1000
-        if (playerAvgRanking < pmAvgRangking) {
-          // pScore = pScore - ((pmAvgRangking - playerAvgRanking) * (10 - index))
-          pScore = pScore - 100
+
+        matchScore = matchScore * this.stageMultiplier(pm, true)
+      } else {
+        if(pm.player.currentRanking > player.currentRanking) {
+          matchScore = 1
+        } else {
+          matchScore = 2
         }
-        // else if (playerAvgRanking === pmAvgRangking) {
-        //   pScore = pScore - (10 - index)
-        // }
-        // console.log('>>>>lost>>>', pScore)
-        pScore = pScore - 100
+
+        matchScore = matchScore * this.stageMultiplier(pm, true)
       }
+
+      pScore = pScore + matchScore
     })
 
     return pScore
+  }
+
+  stageMultiplier(match: Match, won: boolean) : number {
+    switch(match.stage) {
+      case 'q 2' :
+        return won ? 2 : 9
+      case 'qual.' :
+        return won ? 3 : 8
+      case '1st round' :
+        return won ? 4 : 7
+      case '2nd round' :
+        return won ? 5 : 6
+      case '3rd round' :
+        return won ? 6 : 5
+      case '4tth round' :
+        return won ? 7 : 4
+      case '1/4' :
+        return won ? 8 : 3
+      case '1/2' :
+        return won ? 9 : 2
+      case 'fin' :
+        return won ? 10 : 1
+    }
+
+    return won ? 1 : 10
   }
 
   highLowRanking(player1: Player, player2: Player) {

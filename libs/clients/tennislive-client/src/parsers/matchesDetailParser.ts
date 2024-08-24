@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import { Player } from '../types/player'
 import { Match } from '../types/match';
+import { parse } from 'node-html-parser';
 
 export default class MatchesDetailParser {
 
@@ -30,6 +31,7 @@ export default class MatchesDetailParser {
       const match : Match = {
         date: '',
         player: player,
+        stage: '',
         result: 'lost'
       }
 
@@ -50,6 +52,17 @@ export default class MatchesDetailParser {
             if (dateRegexResult !== null && dateRegexResult[0] !== null) {
               match.date = content.textContent
             }
+
+            ['q 1', 'q 2', 'qual.', 'round', '1/2', '1/4', 'fin'].forEach(r => {
+              if (content.textContent.includes(r)) {
+                match.stage = content.textContent
+                if (element.innerHTML.includes('2<sup>nd</sup> round')) {
+                  match.stage = '2nd round'
+                } else if (element.innerHTML.includes('1<sup>st</sup> round')) {
+                  match.stage = '1st round'
+                }
+              }
+            })
           }
         })
       })
