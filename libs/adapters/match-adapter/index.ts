@@ -105,28 +105,52 @@ export default class MatchAdapter {
 
       var matchScore = 0
       if (pm.result === 'win') {
-        // won, from higher ranking
-        if(pm.player.currentRanking < player.currentRanking) {
-          matchScore = 2
+        if(pm.player.currentRanking === player.currentRanking) {
+          const wpPm = pm.player.matchesWon / pm.player.matchesTotal
+          const wpP = player.matchesWon / player.matchesTotal
+
+          //wom, from higher winning rate
+          if (wpPm > wpP) {
+            matchScore = 2
+          } else {
+            matchScore = 1
+          }
         } else {
-          matchScore = 1
+          // won, from higher ranking
+          if(pm.player.currentRanking < player.currentRanking) {
+            matchScore = 2
+          } else {
+            matchScore = 1
+          }
         }
 
         matchScore = matchScore * this.stageMultiplier(pm, true)
         pScore = pScore + matchScore
       } else {
-        // lost, from higher ranking
-        if(pm.player.currentRanking < player.currentRanking) {
-          matchScore = 1
-        } else {
-          matchScore = 2
+        if(pm.player.currentRanking === player.currentRanking) {
+          const wpPm = pm.player.matchesWon / pm.player.matchesTotal
+          const wpP = player.matchesWon / player.matchesTotal
+
+          //lost, from higher winning rate
+          if (wpPm > wpP) {
+            matchScore = 1
+          } else {
+            matchScore = 2
+          }
+        }
+        else {
+          // lost, from higher ranking
+          if(pm.player.currentRanking < player.currentRanking) {
+            matchScore = 1
+          } else {
+            matchScore = 2
+          }
         }
 
         matchScore = matchScore * this.stageMultiplier(pm, false)
         pScore = pScore - matchScore
       }
 
-      console.log('>>>>',pm.player.name,'>>>>',pScore)
       result[index] = pScore
     })
 
