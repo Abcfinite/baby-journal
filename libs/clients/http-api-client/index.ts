@@ -25,12 +25,12 @@ export default class HttpApiClient {
 
     try {
       let instance = axios.create()
-      instance.defaults.timeout = 25000
-      instance.defaults.signal = AbortSignal.timeout(25000),
+      instance.defaults.timeout = 60000
+      instance.defaults.signal = AbortSignal.timeout(60000),
 
       axiosResponse = await instance.get(
         baseUrl+path,
-        { timeout: 25000, headers, params }
+        { timeout: 60000, headers, params }
       )
 
       response.status = axiosResponse.status
