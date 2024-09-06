@@ -60,6 +60,10 @@ export default class MatchesDetailParser {
                   match.stage = '2nd round'
                 } else if (element.innerHTML.includes('1<sup>st</sup> round')) {
                   match.stage = '1st round'
+                } else if (element.innerHTML.includes('3<sup>rd</sup> round')) {
+                  match.stage = '3rd round'
+                } else if (element.innerHTML.includes('4<sup>th</sup> round')) {
+                  match.stage = '4th round'
                 }
               }
             })

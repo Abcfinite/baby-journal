@@ -33,7 +33,7 @@ export default class MatchAdapter {
 
     const analysisResult = {
       winLoseRanking: winLoseRanking,
-      winLoseScore: this.winLoseScore(player1, player2),,
+      winLoseScore: this.winLoseScore(player1, player2),
       // knn: await new Analysis().knn(player1, player2, wlScore, winLoseRanking),
       highLowRanking: this.highLowRanking(player1, player2),
       betAgainstOdd: {
@@ -169,7 +169,7 @@ export default class MatchAdapter {
         return won ? 5 : 6
       case '3rd round' :
         return won ? 6 : 5
-      case '4tth round' :
+      case '4th round' :
         return won ? 7 : 4
       case '1/4' :
         return won ? 8 : 3
@@ -232,10 +232,13 @@ export default class MatchAdapter {
     const p1Win = _.get(player1, 'parsedPreviousMatches', []).filter(pm => uIntersection.includes(pm.player.name) && pm.result === 'win')
     const p2Win = _.get(player2, 'parsedPreviousMatches', []).filter(pm => uIntersection.includes(pm.player.name) && pm.result === 'win')
 
+    const p1WinUnique = [...new Set(p1Win)]
+    const p2WinUnique = [...new Set(p2Win)]
+
     return {
       names: intersection,
-      player1Score: p1Win.length ,
-      player2Score: p2Win.length,
+      player1Score: p1WinUnique.length ,
+      player2Score: p2WinUnique.length,
       total: uIntersection.length
     }
   }
