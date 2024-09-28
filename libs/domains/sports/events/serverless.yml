@@ -46,6 +46,13 @@ custom:
     packager: yarn
 
 functions:
+  removeAllCache:
+    handler: index.removeAllCache
+    timeout: 900
+    events:
+      - http:
+          path: /removeAllCache
+          method: delete
   cacheBetAPI:
     handler: index.cacheBetAPI
     timeout: 900

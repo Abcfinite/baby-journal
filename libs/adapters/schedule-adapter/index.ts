@@ -1,24 +1,65 @@
 import _ from "lodash"
 import S3ClientCustom from '@abcfinite/s3-client-custom'
+import { putItem, truncateTable } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
   ReceiveMessageCommand, GetQueueAttributesCommand,
-  DeleteMessageCommand } from "@aws-sdk/client-sqs";
+  DeleteMessageCommand, 
+  PurgeQueueCommand} from "@aws-sdk/client-sqs";
 import { toCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
+import { BetAPIPlayer } from "./src/models/bet_api_player"
+import { removeAllCache } from '../../domains/sports/events/index';
 
 export default class ScheduleAdapter {
 
-  async cacheBetAPI() {
-    // delete previous cache
+
+  async removeAllCache() {
     const s3ClientCustom = new S3ClientCustom()
     await s3ClientCustom.deleteAllFiles('betapi-cache')
+    await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
+    await truncateTable('tennis_player_scheduled')
 
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
+
+
+    const params = {
+      QueueUrl: queueUrl, // URL of the queue to be purged
+    };
+
+    try {
+      const purgeCommand = new PurgeQueueCommand(params);
+      await client.send(purgeCommand);
+      console.log(`Queue purged: ${queueUrl}`);
+    } catch (err) {
+      console.error("Error purging queue:", err);
+    }
+
+    return 'all cache removed and sqs queue purged'
+  }
+
+  async cacheBetAPI() {
     // get latest schedule
     const events = await new BetapiClient().getEvents()
 
-    // safe all players in dynamodb
+    // safe all main players in dynamodb
+    await Promise.all(
+      events.map(async event => {
+          const player1: BetAPIPlayer = {
+            name: event.player1.name,
+          }
+
+          putItem('tennis_players_scheduled', player1)
+
+          const player2: BetAPIPlayer = {
+            name: event.player2.name,
+          }
+
+          putItem('tennis_players_scheduled', player2)
+      })
+    )
 
     // return number of matches
     return `number of matches : ${events.length}`
@@ -33,14 +74,7 @@ export default class ScheduleAdapter {
     const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
 
     if (resultFile) {
-      // if (JSON.parse(resultFile)[0]['date'] === currentDate) {
         return toCsv(resultFile)
-      // }
-      // // else {
-        // await s3ClientCustom.deleteAllFiles('betapi-cache')
-        // await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
-        // return 'betAPI cache and tennis scheduled cleared'
-      // }
     }
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
