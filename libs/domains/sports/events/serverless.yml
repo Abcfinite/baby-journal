@@ -46,9 +46,16 @@ custom:
     packager: yarn
 
 functions:
+  cacheBetAPI:
+    handler: index.cacheBetAPI
+    timeout: 900
+    events:
+      - http:
+          path: /cacheBetApi
+          method: get
   checkPlayer:
     handler: index.checkPlayer
-    timeout: 45
+    timeout: 900
     events:
       - http:
           path: /checkPlayer
@@ -59,18 +66,4 @@ functions:
     events:
       - http:
           path: /schedule
-          method: get
-  finished:
-    handler: index.getFinished
-    timeout: 900
-    events:
-      - http:
-          path: /finished
-          method: get
-  valueSummary:
-    handler: index.getValueSummary
-    timeout: 900
-    events:
-      - http:
-          path: /value-summary
           method: get

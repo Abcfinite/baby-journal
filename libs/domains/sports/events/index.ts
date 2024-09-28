@@ -1,6 +1,5 @@
 import PlayerAdapter from '@abcfinite/player-adapter'
 import ScheduleAdapter from '@abcfinite/schedule-adapter'
-import FinishedAdapter from '@abcfinite/finished-adapter'
 import { Handler } from 'aws-lambda';
 
 export const checkPlayer: Handler = async (event: any) => {
@@ -31,6 +30,7 @@ export const checkPlayer: Handler = async (event: any) => {
         ),
       }
     } catch (ex){
+      console.error('>>>>error>>',player1, '>>>', player2)
       console.error(ex)
       response = {
         statusCode: 400,
@@ -61,8 +61,8 @@ export const getSchedule: Handler = async (event: any) => {
   })
 }
 
-export const getFinished: Handler = async (event: any) => {
-  var result = await new FinishedAdapter().getFinished()
+export const cacheBetAPI: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().cacheBetAPI()
 
   var response = {
     statusCode: 200,
@@ -77,28 +77,4 @@ export const getFinished: Handler = async (event: any) => {
   })
 }
 
-export const getValueSummary: Handler = async (event: any) => {
-  var valSummaryResult = await new FinishedAdapter().getValueSummary()
-
-  console.log('>>>>valSummaryResult')
-  console.log(valSummaryResult)
-
-  var putResult = await new FinishedAdapter().putValueSummary(valSummaryResult)
-
-  const result = []
-
-  result.push(Object.keys(putResult[0]))
-  putResult.map(c => {
-    result.push(Object.values(c))
-  })
-
-  var response = {
-    statusCode: 200,
-    body: result.join('\r\n')
-  }
-
-  return new Promise((resolve) => {
-    resolve(response)
-  })
-}
 

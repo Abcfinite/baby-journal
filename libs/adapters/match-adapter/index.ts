@@ -1,10 +1,10 @@
 import _ from "lodash"
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { dobToAge } from "./src/utils/conversion"
-import { Player } from '../../clients/tennislive-client/src/types/player';
 import PlayerAdapter from '../player-adapter/index';
 import Analysis from "./src/utils/analysis";
 import { Match } from "@abcfinite/tennislive-client/src/types/match";
+import { Player } from '@abcfinite/tennislive-client/src/types/player';
 
 export default class MatchAdapter {
 
@@ -36,6 +36,7 @@ export default class MatchAdapter {
       winLoseScore: this.winLoseScore(player1, player2),
       // knn: await new Analysis().knn(player1, player2, wlScore, winLoseRanking),
       highLowRanking: this.highLowRanking(player1, player2),
+      win3setRate: this.win3setRate(player1, player2),
       betAgainstOdd: {
         nonFavPlayerWonToHigherLevelThanFav: this.nonFavPlayerWonToHigherLevelThanFav(playerDetail)
       },
@@ -180,6 +181,18 @@ export default class MatchAdapter {
     }
 
     return won ? 1 : 10
+  }
+
+  win3setRate(player1: Player, player2: Player) {
+    const p1Lost = _.get(player1, 'parsedPreviousMatches', []).filter(pm => pm.result === 'lost' && pm.score.split(',').length > 2).length
+    const p2Lost = _.get(player2, 'parsedPreviousMatches', []).filter(pm => pm.result === 'lost' && pm.score.split(',').length > 2).length
+    const p1Win = _.get(player1, 'parsedPreviousMatches', []).filter(pm => pm.result === 'win' && pm.score.split(',').length > 2).length
+    const p2Win = _.get(player2, 'parsedPreviousMatches', []).filter(pm => pm.result === 'win' && pm.score.split(',').length > 2).length
+
+    return {
+      player1: p1Win / (p1Lost + p1Win),
+      player2: p2Win / (p2Lost + p2Win)
+    }
   }
 
   highLowRanking(player1: Player, player2: Player) {

@@ -17,16 +17,24 @@ export default class PlayerService {
 
     const httpApiClient = new HttpApiClient()
 
-    const result = await httpApiClient.get(
-      process.env.TENNISLIVE_HOST!,
-      process.env.TENNISLIVE_PATH+'?qe='+playerName,
-      headers,
-    )
+    // const result = await httpApiClient.get(
+    //   process.env.TENNISLIVE_HOST!,
+    //   process.env.TENNISLIVE_PATH+'?qe='+playerName,
+    //   headers,
+    // )
+
+    const playerUrl = '/tmpl/search.php?qe='+playerName
+    const result = await httpApiClient.getNative(playerUrl)
 
     return PlayerListParser.parse(result.value as string, playerName)
   }
 
   async getPlayerDetailHtml(playerDetailUrl: string, keepPreviousMatches: boolean = true) : Promise<Player> {
+
+    setTimeout(() => {
+      console.log('Paused for 1 second');
+    }, 1000);
+
     const headers = {
       Host: 'www.tennislive.net',
       Referer: process.env.TENNISLIVE_HOST
@@ -37,15 +45,20 @@ export default class PlayerService {
     let result = null
 
     try {
-      result = await httpApiClient.get(
-        process.env.TENNISLIVE_HOST!,
-        playerDetailUrl.replace(process.env.TENNISLIVE_HOST!, '') ,
-        headers,
-      )
+      // result = await httpApiClient.get(
+      //   process.env.TENNISLIVE_HOST!,
+      //   playerDetailUrl.replace(process.env.TENNISLIVE_HOST!, '') ,
+      //   headers,
+      // )
+
+      result = await httpApiClient.getNative(playerDetailUrl.replace(process.env.TENNISLIVE_HOST!, ''))
+
     } catch(ex) {
-      if (ex.response.status == 404) {
-        throw new PlayerNotFound()
-      }
+      // if (ex.response.status == 404) {
+      //   throw new PlayerNotFound()
+      // }
+      console.log('>>>error fetch player detail')
+      console.log(ex)
     }
 
     return PlayerDetailParser.parse(result.value as string, keepPreviousMatches)
