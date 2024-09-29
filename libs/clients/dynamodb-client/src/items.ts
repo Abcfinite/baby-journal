@@ -1,4 +1,4 @@
-import { DynamoDBClient, ScanCommand, DeleteTableCommand, CreateTableCommand, CreateTableCommandInput, ListTablesCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, ScanCommand, DeleteTableCommand, CreateTableCommand, CreateTableCommandInput, ListTablesCommand, ScanCommandInput } from "@aws-sdk/client-dynamodb";
 import { PutCommand, DeleteCommand, GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 export const put = async (tableName: string,
@@ -40,21 +40,10 @@ export const count = async (tableName: string) => {
   return response;
 }
 
-export const scan = async (params: object) => {
+export const scan = async (params: ScanCommandInput) => {
   const client = new DynamoDBClient({});
 
-  const command = new ScanCommand({
-    FilterExpression: "Category = :cat",
-    ExpressionAttributeValues: {
-      ":cat": { S: params['sport'] },
-    },
-    ProjectionExpression: `Id, Category, EventId,
-        H2hDraw, H2hPlayer1Win, H2hPlayer2Win, OddCorrect,
-        Player1, Player1Odd, Player2, Player2Odd, RatingPlayer1End,
-        RatingPlayer1Start, RatingPlayer2End, RatingPlayer2Start,
-        Tournament, PlayDateTime`,
-      TableName: "Bets",
-    })
+  const command = new ScanCommand(params)
 
   const response = await client.send(command);
 
@@ -67,10 +56,7 @@ export const get = async (tableName: string,
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client);
 
-  const Key = { Id: itemId }
-  if (itemName) {
-    Key['Category'] = itemName
-  }
+  const Key = { id: itemId }
 
   const command = new GetCommand({
     TableName: tableName,

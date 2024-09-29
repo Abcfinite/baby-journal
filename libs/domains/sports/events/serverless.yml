@@ -60,6 +60,13 @@ functions:
       - http:
           path: /cacheBetApi
           method: get
+  playersUrl:
+    handler: index.getPlayersUrl
+    timeout: 900
+    events:
+      - http:
+          path: /playersUrl
+          method: get
   checkPlayer:
     handler: index.checkPlayer
     timeout: 900

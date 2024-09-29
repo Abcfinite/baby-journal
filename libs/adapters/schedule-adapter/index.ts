@@ -1,6 +1,6 @@
 import _ from "lodash"
 import S3ClientCustom from '@abcfinite/s3-client-custom'
-import { putItem, truncateTable } from '@abcfinite/dynamodb-client'
+import { putItem, executeScan } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
@@ -9,7 +9,6 @@ import { SQSClient, SendMessageCommand,
   PurgeQueueCommand} from "@aws-sdk/client-sqs";
 import { toCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
-import { removeAllCache } from '../../domains/sports/events/index';
 
 export default class ScheduleAdapter {
 
@@ -18,7 +17,6 @@ export default class ScheduleAdapter {
     const s3ClientCustom = new S3ClientCustom()
     await s3ClientCustom.deleteAllFiles('betapi-cache')
     await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
-    await truncateTable('tennis_players_scheduled')
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
     const client = new SQSClient({ region: 'ap-southeast-2' });
@@ -62,11 +60,11 @@ export default class ScheduleAdapter {
       filteredEvents.map(event => {
         const player1 = {
           "id": event.player1.id,
-          "name": event.player1.name,
-          "found": true,
+          "full_name": event.player1.name,
+          "url_found": true,
         }
 
-        return putItem('tennis_players_scheduled', player1)
+        return putItem('tennis_players', player1)
       })
 
 
@@ -74,11 +72,11 @@ export default class ScheduleAdapter {
       filteredEvents.map(event => {
         const player2 = {
           "id": event.player2.id,
-          "name": event.player2.name,
-          "found": true,
+          "full_name": event.player2.name,
+          "url_found": true,
         }
 
-        return putItem('tennis_players_scheduled', player2)
+        return putItem('tennis_players', player2)
       })
 
     // execute putItem on dynamodb
@@ -87,6 +85,25 @@ export default class ScheduleAdapter {
 
     // return number of matches
     return `number of matches : ${events.length}`
+  }
+
+  async getPlayersUrl() {
+    // get all player from dynamodb that
+    // does not have url and found is true
+    const scanParam = {
+      FilterExpression: 'url_found = :url_found AND attribute_not_exists(tennislive_url)',
+      ExpressionAttributeValues: {
+        ':url_found': { BOOL: true },
+      },
+      ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+      TableName: 'tennis_players',
+    }
+    const result = await executeScan(scanParam)
+
+
+    return result
+
+    // if url is not exist then push name to sqs
   }
 
   async getSchedule() {
@@ -132,7 +149,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (120 < fileList.length) {
+    if (150 < fileList.length) {
     // if (sportEvents.length === fileList.length) {
       await Promise.all(
         fileList.map( async file => {
