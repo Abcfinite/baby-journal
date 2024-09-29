@@ -2,26 +2,30 @@ import { HttpResponse } from './src/types/http-response';
 import axios, { AxiosResponse } from 'axios'
 import { https } from 'follow-redirects';
 import { IncomingMessage } from 'http';
-import { v4 as uuidv4 } from 'uuid';
+import dns from 'dns';
+import querystring from 'querystring';
 
 export default class HttpApiClient {
 
   constructor() {}
 
   async getNative(
-    path: string
+    baseUrl: string,
+    path: string,
+    headers?: object,
+    params: Record<string, string> = {},
   ): Promise<HttpResponse> {
 
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+    const queryParams = querystring.stringify(params);
     var options = {
       'method': 'GET',
-      'hostname': 'www.tennislive.net',
-      'path': encodeURI(path),
-      'headers': {
-        'Host': 'www.tennislive.net',
-        'Referer': 'https://www.tennislive.net',
-        'Cookie': uuidv4()
-      },
-      'maxRedirects': 20
+      'hostname': baseUrl,
+      'path': encodeURI(path)+queryParams,
+      'headers': headers,
+      'maxRedirects': 20,
+      'timeout': 20000,
+      'family': 4, // Force IPv4 (or 6 for IPv6)
     };
 
     return new Promise((resolve, reject) => {
@@ -49,6 +53,7 @@ export default class HttpApiClient {
 
       // Handle any potential errors
       req.on('error', (error: Error) => {
+        console.error(`Error: ${error.message}`);
         reject(error);  // Reject the promise if an error occurs
       });
 

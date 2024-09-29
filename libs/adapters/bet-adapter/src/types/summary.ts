@@ -1,8 +1,0 @@
-export type Summary = {
-  biggestWinningOdd: number,
-  smallestWinningOdd: number,
-  biggestWinningOddDiff: number,
-  smallestWinningOddDiff: number,
-  oddsPercentage: object,
-  scannedCount: number
-}

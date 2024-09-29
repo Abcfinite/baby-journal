@@ -3,6 +3,7 @@ import { Player } from '../types/player'
 import PlayerListParser from '../parsers/playerListParser';
 import PlayerDetailParser from '../parsers/playerDetailParser';
 import PlayerNotFound from '../errors/PlayerNotFound';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class PlayerService {
 
@@ -12,7 +13,8 @@ export default class PlayerService {
   async getPlayerUrl(playerName: string) : Promise<string> {
     const headers = {
       Host: 'www.tennislive.net',
-      Referer: process.env.TENNISLIVE_HOST
+      Referer: process.env.TENNISLIVE_HOST,
+      'Cookie': uuidv4()
     }
 
     const httpApiClient = new HttpApiClient()
@@ -24,7 +26,8 @@ export default class PlayerService {
     // )
 
     const playerUrl = '/tmpl/search.php?qe='+playerName
-    const result = await httpApiClient.getNative(playerUrl)
+    const result = await httpApiClient.getNative('www.tennislive.net',
+      playerUrl, headers)
 
     return PlayerListParser.parse(result.value as string, playerName)
   }
@@ -37,7 +40,8 @@ export default class PlayerService {
 
     const headers = {
       Host: 'www.tennislive.net',
-      Referer: process.env.TENNISLIVE_HOST
+      Referer: process.env.TENNISLIVE_HOST,
+      'Cookie': uuidv4()
     }
 
     const httpApiClient = new HttpApiClient()
@@ -51,7 +55,8 @@ export default class PlayerService {
       //   headers,
       // )
 
-      result = await httpApiClient.getNative(playerDetailUrl.replace(process.env.TENNISLIVE_HOST!, ''))
+      result = await httpApiClient.getNative('www.tennislive.net',
+        playerDetailUrl.replace(process.env.TENNISLIVE_HOST!, ''), headers)
 
     } catch(ex) {
       // if (ex.response.status == 404) {

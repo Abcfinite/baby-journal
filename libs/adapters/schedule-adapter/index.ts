@@ -5,11 +5,10 @@ import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-clien
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
   ReceiveMessageCommand, GetQueueAttributesCommand,
-  DeleteMessageCommand, 
+  DeleteMessageCommand,
   PurgeQueueCommand} from "@aws-sdk/client-sqs";
 import { toCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
-import { BetAPIPlayer } from "./src/models/bet_api_player"
 import { removeAllCache } from '../../domains/sports/events/index';
 
 export default class ScheduleAdapter {
@@ -19,7 +18,7 @@ export default class ScheduleAdapter {
     const s3ClientCustom = new S3ClientCustom()
     await s3ClientCustom.deleteAllFiles('betapi-cache')
     await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
-    await truncateTable('tennis_player_scheduled')
+    await truncateTable('tennis_players_scheduled')
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
     const client = new SQSClient({ region: 'ap-southeast-2' });
@@ -42,24 +41,49 @@ export default class ScheduleAdapter {
 
   async cacheBetAPI() {
     // get latest schedule
+    // todo : why need to get result first ??? Is it to warm up the lambda ???
+    const s3ClientCustom = new S3ClientCustom()
+    await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
+
     const events = await new BetapiClient().getEvents()
 
     // safe all main players in dynamodb
-    await Promise.all(
-      events.map(async event => {
-          const player1: BetAPIPlayer = {
-            name: event.player1.name,
-          }
+    if (events.length === 0) { return 'no match scheduled' }
 
-          putItem('tennis_players_scheduled', player1)
+    // filter out double
+    const filteredEvents = events.map(event => {
+      if (!event.player1.name.includes('/')) {
+        return event
+      }
+    }).filter(Boolean)
 
-          const player2: BetAPIPlayer = {
-            name: event.player2.name,
-          }
+    // collect putItem function
+    const player1s =
+      filteredEvents.map(event => {
+        const player1 = {
+          "id": event.player1.id,
+          "name": event.player1.name,
+          "found": true,
+        }
 
-          putItem('tennis_players_scheduled', player2)
+        return putItem('tennis_players_scheduled', player1)
       })
-    )
+
+
+    const player2s =
+      filteredEvents.map(event => {
+        const player2 = {
+          "id": event.player2.id,
+          "name": event.player2.name,
+          "found": true,
+        }
+
+        return putItem('tennis_players_scheduled', player2)
+      })
+
+    // execute putItem on dynamodb
+    await Promise.all(player1s)
+    await Promise.all(player2s)
 
     // return number of matches
     return `number of matches : ${events.length}`

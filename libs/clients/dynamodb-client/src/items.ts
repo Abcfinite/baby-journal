@@ -1,18 +1,20 @@
-import { DynamoDBClient, ScanCommand, DeleteTableCommand, CreateTableCommand, CreateTableCommandInput } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, ScanCommand, DeleteTableCommand, CreateTableCommand, CreateTableCommandInput, ListTablesCommand } from "@aws-sdk/client-dynamodb";
 import { PutCommand, DeleteCommand, GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 export const put = async (tableName: string,
   item: object,
   replaceWhenExist: boolean = false) => {
+
+
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client)
 
-  if (!replaceWhenExist) {
-    const getResult = await get(tableName, item['Id'])
-    if (getResult.Item) {
-      return
-    }
-  }
+  // if (!replaceWhenExist) {
+  //   const getResult = await get(tableName, item['id'])
+  //   if (getResult.Item) {
+  //     return
+  //   }
+  // }
 
   const command = new PutCommand({
     TableName: tableName,
@@ -100,6 +102,29 @@ export const remove = async (tableName: string, itemId: string) => {
   return response;
 }
 
+export const findTable = async (tableNameToFind: string): Promise<boolean> => {
+  try {
+    // List tables
+    const listTablesCommand = new ListTablesCommand({});
+    const client = new DynamoDBClient({});
+    const docClient = DynamoDBDocumentClient.from(client);
+
+    const data = await docClient.send(listTablesCommand);
+
+    const tables: string[] = data.TableNames || [];
+    console.log("List of tables:", tables);
+
+    // Check if the specific table exists
+    if (tables.includes(tableNameToFind)) {
+      return true
+    }
+
+    return false
+  } catch (err) {
+    console.error("Error listing tables:", err);
+  }
+}
+
 export const deleteAndRecreateTable = async (tableName: string) => {
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client);
@@ -109,22 +134,24 @@ export const deleteAndRecreateTable = async (tableName: string) => {
   };
 
   try {
-    // Delete the table
-    const command = new DeleteTableCommand(params);
-    await docClient.send(command);
-    console.log("Table deleted.");
+    // Delete the table if exist
+    if (await findTable(tableName)) {
+      const command = new DeleteTableCommand(params);
+      await docClient.send(command);
+      console.log('Table deleted.');
 
-    // Wait a few seconds to ensure the table is deleted
-    await new Promise(resolve => setTimeout(resolve, 5000));
+      // Wait a few seconds to ensure the table is deleted
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
 
     // Recreate the table (use the same table structure as before)
     const createParams: CreateTableCommandInput = {
       TableName: tableName,
       KeySchema: [
-        { AttributeName: 'id', KeyType: 'HASH' } // adjust as needed
+        { AttributeName: 'id', KeyType: 'HASH' }
       ],
       AttributeDefinitions: [
-        { AttributeName: 'id', AttributeType: 'S' } // adjust as needed
+        { AttributeName: 'id', AttributeType: 'S' }
       ],
       ProvisionedThroughput: {
         ReadCapacityUnits: 5,
