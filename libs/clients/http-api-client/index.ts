@@ -16,12 +16,13 @@ export default class HttpApiClient {
     params: Record<string, string> = {},
   ): Promise<HttpResponse> {
 
-    dns.setServers(['8.8.8.8', '8.8.4.4']);
-    const queryParams = querystring.stringify(params);
+    dns.setServers(['8.8.8.8', '8.8.4.4'])
+    const queryParams = '?'+querystring.stringify(params)
+
     var options = {
       'method': 'GET',
       'hostname': baseUrl,
-      'path': encodeURI(path)+queryParams,
+      'path': encodeURI(path+queryParams),
       'headers': headers,
       'maxRedirects': 20,
       'timeout': 20000,

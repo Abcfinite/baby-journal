@@ -23,8 +23,8 @@ export default class BetapiClient {
 
     const httpApiClient = new HttpApiClient()
 
-    const result = await httpApiClient.get(
-      'https://api.b365api.com',
+    const result = await httpApiClient.getNative(
+      'api.b365api.com',
       '/v3/events/upcoming',
       null,
       { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu' }
@@ -32,24 +32,21 @@ export default class BetapiClient {
 
     let fullIncomingEvents: Array<Event> = []
 
-    const paging = PagingParser.parse(result.value['pager'])
+    const data = JSON.parse(result.value.toString())
+    const paging = PagingParser.parse(data['pager'])
     const numberOfPageTurn = Math.floor(paging.total / paging.perPage)
 
-    const pageOneEvents = result.value['results'].map(r => {
+    const pageOneEvents = data['results'].map(r => {
       return new EventParser().parse(r)
     })
 
     fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents)
 
-    let fetchPageActions = []
+
     for (let page=0; page < numberOfPageTurn; page++) {
-      // fetchPageActions.push(this.getEveryPage(page))
       fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
     }
 
-    let parsedEvents: Array<Array<Event>> = await Promise.all(fetchPageActions)
-
-    parsedEvents.map(pe => fullIncomingEvents = fullIncomingEvents.concat(pe))
 
     await new CacheService().setEventCache(JSON.stringify(fullIncomingEvents))
 
@@ -58,14 +55,15 @@ export default class BetapiClient {
 
   async getEveryPage(pageNo: number) {
     const httpApiClient = new HttpApiClient()
-    const loopResult = await httpApiClient.get(
-      'https://api.b365api.com',
+    const loopResult = await httpApiClient.getNative(
+      'api.b365api.com',
       '/v3/events/upcoming',
       null,
-      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', page: 2+pageNo }
+      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', page: `${2+pageNo}` }
     )
 
-    const parsedEvents = loopResult.value['results'].map(r => {
+    const data = JSON.parse(loopResult.value.toString())
+    const parsedEvents = data['results'].map(r => {
       return new EventParser().parse(r)
     })
 

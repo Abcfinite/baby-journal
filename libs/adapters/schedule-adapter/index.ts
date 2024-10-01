@@ -149,7 +149,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (150 < fileList.length) {
+    if (240 < fileList.length) {
     // if (sportEvents.length === fileList.length) {
       await Promise.all(
         fileList.map( async file => {
