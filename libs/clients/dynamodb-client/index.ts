@@ -1,5 +1,7 @@
-import { ScanCommandInput } from '@aws-sdk/client-dynamodb';
-import { put, remove, get, scan, count, deleteAndRecreateTable } from './src/items';
+import { ScanCommandInput, QueryCommandInput } from '@aws-sdk/client-dynamodb';
+import { put, remove, get, scan, count, deleteAndRecreateTable, query } from './src/items';
+
+export const executeQuery = async (params?: ScanCommandInput) => query(params)
 
 export const executeScan = async (params?: ScanCommandInput) => scan(params)
 

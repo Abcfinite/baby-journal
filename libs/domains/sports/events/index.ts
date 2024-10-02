@@ -61,6 +61,22 @@ export const getSchedule: Handler = async (event: any) => {
   })
 }
 
+export const getPlayersName: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().getPlayersName()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+
 export const getPlayersUrl: Handler = async (event: any) => {
   var result = await new ScheduleAdapter().getPlayersUrl()
 

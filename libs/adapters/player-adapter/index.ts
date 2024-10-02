@@ -10,7 +10,7 @@ import BetapiClient from "../../clients/betapi-client";
 
 export default class PlayerAdapter {
   async checkPlayer(player1Name: string, player2Name: string, player1Odd: number, Player2Odd: number) {
-    const sportEvent = playerNamesToSportEvent('', player1Name, '', player2Name)
+    const sportEvent = playerNamesToSportEvent('', player1Name, '', '', player2Name, '')
     const result = await this.matchesSummary(sportEvent, player1Odd, Player2Odd)
 
     result.analysis = await new MatchAdapter().similarMatch(result)
@@ -34,8 +34,8 @@ export default class PlayerAdapter {
 
   async matchesSummaryBySportEvent(sportEvent: SportEvent) {
     const tennisLiveClient = new TennisliveClient()
-    const player1 = await tennisLiveClient.getPlayer(null, sportEvent.player1.url)
-    const player2 = await tennisLiveClient.getPlayer(null, sportEvent.player2.url)
+    const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.url)
+    const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.url)
     var p10match = {}
     var p20match = {}
 
@@ -73,13 +73,13 @@ export default class PlayerAdapter {
   async matchesSummary(sportEvent: SportEvent, player1Odd: number, Player2Odd: number) {
     const tennisLiveClient = new TennisliveClient()
 
-    console.log('>>start>>player1 name: ', sportEvent.player1.name)
-    const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.name, null)
-    console.log('>>end>>player1 name: ', sportEvent.player1.name)
+    // console.log('>>start>>player1 name: ', sportEvent.player1.name)
+    const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.url)
+    // console.log('>>end>>player1 name: ', sportEvent.player1.name)
 
-    console.log('>>start>>player2 name: ', sportEvent.player2.name)
-    const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.name, null)
-    console.log('>>>end>>player2 name: ', sportEvent.player2.name)
+    // console.log('>>start>>player2 name: ', sportEvent.player2.name)
+    const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.url)
+    // console.log('>>>end>>player2 name: ', sportEvent.player2.name)
 
 
 

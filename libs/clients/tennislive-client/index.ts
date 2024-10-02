@@ -14,27 +14,13 @@ export default class TennisliveClient {
   constructor() {
   }
 
-  async getPlayer(playerName?: string, playerUrl?: string) : Promise<Player>{
+  async getPlayerUrl(playerName?: string) : Promise<string> {
+    return new PlayerService().getPlayerUrl(playerName)
+  }
+
+  async getPlayer(playerUrl?: string) : Promise<Player>{
 
     let playerDetailUrl = playerUrl
-
-    if (playerDetailUrl === null) {
-      if (playerName === 'li tu') {
-        playerDetailUrl = 'https://www.tennislive.net/atp/li-tu/'
-      } else if (playerName === 'lin zhu') {
-        playerDetailUrl = 'https://www.tennislive.net/wta/lin-zhu/'
-      } else if (playerName === 'ipek oz') {
-        playerDetailUrl = 'https://www.tennislive.net/wta/ipek-oz/'
-      } else if (playerName === 'luca nardi') {
-        playerDetailUrl = 'https://www.tennislive.net/atp/luca-nardi/'
-      } else if (playerName === 'yue yuan') {
-        playerDetailUrl = 'https://www.tennislive.net/wta/yue-yuan-/'
-      } else {
-        playerDetailUrl = await new PlayerService().getPlayerUrl(playerName)
-      }
-
-      if (playerDetailUrl === null || playerDetailUrl === undefined) return {} as any
-    }
 
     const player = await new PlayerService().getPlayerDetailHtml(playerDetailUrl)
     new MatchesDetailParser().parse(player)

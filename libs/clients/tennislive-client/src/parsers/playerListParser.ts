@@ -7,8 +7,7 @@ export default class PlayerListParser {
     const links = root.querySelectorAll("a")
 
     if (links.length > 1) {
-      const link = links.find(l => l.getAttribute('title').toLowerCase() === playerName.toLowerCase())
-      return link.getAttribute('href')
+      return 'too many result'
     } else if (links.length == 1) {
       return links[0].getAttribute('href')
     }

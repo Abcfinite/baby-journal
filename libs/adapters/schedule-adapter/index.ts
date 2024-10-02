@@ -1,6 +1,6 @@
 import _ from "lodash"
 import S3ClientCustom from '@abcfinite/s3-client-custom'
-import { putItem, executeScan } from '@abcfinite/dynamodb-client'
+import { putItem, executeScan, executeQuery } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
@@ -9,6 +9,7 @@ import { SQSClient, SendMessageCommand,
   PurgeQueueCommand} from "@aws-sdk/client-sqs";
 import { toCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
+import TennisliveClient from "@abcfinite/tennislive-client"
 
 export default class ScheduleAdapter {
 
@@ -87,7 +88,23 @@ export default class ScheduleAdapter {
     return `number of matches : ${events.length}`
   }
 
-  async getPlayersUrl() {
+  async getPlayersName() {
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-player-url-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
+
+    // purge player name on queue
+    const params = {
+      QueueUrl: queueUrl, // URL of the queue to be purged
+    };
+
+    try {
+      const purgeCommand = new PurgeQueueCommand(params);
+      await client.send(purgeCommand);
+      console.log(`Queue purged: ${queueUrl}`);
+    } catch (err) {
+      console.error("Error purging queue:", err);
+    }
+
     // get all player from dynamodb that
     // does not have url and found is true
     const scanParam = {
@@ -100,10 +117,80 @@ export default class ScheduleAdapter {
     }
     const result = await executeScan(scanParam)
 
-
-    return result
-
     // if url is not exist then push name to sqs
+    result['Items'].forEach(async item => {
+      const input = {
+        QueueUrl: queueUrl,
+        MessageBody: JSON.stringify({
+          id: item['id']['S'],
+          url_found: item['url_found']['BOOL'],
+          full_name: item['full_name']['S']
+        }),
+        DelaySeconds: 10,
+      };
+      const command = new SendMessageCommand(input);
+      await client.send(command);
+    })
+
+    return `${result['Count']} players on queue.`
+  }
+
+  async getPlayersUrl() {
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-player-url-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
+
+    // check queue in SQS
+    const getQueueAttrCommand = new GetQueueAttributesCommand({
+      QueueUrl: queueUrl,
+      AttributeNames: ['All']
+    });
+
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+
+    while(sqsMessageNumber > 0) {
+      const receiveMessageCommand  = new ReceiveMessageCommand({
+        MaxNumberOfMessages: 1,
+        MessageAttributeNames: ["All"],
+        QueueUrl: queueUrl,
+        WaitTimeSeconds: 20,
+        VisibilityTimeout: 20,
+      })
+
+      const receiveMessageCommandResult = await client.send(receiveMessageCommand);
+      var player = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
+
+      var tennisLiveUrl = await new TennisliveClient().getPlayerUrl(player['full_name'])
+
+      var urlFound = true
+      if (tennisLiveUrl === null || tennisLiveUrl === undefined || tennisLiveUrl === 'too many result') {
+        tennisLiveUrl = 'not found'
+        urlFound = false
+      }
+
+      // insert to dynamodb
+      const player1 = {
+        id : player['id'],
+        full_name : player['full_name'],
+        url_found : urlFound,
+        tennislive_url: tennisLiveUrl
+      }
+
+      await putItem('tennis_players', player1, true)
+
+      await client.send(
+        new DeleteMessageCommand({
+          QueueUrl: queueUrl,
+          ReceiptHandle: receiveMessageCommandResult.Messages[0].ReceiptHandle,
+        }),
+      );
+
+      getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+      sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+    }
+
+    return `${sqsMessageNumber} players on queue.`
   }
 
   async getSchedule() {
@@ -125,9 +212,53 @@ export default class ScheduleAdapter {
     const events = await new BetapiClient().getEvents()
 
     const sportEvents = []
-    events.forEach(event => {
+    events.forEach(async event => {
         const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
-        const sportEvent = playerNamesToSportEvent(event.player1.id, event.player1.name, event.player2.id, event.player2.name)
+
+        console.log('>>>>>eventDateTime')
+        console.log(eventDateTime)
+
+        const query1 = {
+          KeyConditionExpression: '#id = :id',
+          ExpressionAttributeNames: {
+              '#id': 'id'
+          },
+          ExpressionAttributeValues: {
+              ':id': { S: event.player1.id }
+          },
+          ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+          TableName: 'tennis_players',
+        }
+        const result1 = await executeQuery(query1)
+
+        const query2 = {
+          KeyConditionExpression: '#id = :id',
+          ExpressionAttributeNames: {
+              '#id': 'id'
+          },
+          ExpressionAttributeValues: {
+              ':id': { S: event.player2.id }
+          },
+          ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+          TableName: 'tennis_players',
+        }
+
+        const result2 = await executeQuery(query2)
+
+        console.log('>>>>result')
+        console.log(result1)
+        console.log(result2)
+
+        if (!(result1['tennislive_url']['BOOL'] && result2['tennislive_url']['BOOL'])) {
+          return
+        }
+
+        const sportEvent = playerNamesToSportEvent(event.player1.id,
+          result1['tennislive_url']['S'],
+          event.player1.name,
+          result2['tennislive_url']['S'],
+          event.player2.id, event.player2.name)
+
         sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()
@@ -149,8 +280,8 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (240 < fileList.length) {
-    // if (sportEvents.length === fileList.length) {
+    // if (240 < fileList.length) {
+    if (sportEvents.length === fileList.length) {
       await Promise.all(
         fileList.map( async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)

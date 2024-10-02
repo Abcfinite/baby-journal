@@ -1,5 +1,5 @@
-import { DynamoDBClient, ScanCommand, DeleteTableCommand, CreateTableCommand, CreateTableCommandInput, ListTablesCommand, ScanCommandInput } from "@aws-sdk/client-dynamodb";
-import { PutCommand, DeleteCommand, GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBClient, ScanCommand, DeleteTableCommand, CreateTableCommand, CreateTableCommandInput, ListTablesCommand, ScanCommandInput, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { PutCommand, DeleteCommand, GetCommand, DynamoDBDocumentClient, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 
 export const put = async (tableName: string,
   item: object,
@@ -9,12 +9,14 @@ export const put = async (tableName: string,
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client)
 
-  // if (!replaceWhenExist) {
-  //   const getResult = await get(tableName, item['id'])
-  //   if (getResult.Item) {
-  //     return
-  //   }
-  // }
+  if (!replaceWhenExist) {
+    const getResult = await get(tableName,
+      item['id'],
+      item['full_name'])
+    if (getResult.Item) {
+      return
+    }
+  }
 
   const command = new PutCommand({
     TableName: tableName,
@@ -50,20 +52,33 @@ export const scan = async (params: ScanCommandInput) => {
   return response;
 }
 
+export const query = async (params: QueryCommandInput) => {
+  const client = new DynamoDBClient({});
+
+  const command = new QueryCommand(params)
+
+  const response = await client.send(command);
+
+  return response;
+}
+
 export const get = async (tableName: string,
     itemId: string,
     itemName: string | null = null) => {
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client);
 
-  const Key = { id: itemId }
+  const Key = {
+    id: itemId,
+    full_name: itemName
+  }
 
   const command = new GetCommand({
     TableName: tableName,
     Key,
   });
 
-  const response = await docClient.send(command);
+  var response = await docClient.send(command);
 
   return response;
 }
