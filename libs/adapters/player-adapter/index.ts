@@ -73,13 +73,13 @@ export default class PlayerAdapter {
   async matchesSummary(sportEvent: SportEvent, player1Odd: number, Player2Odd: number) {
     const tennisLiveClient = new TennisliveClient()
 
-    console.log('>>start>>player1 name: ', sportEvent.player1.name)
+    // console.log('>>start>>player1 name: ', sportEvent.player1.name)
     const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.name, null)
-    console.log('>>end>>player1 name: ', sportEvent.player1.name)
+    // console.log('>>end>>player1 name: ', sportEvent.player1.name)
 
-    console.log('>>start>>player2 name: ', sportEvent.player2.name)
+    // console.log('>>start>>player2 name: ', sportEvent.player2.name)
     const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.name, null)
-    console.log('>>>end>>player2 name: ', sportEvent.player2.name)
+    // console.log('>>>end>>player2 name: ', sportEvent.player2.name)
 
 
 

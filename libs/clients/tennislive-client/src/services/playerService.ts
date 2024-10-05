@@ -34,10 +34,6 @@ export default class PlayerService {
 
   async getPlayerDetailHtml(playerDetailUrl: string, keepPreviousMatches: boolean = true) : Promise<Player> {
 
-    setTimeout(() => {
-      console.log('Paused for 1 second');
-    }, 1000);
-
     const headers = {
       Host: 'www.tennislive.net',
       Referer: process.env.TENNISLIVE_HOST,

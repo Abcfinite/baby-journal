@@ -116,11 +116,12 @@ export default class ScheduleAdapter {
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
 
-        if (sportEvent.date === currentDate && !sportEvent.player1.name.includes('/')) {
-          sportEvents.push(sportEvent)
+
+        if (sportEvent.player1.name.includes('/')) {
+          return
         }
 
-        if (!sportEvent.player1.name.includes('/')) {
+        if (sportEvent.date === '04/10/2024' || sportEvent.date === '05/10/2024' ) {
           sportEvents.push(sportEvent)
         }
       }
@@ -132,8 +133,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (120 < fileList.length) {
-    // if (sportEvents.length === fileList.length) {
+    if (sportEvents.length === fileList.length) {
       await Promise.all(
         fileList.map( async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
