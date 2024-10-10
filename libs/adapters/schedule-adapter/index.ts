@@ -121,7 +121,7 @@ export default class ScheduleAdapter {
           return
         }
 
-        if (sportEvent.date === '07/10/2024' ) {
+        if (sportEvent.date === '11/10/2024' ) {
           sportEvents.push(sportEvent)
         }
       }

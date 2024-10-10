@@ -6,9 +6,13 @@ export const toCsv = (jsonString: string) : string => {
     'stage',
     'f lostToLowerRankingThanOpponent',
 
-    'nf lostToLowerRankingThanOpponent',
     'f winFromHigherRankingThanOpponent',
+    'nf lostToLowerRankingThanOpponent',
     'nf winFromHigherRankingThanOpponent',
+    'f winFromHigherRanking',
+    'nf winFromHigherRanking',
+    'f lostFromHigherRanking',
+    'nf lostFromHigherRanking',
     'f higher win%',
     'f match-no lower',
 
@@ -21,6 +25,8 @@ export const toCsv = (jsonString: string) : string => {
     'non fav BM',
     'BM gap',
     'fav p',
+    'just won fin',
+    'f just Lost From Lower Ranking',
     'highest level last 3 comp',
     'f match total',
 
@@ -28,6 +34,7 @@ export const toCsv = (jsonString: string) : string => {
     'highest win ranking current comp',
     'fav form',
     'non fav p',
+    'nf just Lost From Lower Ranking',
     'nf match total',
 
     'nf win%',
@@ -60,11 +67,15 @@ export const toCsv = (jsonString: string) : string => {
       m['stage'],
       fav1? m['lostToLowerRankingThanOpponent']['player1']['number']: m['lostToLowerRankingThanOpponent']['player2']['number'],
 
-      fav1? m['lostToLowerRankingThanOpponent']['player2']['number']: m['lostToLowerRankingThanOpponent']['player1']['number'],
       fav1? m['winFromHigherRankingThanOpponent']['player1']['number']: m['winFromHigherRankingThanOpponent']['player2']['number'],
+      fav1? m['lostToLowerRankingThanOpponent']['player2']['number']: m['lostToLowerRankingThanOpponent']['player1']['number'],
       fav1? m['winFromHigherRankingThanOpponent']['player2']['number']: m['winFromHigherRankingThanOpponent']['player1']['number'],
+      fav1? m['winfromHigherRanking']['player1'] : m['winfromHigherRanking']['player2'],
+      fav1? m['winfromHigherRanking']['player2'] : m['winfromHigherRanking']['player1'],
+      fav1? m['lostToLowerRanking']['player1'] : m['lostToLowerRanking']['player2'],
+      fav1? m['lostToLowerRanking']['player2'] : m['lostToLowerRanking']['player1'],
       '',
-      '',
+      '', // f match-no lower
 
       '',
       '',
@@ -75,6 +86,8 @@ export const toCsv = (jsonString: string) : string => {
       fav1? m['analysis']['benchmarkPlayer']['bothPlayed']['player2Score'] : m['analysis']['benchmarkPlayer']['bothPlayed']['player1Score'],
       '',
       fav1? m['player1']['name'] : m['player2']['name'],
+      '', // just won fin
+      '', // just Lost From Lower Ranking
       '',
       fav1? m['winPercentage']['player1']['matchTotal'] : m['winPercentage']['player2']['matchTotal'],
 
@@ -82,6 +95,7 @@ export const toCsv = (jsonString: string) : string => {
       '',
       '',
       fav1? m['player2']['name'] : m['player1']['name'],
+      '', // just Lost From Lower Ranking
       fav1? m['winPercentage']['player2']['matchTotal'] : m['winPercentage']['player1']['matchTotal'],
 
       fav1? m['winPercentage']['player2']['winPercentage'] : m['winPercentage']['player1']['winPercentage'],
