@@ -121,7 +121,7 @@ export default class ScheduleAdapter {
           return
         }
 
-        if (sportEvent.date === '12/10/2024' ) {
+        if (sportEvent.date === '14/10/2024' || sportEvent.date === '15/10/2024' ) {
           sportEvents.push(sportEvent)
         }
       }
@@ -134,12 +134,28 @@ export default class ScheduleAdapter {
     console.log('>>>>checked number: ', fileList.length)
 
     if (sportEvents.length === fileList.length) {
-      await Promise.all(
-        fileList.map( async file => {
-          const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
-          fileContent.push(JSON.parse(content))
-        })
+      // await Promise.all(
+        // fileList.map( async file => {
+        //   const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
+        //   fileContent.push(JSON.parse(content))
+        // })
+      // )
+
+      const fileContents = await Promise.all(
+        fileList.map(async file => await new S3ClientCustom().getFile('tennis-match-schedule', file))
       )
+
+      fileContents.forEach(content => {
+        var parsed = null
+
+        try {
+          parsed = JSON.parse(content)
+          fileContent.push(parsed)
+        } catch(ex) {
+          console.error('>>>>>failed to parse content')
+          return
+        }
+      })
 
       /// by gap
       const filtered = fileContent.filter(e => {
