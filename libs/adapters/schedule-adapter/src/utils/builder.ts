@@ -4,6 +4,8 @@ export const toCsv = (jsonString: string) : string => {
     'date',
     'time',
     'stage',
+    'f h2h',
+    'nf h2h',
     'f lostToLowerRankingThanOpponent',
 
     'f winFromHigherRankingThanOpponent',
@@ -27,7 +29,7 @@ export const toCsv = (jsonString: string) : string => {
     'fav p',
     'just won fin',
     'f just Lost From Lower Ranking',
-    'highest level last 3 comp',
+    'highest stage last 3 comp',
     'f match total',
 
     'f win%',
@@ -35,9 +37,11 @@ export const toCsv = (jsonString: string) : string => {
     'fav form',
     'non fav p',
     'nf just Lost From Lower Ranking',
+    'highest stage last 3 comp',
     'nf match total',
 
     'nf win%',
+    'highest win ranking current comp',
     'non fav form',
     'form gap',
     'f c ranking',
@@ -55,7 +59,6 @@ export const toCsv = (jsonString: string) : string => {
     'non fav WL score',
     'WL score gap',
 
-    'last won gap',
     'r',
   ].join(',')
 
@@ -71,6 +74,8 @@ export const toCsv = (jsonString: string) : string => {
       m['date'],
       m['time'],
       m['stage'],
+      '',
+      '',
       fav1? m['lostToLowerRankingThanOpponent']['player1']['number']: m['lostToLowerRankingThanOpponent']['player2']['number'],
 
       fav1? m['winFromHigherRankingThanOpponent']['player1']['number']: m['winFromHigherRankingThanOpponent']['player2']['number'],
@@ -102,9 +107,11 @@ export const toCsv = (jsonString: string) : string => {
       '',
       fav1? m['player2']['name'] : m['player1']['name'],
       fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player2'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player1'], // nf just Lost From Lower Ranking
+      '',
       fav1? m['winPercentage']['player2']['matchTotal'] : m['winPercentage']['player1']['matchTotal'],
 
       fav1? m['winPercentage']['player2']['winPercentage'] : m['winPercentage']['player1']['winPercentage'],
+      '',
       '',
       '',
       fav1? m['player1']['currentRanking'] : m['player2']['currentRanking'], // f c ranking
@@ -122,7 +129,6 @@ export const toCsv = (jsonString: string) : string => {
       fav1? m['analysis']['winLoseRanking']['player2'] : m['analysis']['winLoseRanking']['player1'],
       '',
 
-      m['analysis']['gap'],
       ''
     ].join(','))
   })

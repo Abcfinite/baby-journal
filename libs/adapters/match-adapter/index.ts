@@ -63,7 +63,7 @@ export default class MatchAdapter {
       },
     }
 
-    analysisResult['gap'] = new Analysis().getGap(analysisResult)
+    // analysisResult['gap'] = new Analysis().getGap(analysisResult)
 
     return analysisResult
   }

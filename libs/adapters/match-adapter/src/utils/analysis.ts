@@ -130,34 +130,34 @@ export default class Analysis {
     return highestRanking + ((currentRanking - highestRanking)/4)
   }
 
-  getGap(sportEventAnalysis: {}) {
-    const wlP1 = _.get(sportEventAnalysis, 'winLoseRanking.player1', 0)
-    const wlP2 = _.get(sportEventAnalysis, 'winLoseRanking.player2', 0)
+  // getGap(sportEventAnalysis: {}) {
+  //   const wlP1 = _.get(sportEventAnalysis, 'winLoseRanking.player1', 0)
+  //   const wlP2 = _.get(sportEventAnalysis, 'winLoseRanking.player2', 0)
 
-    const gap = Math.abs(wlP1 - wlP2)
+  //   const gap = Math.abs(wlP1 - wlP2)
 
-    const p1vp1wonp1 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
-    const p2vp1wonp2 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
-    const p2vp2wonp2 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
-    const p1vp2wonp1 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
-    const p1vp1wonp1Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1Won', 0)
-    const p2vp1wonp2Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p1Won', 0)
-    const p2vp2wonp2Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2Won', 0)
-    const p1vp2wonp1Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p2Won', 0)
+  //   const p1vp1wonp1 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1', 0)
+  //   const p2vp1wonp2 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p2', 0)
+  //   const p2vp2wonp2 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2', 0)
+  //   const p1vp2wonp1 = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p1', 0)
+  //   const p1vp1wonp1Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p1won.p1Won', 0)
+  //   const p2vp1wonp2Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p1won.p1Won', 0)
+  //   const p2vp2wonp2Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p2_v_p2won.p2Won', 0)
+  //   const p1vp2wonp1Won = _.get(sportEventAnalysis, 'benchmarkPlayer.previousPlayers.numbers.p1_v_p2won.p2Won', 0)
 
-    var cal1 = (p2vp1wonp2 - p2vp1wonp2Won) - (p1vp1wonp1 - p1vp1wonp1Won)
-    var cal2 = (p2vp2wonp2 - p2vp2wonp2Won) - (p1vp2wonp1 - p1vp2wonp1Won)
+  //   var cal1 = (p2vp1wonp2 - p2vp1wonp2Won) - (p1vp1wonp1 - p1vp1wonp1Won)
+  //   var cal2 = (p2vp2wonp2 - p2vp2wonp2Won) - (p1vp2wonp1 - p1vp2wonp1Won)
 
-    if (wlP1 > wlP2) {
-      cal1 = (p1vp1wonp1 - p1vp1wonp1Won) - (p2vp1wonp2 - p2vp1wonp2Won)
-      cal2 = (p1vp2wonp1 - p1vp2wonp1Won) - (p2vp2wonp2 - p2vp2wonp2Won)
-    }
+  //   if (wlP1 > wlP2) {
+  //     cal1 = (p1vp1wonp1 - p1vp1wonp1Won) - (p2vp1wonp2 - p2vp1wonp2Won)
+  //     cal2 = (p1vp2wonp1 - p1vp2wonp1Won) - (p2vp2wonp2 - p2vp2wonp2Won)
+  //   }
 
-    var gapCal1 = cal1 < 0 ? cal1 - gap : gap - cal1
-    var gapCal2 = cal2 < 0 ? cal2 - gap : gap - cal2
+  //   var gapCal1 = cal1 < 0 ? cal1 - gap : gap - cal1
+  //   var gapCal2 = cal2 < 0 ? cal2 - gap : gap - cal2
 
-    const result = gapCal1 > gapCal2 ? gapCal2 : gapCal1
+  //   const result = gapCal1 > gapCal2 ? gapCal2 : gapCal1
 
-    return result
-  }
+  //   return result
+  // }
 }
