@@ -80,6 +80,9 @@ export default class PlayerAdapter {
     const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.url)
     const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.url)
 
+    console.log('>>>player1Detail')
+    console.log(player1)
+
     const result = {
       id: sportEvent.id,
       type: player1.type,
