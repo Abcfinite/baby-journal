@@ -264,11 +264,12 @@ export default class ScheduleAdapter {
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
 
-        if (sportEvent.date === currentDate && !sportEvent.player1.name.includes('/')) {
-          sportEvents.push(sportEvent)
+
+        if (sportEvent.player1.name.includes('/')) {
+          return
         }
 
-        if (!sportEvent.player1.name.includes('/')) {
+        if (sportEvent.date === '24/10/2024' || sportEvent.date === '25/10/2024') {
           sportEvents.push(sportEvent)
         }
       }
@@ -280,7 +281,6 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    // if (240 < fileList.length) {
     if (sportEvents.length === fileList.length) {
       await Promise.all(
         fileList.map( async file => {
@@ -288,6 +288,18 @@ export default class ScheduleAdapter {
           fileContent.push(JSON.parse(content))
         })
       )
+
+      fileContents.forEach(content => {
+        var parsed = null
+
+        try {
+          parsed = JSON.parse(content)
+          fileContent.push(parsed)
+        } catch(ex) {
+          console.error('>>>>>failed to parse content')
+          return
+        }
+      })
 
       /// by gap
       const filtered = fileContent.filter(e => {
