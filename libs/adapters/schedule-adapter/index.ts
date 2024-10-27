@@ -210,29 +210,32 @@ export default class ScheduleAdapter {
 
     // const sportEvents = await new TennisliveClient().getSchedule()
     const events = await new BetapiClient().getEvents()
-
     const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
 
     const sportEvents = []
 
-    if (fileList.length === 0 ){
+        // check queue in SQS
+    const getQueueAttrCommand = new GetQueueAttributesCommand({
+      QueueUrl: queueUrl,
+      AttributeNames: ['All']
+    });
+
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+    if (sqsMessageNumber === 0 ){
       for await (const event of events) {
         const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
         const eventDate = eventDateTime.split(',')[0].trim()
-  
-        console.log('>>>>>eventDate')
-        console.log(eventDate)
-  
+
         if (event.player1.name.includes('/')) {
           continue
         }
-  
+
         if (eventDate !== '27/10/2024') {
           continue
         }
-  
-        console.log('>>>continue to get player url')
-  
+
         const query1 = {
           KeyConditionExpression: '#id = :id',
           ExpressionAttributeNames: {
@@ -245,7 +248,7 @@ export default class ScheduleAdapter {
           TableName: 'tennis_players',
         }
         const result1 = await executeQuery(query1)
-  
+
         const query2 = {
           KeyConditionExpression: '#id = :id',
           ExpressionAttributeNames: {
@@ -257,16 +260,16 @@ export default class ScheduleAdapter {
           ProjectionExpression: 'id, full_name, url_found, tennislive_url',
           TableName: 'tennis_players',
         }
-  
+
         const result2 = await executeQuery(query2)
-  
+
         const p1Record = result1.Items[0]
         const p2Record = result2.Items[0]
-  
+
         if (!(p1Record['url_found']['BOOL'] && p2Record['url_found']['BOOL'])) {
           continue
         }
-  
+
         const sportEvent = playerNamesToSportEvent(event.player1.id,
           p1Record['tennislive_url']['S'],
           event.player1.name,
@@ -274,12 +277,12 @@ export default class ScheduleAdapter {
           p2Record['tennislive_url']['S'],
           event.player2.name,
         )
-  
+
         sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
-  
+
         sportEvents.push(sportEvent)
       }
     }
@@ -289,7 +292,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sportEvents.length > 0 && sportEvents.length === fileList.length) {
+    if (sqsMessageNumber === 0 && 72 === fileList.length) {
       await Promise.all(
         fileList.map( async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
@@ -317,11 +320,6 @@ export default class ScheduleAdapter {
 
 
     // check queue in SQS
-    const getQueueAttrCommand = new GetQueueAttributesCommand({
-      QueueUrl: queueUrl,
-      AttributeNames: ['All']
-    });
-
     var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
     var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
 

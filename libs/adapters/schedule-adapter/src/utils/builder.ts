@@ -110,43 +110,59 @@ export const toCsv = (jsonString: string) : string => {
       fav1? _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player1Score']", 'not found') :
         _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player2Score']", 'not found'),
 
-      // fav1? m['analysis']['benchmarkPlayer']['bothPlayed']['player2Score'] : m['analysis']['benchmarkPlayer']['bothPlayed']['player1Score'],
-      // '',
-      // fav1? m['player1']['name'] : m['player2']['name'],
-      // '',
-      // '', // just won fin
-      // fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player1'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player2'], // f just Lost From Lower Ranking
-      // '',
-      // fav1? m['winPercentage']['player1']['matchTotal'] : m['winPercentage']['player2']['matchTotal'],
+      fav1? _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player2Score']", 'not found') :
+        _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player1Score']", 'not found'),
+      '',
+      fav1? _.get(m, "['player1']['name']", 'not found') : _.get(m, "['player2']['name']", 'not found'),
+      '',
+      '', // just won fin
+      fav1? _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player1']", 'not found') :
+        _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player2']", 'not found'), // f just Lost From Lower Ranking
+      '',
+      fav1? _.get(m, "['winPercentage']['player1']['matchTotal']", 'not found') :
+        _.get(m, "['winPercentage']['player2']['matchTotal']", 'not found'),
 
-      // fav1? m['winPercentage']['player1']['winPercentage'] : m['winPercentage']['player2']['winPercentage'],
-      // '',
-      // '',
-      // fav1? m['player2']['name'] : m['player1']['name'],
-      // fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player2'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player1'], // nf just Lost From Lower Ranking
-      // '',
-      // fav1? m['winPercentage']['player2']['matchTotal'] : m['winPercentage']['player1']['matchTotal'],
+      fav1? _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found') :
+        _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found'),
+      '',
+      '',
+      fav1? _.get(m, "['player2']['name']", 'not found') : _.get(m, "['player1']['name']", 'not found'),
+      fav1? _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player2']", 'not found') :
+        _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player1']", 'not found'), // nf just Lost From Lower Ranking
+      '',
+      fav1? _.get(m, "['winPercentage']['player2']['matchTotal']", 'not found') :
+        _.get(m, "['winPercentage']['player1']['matchTotal']", 'not found'),
 
-      // fav1? m['winPercentage']['player2']['winPercentage'] : m['winPercentage']['player1']['winPercentage'],
-      // '',
-      // '',
-      // '',
-      // fav1? m['player1']['currentRanking'] : m['player2']['currentRanking'], // f c ranking
-      // fav1? m['analysis']['highLowRanking']['player1']['winHighest'] : m['analysis']['highLowRanking']['player2']['winHighest'],
-      // fav1? m['analysis']['highLowRanking']['player1']['lostLowest'] : m['analysis']['highLowRanking']['player2']['lostLowest'],
-      // fav1? m['player2']['currentRanking'] : m['player1']['currentRanking'], // nf c ranking
+      fav1? _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found') :
+        _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found'),
+      '',
+      '',
+      '',
+      fav1? _.get(m, "['player1']['currentRanking']", 'not found') :
+        _.get(m, "['player2']['currentRanking']", 'not found'), // f c ranking
+      fav1? _.get(m, "['analysis']['highLowRanking']['player1']['winHighest']", 'not found') :
+        _.get(m, "['analysis']['highLowRanking']['player2']['winHighest']", 'not found'),
+      fav1? _.get(m, "['analysis']['highLowRanking']['player1']['lostLowest']", 'not found') :
+        _.get(m, "['analysis']['highLowRanking']['player2']['lostLowest']", 'not found'),
+      fav1? _.get(m, "['player2']['currentRanking']", 'not found') :
+        _.get(m, "['player1']['currentRanking']", 'not found'), // nf c ranking
 
-      // fav1? m['player2']['highestRanking'] : m['player1']['highestRanking'],
-      // fav1? m['analysis']['highLowRanking']['player2']['winHighest'] : m['analysis']['highLowRanking']['player1']['winHighest'],
-      // fav1? m['analysis']['highLowRanking']['player2']['lostLowest'] : m['analysis']['highLowRanking']['player1']['lostLowest'],
-      // '',
-      // '',
-      // '',
-      // fav1? m['analysis']['winLoseRanking']['player1'] : m['analysis']['winLoseRanking']['player2'],
-      // fav1? m['analysis']['winLoseRanking']['player2'] : m['analysis']['winLoseRanking']['player1'],
-      // '',
+      fav1? _.get(m, "['player2']['highestRanking']", 'not found') :
+        _.get(m, "['player1']['highestRanking']", 'not found'),
+      fav1? _.get(m, "['analysis']['highLowRanking']['player2']['winHighest']", 'not found') :
+        _.get(m, "['analysis']['highLowRanking']['player1']['winHighest']", 'not found'),
+      fav1? _.get(m, "['analysis']['highLowRanking']['player2']['lostLowest']", 'not found') :
+        _.get(m, "['analysis']['highLowRanking']['player1']['lostLowest']", 'not found'),
+      '',
+      '',
+      '',
+      fav1? _.get(m, "['analysis']['winLoseRanking']['player1']", 'not found') :
+        _.get(m, "['analysis']['winLoseRanking']['player2']", 'not found'),
+      fav1? _.get(m, "['analysis']['winLoseRanking']['player2']", 'not found') :
+        _.get(m, "['analysis']['winLoseRanking']['player1']", 'not found'),
+      '',
 
-      // ''
+      ''
     ].join(','))
   })
 
