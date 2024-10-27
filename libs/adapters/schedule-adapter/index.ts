@@ -212,68 +212,77 @@ export default class ScheduleAdapter {
     const events = await new BetapiClient().getEvents()
 
     const sportEvents = []
-    events.forEach(async event => {
-        const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
 
-        console.log('>>>>>eventDateTime')
-        console.log(eventDateTime)
+    // events.forEach(async event => {
+    for await (const event of events) {
+      const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
+      const eventDate = eventDateTime.split(',')[0].trim()
 
-        const query1 = {
-          KeyConditionExpression: '#id = :id',
-          ExpressionAttributeNames: {
-              '#id': 'id'
-          },
-          ExpressionAttributeValues: {
-              ':id': { S: event.player1.id }
-          },
-          ProjectionExpression: 'id, full_name, url_found, tennislive_url',
-          TableName: 'tennis_players',
-        }
-        const result1 = await executeQuery(query1)
+      console.log('>>>>>eventDate')
+      console.log(eventDate)
 
-        const query2 = {
-          KeyConditionExpression: '#id = :id',
-          ExpressionAttributeNames: {
-              '#id': 'id'
-          },
-          ExpressionAttributeValues: {
-              ':id': { S: event.player2.id }
-          },
-          ProjectionExpression: 'id, full_name, url_found, tennislive_url',
-          TableName: 'tennis_players',
-        }
-
-        const result2 = await executeQuery(query2)
-
-        console.log('>>>>result')
-        console.log(result1)
-        console.log(result2)
-
-        if (!(result1['tennislive_url']['BOOL'] && result2['tennislive_url']['BOOL'])) {
-          return
-        }
-
-        const sportEvent = playerNamesToSportEvent(event.player1.id,
-          result1['tennislive_url']['S'],
-          event.player1.name,
-          result2['tennislive_url']['S'],
-          event.player2.id, event.player2.name)
-
-        sportEvent.id = event.id
-        sportEvent.date = eventDateTime.split(',')[0].trim()
-        sportEvent.time = eventDateTime.split(',')[1].trim()
-        sportEvent.stage = event.stage
-
-
-        if (sportEvent.player1.name.includes('/')) {
-          return
-        }
-
-        if (sportEvent.date === '24/10/2024' || sportEvent.date === '25/10/2024') {
-          sportEvents.push(sportEvent)
-        }
+      if (event.player1.name.includes('/')) {
+        continue
       }
-    )
+
+      if (eventDate !== '27/10/2024') {
+        continue
+      }
+
+      console.log('>>>continue to get player url')
+
+      const query1 = {
+        KeyConditionExpression: '#id = :id',
+        ExpressionAttributeNames: {
+            '#id': 'id'
+        },
+        ExpressionAttributeValues: {
+            ':id': { S: event.player1.id }
+        },
+        ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+        TableName: 'tennis_players',
+      }
+      const result1 = await executeQuery(query1)
+
+      const query2 = {
+        KeyConditionExpression: '#id = :id',
+        ExpressionAttributeNames: {
+            '#id': 'id'
+        },
+        ExpressionAttributeValues: {
+            ':id': { S: event.player2.id }
+        },
+        ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+        TableName: 'tennis_players',
+      }
+
+      const result2 = await executeQuery(query2)
+
+      const p1Record = result1.Items[0]
+      const p2Record = result2.Items[0]
+
+      if (!(p1Record['url_found']['BOOL'] && p2Record['url_found']['BOOL'])) {
+        continue
+      }
+
+      const sportEvent = playerNamesToSportEvent(event.player1.id,
+        p1Record['tennislive_url']['S'],
+        event.player1.name,
+        p2Record['tennislive_url']['S'],
+        event.player2.id,
+        event.player2.name,
+      )
+
+      console.log('>>>>>detail')
+      console.log(sportEvent)
+
+      sportEvent.id = event.id
+      sportEvent.date = eventDateTime.split(',')[0].trim()
+      sportEvent.time = eventDateTime.split(',')[1].trim()
+      sportEvent.stage = event.stage
+
+      sportEvents.push(sportEvent)
+    }
 
     const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
     const fileContent = []
@@ -281,7 +290,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sportEvents.length === fileList.length) {
+    if (sportEvents.length > 0 && sportEvents.length === fileList.length) {
       await Promise.all(
         fileList.map( async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
@@ -289,7 +298,7 @@ export default class ScheduleAdapter {
         })
       )
 
-      fileContents.forEach(content => {
+      fileContent.forEach(content => {
         var parsed = null
 
         try {
