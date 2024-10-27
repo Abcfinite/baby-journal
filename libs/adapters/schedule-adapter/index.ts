@@ -1,14 +1,94 @@
 import _ from "lodash"
 import S3ClientCustom from '@abcfinite/s3-client-custom'
+import { putItem, truncateTable } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
   ReceiveMessageCommand, GetQueueAttributesCommand,
-  DeleteMessageCommand } from "@aws-sdk/client-sqs";
+  DeleteMessageCommand,
+  PurgeQueueCommand} from "@aws-sdk/client-sqs";
 import { toCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
+import { removeAllCache } from '../../domains/sports/events/index';
 
 export default class ScheduleAdapter {
+
+
+  async removeAllCache() {
+    const s3ClientCustom = new S3ClientCustom()
+    await s3ClientCustom.deleteAllFiles('betapi-cache')
+    await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
+    await truncateTable('tennis_players_scheduled')
+
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
+
+
+    const params = {
+      QueueUrl: queueUrl, // URL of the queue to be purged
+    };
+
+    try {
+      const purgeCommand = new PurgeQueueCommand(params);
+      await client.send(purgeCommand);
+      console.log(`Queue purged: ${queueUrl}`);
+    } catch (err) {
+      console.error("Error purging queue:", err);
+    }
+
+    return 'all cache removed and sqs queue purged'
+  }
+
+  async cacheBetAPI() {
+    // get latest schedule
+    // todo : why need to get result first ??? Is it to warm up the lambda ???
+    const s3ClientCustom = new S3ClientCustom()
+    await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
+
+    const events = await new BetapiClient().getEvents()
+
+    // safe all main players in dynamodb
+    if (events.length === 0) { return 'no match scheduled' }
+
+    // filter out double
+    const filteredEvents = events.map(event => {
+      if (!event.player1.name.includes('/')) {
+        return event
+      }
+    }).filter(Boolean)
+
+    // collect putItem function
+    const player1s =
+      filteredEvents.map(event => {
+        const player1 = {
+          "id": event.player1.id,
+          "name": event.player1.name,
+          "found": true,
+        }
+
+        return putItem('tennis_players_scheduled', player1)
+      })
+
+
+    const player2s =
+      filteredEvents.map(event => {
+        const player2 = {
+          "id": event.player2.id,
+          "name": event.player2.name,
+          "found": true,
+        }
+
+        return putItem('tennis_players_scheduled', player2)
+      })
+
+    // execute putItem on dynamodb
+    await Promise.all(player1s)
+    await Promise.all(player2s)
+
+    // return number of matches
+    return `number of matches : ${events.length}`
+  }
+
   async getSchedule() {
     const s3ClientCustom = new S3ClientCustom()
     const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
@@ -18,13 +98,7 @@ export default class ScheduleAdapter {
     const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
 
     if (resultFile) {
-      if (JSON.parse(resultFile)[0]['date'] === currentDate) {
         return toCsv(resultFile)
-      } else {
-        await s3ClientCustom.deleteAllFiles('betapi-cache')
-        await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
-        return 'betAPI cache and tennis scheduled cleared'
-      }
     }
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
@@ -42,7 +116,12 @@ export default class ScheduleAdapter {
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
 
-        if (sportEvent.date === currentDate && !sportEvent.player1.name.includes('/')) {
+
+        if (sportEvent.player1.name.includes('/')) {
+          return
+        }
+
+        if (sportEvent.date === '24/10/2024' || sportEvent.date === '25/10/2024') {
           sportEvents.push(sportEvent)
         }
       }
@@ -55,12 +134,28 @@ export default class ScheduleAdapter {
     console.log('>>>>checked number: ', fileList.length)
 
     if (sportEvents.length === fileList.length) {
-      await Promise.all(
-        fileList.map( async file => {
-          const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
-          fileContent.push(JSON.parse(content))
-        })
+      // await Promise.all(
+        // fileList.map( async file => {
+        //   const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
+        //   fileContent.push(JSON.parse(content))
+        // })
+      // )
+
+      const fileContents = await Promise.all(
+        fileList.map(async file => await new S3ClientCustom().getFile('tennis-match-schedule', file))
       )
+
+      fileContents.forEach(content => {
+        var parsed = null
+
+        try {
+          parsed = JSON.parse(content)
+          fileContent.push(parsed)
+        } catch(ex) {
+          console.error('>>>>>failed to parse content')
+          return
+        }
+      })
 
       /// by gap
       const filtered = fileContent.filter(e => {
@@ -130,10 +225,6 @@ export default class ScheduleAdapter {
         var sportEvent = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
 
         try {
-
-          // console.log('>>>>checkSportEvent')
-          // console.log(sportEvent)
-
           var checkPlayerResult = await new PlayerAdapter().checkSportEvent(sportEvent)
 
           await new S3ClientCustom()
@@ -141,7 +232,7 @@ export default class ScheduleAdapter {
             sportEvent.id+'.json',
               JSON.stringify(checkPlayerResult))
         } catch(ex) {
-          console.error('check sport event parse error')
+          console.error('>>>>>check sport event parse error>>>', sportEvent.id)
           console.error(ex)
           await new S3ClientCustom()
             .putFile('tennis-match-schedule',

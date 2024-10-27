@@ -4,39 +4,62 @@ export const toCsv = (jsonString: string) : string => {
     'date',
     'time',
     'stage',
-    'DO NOT BET',
-    'just won fin',
-    'just retired',
+    'f h2h',
+    'nf h2h',
+    'f lostToLowerRankingThanOpponent',
+
+    'f winFromHigherRankingThanOpponent',
+    'nf lostToLowerRankingThanOpponent',
+    'nf winFromHigherRankingThanOpponent',
+    'f winFromHigherRanking',
+    'nf winFromHigherRanking',
+    'f lostFromHigherRanking',
+    'nf lostFromHigherRanking',
+    'f higher win%',
+    'f match-no lower',
+
+    'nf has less than half match no f',
+    'f 3set% bigger',
+    'f 3set win%',
+    'nf 3set win%',
     'fav BM',
+
     'non fav BM',
     'BM gap',
     'fav p',
+    'just won fin',
+    'f just Lost From Lower Ranking',
+    'highest stage last 3 comp',
     'f match total',
+
     'f win%',
-    'fav e',
+    'highest win ranking current comp',
     'fav form',
-    'form stalled',
     'non fav p',
+    'nf just Lost From Lower Ranking',
+    'highest stage last 3 comp',
     'nf match total',
+
     'nf win%',
-    'non fav e',
+    'highest win ranking current comp',
     'non fav form',
     'form gap',
     'f c ranking',
+    'f win highest',
+    'f lost lowest',
     'nf c ranking',
+
     'nf h ranking',
+    'nf win highest',
+    'nf lost lowest',
+    'f lost lowest below nf c ranking',
+    'nf win highest on top of f c ranking',
     'ranking gap',
     'fav WL score',
     'non fav WL score',
     'WL score gap',
-    'last won gap',
+
     'r',
-    '1st set won',
-    '3 set',
-    'value',
-    'green',
-    'orange',
-    'red'
   ].join(',')
 
   var resultArray = [csvHeader]
@@ -51,38 +74,61 @@ export const toCsv = (jsonString: string) : string => {
       m['date'],
       m['time'],
       m['stage'],
-      fav1? m['lostToLowerRankingThanOpponent']['player1']['number'] > 0 : m['lostToLowerRankingThanOpponent']['player2']['number'] > 0,
       '',
       '',
+      fav1? m['lostToLowerRankingThanOpponent']['player1']['number']: m['lostToLowerRankingThanOpponent']['player2']['number'],
+
+      fav1? m['winFromHigherRankingThanOpponent']['player1']['number']: m['winFromHigherRankingThanOpponent']['player2']['number'],
+      fav1? m['lostToLowerRankingThanOpponent']['player2']['number']: m['lostToLowerRankingThanOpponent']['player1']['number'],
+      fav1? m['winFromHigherRankingThanOpponent']['player2']['number']: m['winFromHigherRankingThanOpponent']['player1']['number'],
+      fav1? m['winfromHigherRanking']['player1']['number'] : m['winfromHigherRanking']['player2']['number'],
+      fav1? m['winfromHigherRanking']['player2']['number'] : m['winfromHigherRanking']['player1']['number'],
+      fav1? m['lostToLowerRanking']['player1']['number'] : m['lostToLowerRanking']['player2']['number'],
+      fav1? m['lostToLowerRanking']['player2']['number'] : m['lostToLowerRanking']['player1']['number'],
+      '',
+      '', // f match-no lower
+
+      '',
+      '',
+      fav1? m['analysis']['win3setRate']['player1'] : m['analysis']['win3setRate']['player2'],
+      fav1? m['analysis']['win3setRate']['player2'] : m['analysis']['win3setRate']['player1'],
       fav1? m['analysis']['benchmarkPlayer']['bothPlayed']['player1Score'] : m['analysis']['benchmarkPlayer']['bothPlayed']['player2Score'],
+
       fav1? m['analysis']['benchmarkPlayer']['bothPlayed']['player2Score'] : m['analysis']['benchmarkPlayer']['bothPlayed']['player1Score'],
       '',
       fav1? m['player1']['name'] : m['player2']['name'],
+      '', // just won fin
+      fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player1'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player2'], // f just Lost From Lower Ranking
+      '',
       fav1? m['winPercentage']['player1']['matchTotal'] : m['winPercentage']['player2']['matchTotal'],
+
       fav1? m['winPercentage']['player1']['winPercentage'] : m['winPercentage']['player2']['winPercentage'],
       '',
       '',
-      '',
       fav1? m['player2']['name'] : m['player1']['name'],
+      fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player2'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player1'], // nf just Lost From Lower Ranking
+      '',
       fav1? m['winPercentage']['player2']['matchTotal'] : m['winPercentage']['player1']['matchTotal'],
+
       fav1? m['winPercentage']['player2']['winPercentage'] : m['winPercentage']['player1']['winPercentage'],
       '',
       '',
       '',
-      fav1? m['player1']['currentRanking'] : m['player2']['currentRanking'],
-      fav1? m['player2']['currentRanking'] : m['player1']['currentRanking'],
+      fav1? m['player1']['currentRanking'] : m['player2']['currentRanking'], // f c ranking
+      fav1? m['analysis']['highLowRanking']['player1']['winHighest'] : m['analysis']['highLowRanking']['player2']['winHighest'],
+      fav1? m['analysis']['highLowRanking']['player1']['lostLowest'] : m['analysis']['highLowRanking']['player2']['lostLowest'],
+      fav1? m['player2']['currentRanking'] : m['player1']['currentRanking'], // nf c ranking
+
       fav1? m['player2']['highestRanking'] : m['player1']['highestRanking'],
-      '',
-      fav1? m['analysis']['winLoseScore']['player1']['5'] : m['analysis']['winLoseScore']['player2']['5'],
-      fav1? m['analysis']['winLoseScore']['player2']['5'] : m['analysis']['winLoseScore']['player1']['5'],
-      '',
-      m['analysis']['gap'],
+      fav1? m['analysis']['highLowRanking']['player2']['winHighest'] : m['analysis']['highLowRanking']['player1']['winHighest'],
+      fav1? m['analysis']['highLowRanking']['player2']['lostLowest'] : m['analysis']['highLowRanking']['player1']['lostLowest'],
       '',
       '',
       '',
+      fav1? m['analysis']['winLoseRanking']['player1'] : m['analysis']['winLoseRanking']['player2'],
+      fav1? m['analysis']['winLoseRanking']['player2'] : m['analysis']['winLoseRanking']['player1'],
       '',
-      '',
-      '',
+
       ''
     ].join(','))
   })

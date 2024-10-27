@@ -1,4 +1,4 @@
-import { put, remove, get, scan, count } from './src/items';
+import { put, remove, get, scan, count, deleteAndRecreateTable } from './src/items';
 
 export const executeScan = async (params?: object) => scan(params)
 
@@ -20,3 +20,6 @@ export const putItem = async (tableName: string,
 export const removeItem = (tableName: string,
   itemId: string) => remove(tableName,
   itemId)
+
+export const truncateTable = async (tableName: string) =>
+  await deleteAndRecreateTable(tableName)
