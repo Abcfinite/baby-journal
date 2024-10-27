@@ -55,7 +55,7 @@ export default class MatchAdapter {
       },
       benchmarkPlayer: {
         bothPlayed: this.benchmarkPlayer(player1, player2),
-        previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
+        // previousPlayers: await new Analysis().previousPlayersBenchmark(player1, player2),
       },
       age: {
         player1: player1Age,

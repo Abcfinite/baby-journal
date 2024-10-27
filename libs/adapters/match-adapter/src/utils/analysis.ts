@@ -5,74 +5,74 @@ import S3ClientCustom from "@abcfinite/s3-client-custom";
 import { playerNamesToSportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent";
 
 export default class Analysis {
-  async previousPlayersBenchmark(player1: Player, player2: Player) {
+  // async previousPlayersBenchmark(player1: Player, player2: Player) {
 
-    const playerLabels = {
-      player1: this.playerLabel(player1),
-      player2: this.playerLabel(player2)
-    }
+  //   const playerLabels = {
+  //     player1: this.playerLabel(player1),
+  //     player2: this.playerLabel(player2)
+  //   }
 
-    const sportEventP1a = playerNamesToSportEvent('', player1.name, '', playerLabels.player1.lastWon.player.name)
+  //   const sportEventP1a = playerNamesToSportEvent('', player1.name, '', playerLabels.player1.lastWon.player.name)
 
-    /// p1 vs p1 won
-    let result = await new PlayerAdapter().matchesSummary(
-      sportEventP1a,
-      1, 1)
+  //   /// p1 vs p1 won
+  //   let result = await new PlayerAdapter().matchesSummary(
+  //     sportEventP1a,
+  //     1, 1)
 
-    const p1_v_p1won = {
-      p1: result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number,
-      p1Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
-    }
+  //   const p1_v_p1won = {
+  //     p1: result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number,
+  //     p1Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
+  //   }
 
-    const sportEventP1b = playerNamesToSportEvent('', player2.name, '', playerLabels.player1.lastWon.player.name)
+  //   const sportEventP1b = playerNamesToSportEvent('', player2.name, '', playerLabels.player1.lastWon.player.name)
 
-    /// p2 vs p1 won
-    result = await new PlayerAdapter().matchesSummary(
-      sportEventP1b,
-      1, 1)
+  //   /// p2 vs p1 won
+  //   result = await new PlayerAdapter().matchesSummary(
+  //     sportEventP1b,
+  //     1, 1)
 
-    const p2_v_p1won = {
-      p2: result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number,
-      p1Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
-    }
+  //   const p2_v_p1won = {
+  //     p2: result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number,
+  //     p1Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
+  //   }
 
-    const sportEventP2a = playerNamesToSportEvent('', player2.name, '', playerLabels.player2.lastWon.player.name)
+  //   const sportEventP2a = playerNamesToSportEvent('', player2.name, '', playerLabels.player2.lastWon.player.name)
 
-    /// p2 vs p2 won
-    result = await new PlayerAdapter().matchesSummary(
-      sportEventP2a,
-      1, 1)
+  //   /// p2 vs p2 won
+  //   result = await new PlayerAdapter().matchesSummary(
+  //     sportEventP2a,
+  //     1, 1)
 
-    const p2_v_p2won = {
-      p2: result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number,
-      p2Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
-    }
+  //   const p2_v_p2won = {
+  //     p2: result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number,
+  //     p2Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
+  //   }
 
-    const sportEventP2b = playerNamesToSportEvent('', player1.name, '', playerLabels.player2.lastWon.player.name)
+  //   const sportEventP2b = playerNamesToSportEvent('', player1.name, '', playerLabels.player2.lastWon.player.name)
 
-    /// p1 vs p2 won
-    result = await new PlayerAdapter().matchesSummary(
-      sportEventP2b,
-      1, 1)
+  //   /// p1 vs p2 won
+  //   result = await new PlayerAdapter().matchesSummary(
+  //     sportEventP2b,
+  //     1, 1)
 
-    const p1_v_p2won = {
-      p1: result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number,
-      p2Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
-    }
+  //   const p1_v_p2won = {
+  //     p1: result.winFromHigherRankingThanOpponent.player1.number - result.lostToLowerRankingThanOpponent.player1.number,
+  //     p2Won: result.winFromHigherRankingThanOpponent.player2.number - result.lostToLowerRankingThanOpponent.player2.number
+  //   }
 
-    return {
-      players: {
-        p1LastWon: playerLabels.player1.lastWon.player.name,
-        p2LastWon: playerLabels.player2.lastWon.player.name
-      },
-      numbers: {
-        p1_v_p1won,
-        p2_v_p1won,
-        p2_v_p2won,
-        p1_v_p2won
-      },
-    }
-  }
+  //   return {
+  //     players: {
+  //       p1LastWon: playerLabels.player1.lastWon.player.name,
+  //       p2LastWon: playerLabels.player2.lastWon.player.name
+  //     },
+  //     numbers: {
+  //       p1_v_p1won,
+  //       p2_v_p1won,
+  //       p2_v_p2won,
+  //       p1_v_p2won
+  //     },
+  //   }
+  // }
 
   playerLabel(player: Player) {
     const lastWonMatch = player.parsedPreviousMatches.filter(match => match.result === 'win')[0]

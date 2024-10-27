@@ -1,6 +1,6 @@
 import _ from "lodash"
 import S3ClientCustom from '@abcfinite/s3-client-custom'
-import { putItem, truncateTable } from '@abcfinite/dynamodb-client'
+import { putItem, executeScan, executeQuery } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import { SQSClient, SendMessageCommand,
@@ -9,7 +9,7 @@ import { SQSClient, SendMessageCommand,
   PurgeQueueCommand} from "@aws-sdk/client-sqs";
 import { toCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
-import { removeAllCache } from '../../domains/sports/events/index';
+import TennisliveClient from "@abcfinite/tennislive-client"
 
 export default class ScheduleAdapter {
 
@@ -18,7 +18,6 @@ export default class ScheduleAdapter {
     const s3ClientCustom = new S3ClientCustom()
     await s3ClientCustom.deleteAllFiles('betapi-cache')
     await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
-    await truncateTable('tennis_players_scheduled')
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
     const client = new SQSClient({ region: 'ap-southeast-2' });
@@ -62,11 +61,11 @@ export default class ScheduleAdapter {
       filteredEvents.map(event => {
         const player1 = {
           "id": event.player1.id,
-          "name": event.player1.name,
-          "found": true,
+          "full_name": event.player1.name,
+          "url_found": true,
         }
 
-        return putItem('tennis_players_scheduled', player1)
+        return putItem('tennis_players', player1)
       })
 
 
@@ -74,11 +73,11 @@ export default class ScheduleAdapter {
       filteredEvents.map(event => {
         const player2 = {
           "id": event.player2.id,
-          "name": event.player2.name,
-          "found": true,
+          "full_name": event.player2.name,
+          "url_found": true,
         }
 
-        return putItem('tennis_players_scheduled', player2)
+        return putItem('tennis_players', player2)
       })
 
     // execute putItem on dynamodb
@@ -87,6 +86,111 @@ export default class ScheduleAdapter {
 
     // return number of matches
     return `number of matches : ${events.length}`
+  }
+
+  async getPlayersName() {
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-player-url-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
+
+    // purge player name on queue
+    const params = {
+      QueueUrl: queueUrl, // URL of the queue to be purged
+    };
+
+    try {
+      const purgeCommand = new PurgeQueueCommand(params);
+      await client.send(purgeCommand);
+      console.log(`Queue purged: ${queueUrl}`);
+    } catch (err) {
+      console.error("Error purging queue:", err);
+    }
+
+    // get all player from dynamodb that
+    // does not have url and found is true
+    const scanParam = {
+      FilterExpression: 'url_found = :url_found AND attribute_not_exists(tennislive_url)',
+      ExpressionAttributeValues: {
+        ':url_found': { BOOL: true },
+      },
+      ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+      TableName: 'tennis_players',
+    }
+    const result = await executeScan(scanParam)
+
+    // if url is not exist then push name to sqs
+    result['Items'].forEach(async item => {
+      const input = {
+        QueueUrl: queueUrl,
+        MessageBody: JSON.stringify({
+          id: item['id']['S'],
+          url_found: item['url_found']['BOOL'],
+          full_name: item['full_name']['S']
+        }),
+        DelaySeconds: 10,
+      };
+      const command = new SendMessageCommand(input);
+      await client.send(command);
+    })
+
+    return `${result['Count']} players on queue.`
+  }
+
+  async getPlayersUrl() {
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-player-url-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
+
+    // check queue in SQS
+    const getQueueAttrCommand = new GetQueueAttributesCommand({
+      QueueUrl: queueUrl,
+      AttributeNames: ['All']
+    });
+
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+
+    while(sqsMessageNumber > 0) {
+      const receiveMessageCommand  = new ReceiveMessageCommand({
+        MaxNumberOfMessages: 1,
+        MessageAttributeNames: ["All"],
+        QueueUrl: queueUrl,
+        WaitTimeSeconds: 20,
+        VisibilityTimeout: 20,
+      })
+
+      const receiveMessageCommandResult = await client.send(receiveMessageCommand);
+      var player = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
+
+      var tennisLiveUrl = await new TennisliveClient().getPlayerUrl(player['full_name'])
+
+      var urlFound = true
+      if (tennisLiveUrl === null || tennisLiveUrl === undefined || tennisLiveUrl === 'too many result') {
+        tennisLiveUrl = 'not found'
+        urlFound = false
+      }
+
+      // insert to dynamodb
+      const player1 = {
+        id : player['id'],
+        full_name : player['full_name'],
+        url_found : urlFound,
+        tennislive_url: tennisLiveUrl
+      }
+
+      await putItem('tennis_players', player1, true)
+
+      await client.send(
+        new DeleteMessageCommand({
+          QueueUrl: queueUrl,
+          ReceiptHandle: receiveMessageCommandResult.Messages[0].ReceiptHandle,
+        }),
+      );
+
+      getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+      sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+    }
+
+    return `${sqsMessageNumber} players on queue.`
   }
 
   async getSchedule() {
@@ -98,7 +202,7 @@ export default class ScheduleAdapter {
     const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
 
     if (resultFile) {
-        return toCsv(resultFile)
+      return toCsv(resultFile)
     }
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
@@ -106,46 +210,97 @@ export default class ScheduleAdapter {
 
     // const sportEvents = await new TennisliveClient().getSchedule()
     const events = await new BetapiClient().getEvents()
+    const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
 
     const sportEvents = []
-    events.forEach(event => {
+
+        // check queue in SQS
+    const getQueueAttrCommand = new GetQueueAttributesCommand({
+      QueueUrl: queueUrl,
+      AttributeNames: ['All']
+    });
+
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+    if (sqsMessageNumber === 0 ){
+      for await (const event of events) {
         const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
-        const sportEvent = playerNamesToSportEvent(event.player1.id, event.player1.name, event.player2.id, event.player2.name)
+        const eventDate = eventDateTime.split(',')[0].trim()
+
+        if (event.player1.name.includes('/')) {
+          continue
+        }
+
+        if (eventDate !== '28/10/2024') {
+          continue
+        }
+
+        const query1 = {
+          KeyConditionExpression: '#id = :id',
+          ExpressionAttributeNames: {
+              '#id': 'id'
+          },
+          ExpressionAttributeValues: {
+              ':id': { S: event.player1.id }
+          },
+          ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+          TableName: 'tennis_players',
+        }
+        const result1 = await executeQuery(query1)
+
+        const query2 = {
+          KeyConditionExpression: '#id = :id',
+          ExpressionAttributeNames: {
+              '#id': 'id'
+          },
+          ExpressionAttributeValues: {
+              ':id': { S: event.player2.id }
+          },
+          ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+          TableName: 'tennis_players',
+        }
+
+        const result2 = await executeQuery(query2)
+
+        const p1Record = result1.Items[0]
+        const p2Record = result2.Items[0]
+
+        if (!(p1Record['url_found']['BOOL'] && p2Record['url_found']['BOOL'])) {
+          continue
+        }
+
+        const sportEvent = playerNamesToSportEvent(event.player1.id,
+          p1Record['tennislive_url']['S'],
+          event.player1.name,
+          event.player2.id,
+          p2Record['tennislive_url']['S'],
+          event.player2.name,
+        )
+
         sportEvent.id = event.id
         sportEvent.date = eventDateTime.split(',')[0].trim()
         sportEvent.time = eventDateTime.split(',')[1].trim()
         sportEvent.stage = event.stage
 
-
-        if (sportEvent.player1.name.includes('/')) {
-          return
-        }
-
-        if (sportEvent.date === '24/10/2024' || sportEvent.date === '25/10/2024') {
-          sportEvents.push(sportEvent)
-        }
+        sportEvents.push(sportEvent)
       }
-    )
+    }
 
-    const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
     const fileContent = []
 
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sportEvents.length === fileList.length) {
-      // await Promise.all(
-        // fileList.map( async file => {
-        //   const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
-        //   fileContent.push(JSON.parse(content))
-        // })
-      // )
-
-      const fileContents = await Promise.all(
-        fileList.map(async file => await new S3ClientCustom().getFile('tennis-match-schedule', file))
+    if (sqsMessageNumber === 0 && 179 === fileList.length) {
+      await Promise.all(
+        fileList.map( async file => {
+          const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
+          fileContent.push(JSON.parse(content))
+        })
       )
 
-      fileContents.forEach(content => {
+      fileContent.forEach(content => {
         var parsed = null
 
         try {
@@ -157,34 +312,14 @@ export default class ScheduleAdapter {
         }
       })
 
-      /// by gap
-      const filtered = fileContent.filter(e => {
-        const wlP1 = _.get(e, 'analysis.winLoseRanking.player1', 0)
-        const wlP2 = _.get(e, 'analysis.winLoseRanking.player2', 0)
-
-        return wlP1 !== wlP2
-      })
-
-      const sorted = filtered.sort((a,b) => {
-        const gapA = _.get(a, 'analysis.gap', 0)
-        const gapB = _.get(b, 'analysis.gap', 0)
-
-        return gapB - gapA
-      })
-
       await new S3ClientCustom()
-        .putFile('tennis-match-schedule','result.json', JSON.stringify(sorted))
+        .putFile('tennis-match-schedule','result.json', JSON.stringify(fileContent))
 
-      return sorted
+      return fileContent
     }
 
 
     // check queue in SQS
-    const getQueueAttrCommand = new GetQueueAttributesCommand({
-      QueueUrl: queueUrl,
-      AttributeNames: ['All']
-    });
-
     var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
     var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
 
@@ -194,8 +329,8 @@ export default class ScheduleAdapter {
       await Promise.all(
         sportEvents.map(async sporte => {
 
-          // console.log('>>>>push to sqs>>>')
-          // console.log(sporte)
+          console.log('>>>>push to sqs>>>')
+          console.log(sporte)
 
           const input = {
             QueueUrl: queueUrl,

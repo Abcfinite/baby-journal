@@ -19,13 +19,9 @@ export default class PlayerService {
 
     const httpApiClient = new HttpApiClient()
 
-    // const result = await httpApiClient.get(
-    //   process.env.TENNISLIVE_HOST!,
-    //   process.env.TENNISLIVE_PATH+'?qe='+playerName,
-    //   headers,
-    // )
 
     const playerUrl = '/tmpl/search.php?qe='+playerName
+
     const result = await httpApiClient.getNative('www.tennislive.net',
       playerUrl, headers)
 
@@ -33,7 +29,6 @@ export default class PlayerService {
   }
 
   async getPlayerDetailHtml(playerDetailUrl: string, keepPreviousMatches: boolean = true) : Promise<Player> {
-
     const headers = {
       Host: 'www.tennislive.net',
       Referer: process.env.TENNISLIVE_HOST,
