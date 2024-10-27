@@ -27,7 +27,8 @@ export default class PlayerAdapter {
     // await new BetapiClient().getPlayerEndedMatches(sportEvent.player1.id)
     // await new BetapiClient().getPlayerEndedMatches(sportEvent.player2.id)
 
-    result.analysis = await new MatchAdapter().similarMatch(result)
+    // todo
+    // result.analysis = await new MatchAdapter().similarMatch(result)
 
     return result
   }
@@ -72,6 +73,10 @@ export default class PlayerAdapter {
 
   async matchesSummary(sportEvent: SportEvent, player1Odd: number, Player2Odd: number) {
     const tennisLiveClient = new TennisliveClient()
+
+    // console.log('>>>>matchesSummary')
+    // console.log(`>>name :  ${sportEvent.player1.name} url: ${sportEvent.player2.url}`)
+    // console.log(`>>name :  ${sportEvent.player1.name} url: ${sportEvent.player2.url}`)
 
     const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.url)
     const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.url)

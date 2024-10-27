@@ -1,3 +1,5 @@
+import _ from "lodash"
+
 export const toCsv = (jsonString: string) : string => {
   const csvHeader = [
     'id',
@@ -27,6 +29,7 @@ export const toCsv = (jsonString: string) : string => {
     'non fav BM',
     'BM gap',
     'fav p',
+    'just retired',
     'just won fin',
     'f just Lost From Lower Ranking',
     'highest stage last 3 comp',
@@ -66,9 +69,9 @@ export const toCsv = (jsonString: string) : string => {
 
   var jsonArray = JSON.parse(jsonString)
 
-
   jsonArray.forEach(m => {
     var fav1 = m['player1']['currentRanking'] < m['player2']['currentRanking']
+
     resultArray.push([
       '',
       m['date'],
@@ -76,60 +79,74 @@ export const toCsv = (jsonString: string) : string => {
       m['stage'],
       '',
       '',
-      fav1? m['lostToLowerRankingThanOpponent']['player1']['number']: m['lostToLowerRankingThanOpponent']['player2']['number'],
+      fav1? _.get(m, "['lostToLowerRankingThanOpponent']['player1']['number']", 'not found') :
+        _.get(m, "['lostToLowerRankingThanOpponent']['player2']['number']", 'not found'),
 
-      fav1? m['winFromHigherRankingThanOpponent']['player1']['number']: m['winFromHigherRankingThanOpponent']['player2']['number'],
-      fav1? m['lostToLowerRankingThanOpponent']['player2']['number']: m['lostToLowerRankingThanOpponent']['player1']['number'],
-      fav1? m['winFromHigherRankingThanOpponent']['player2']['number']: m['winFromHigherRankingThanOpponent']['player1']['number'],
-      fav1? m['winfromHigherRanking']['player1']['number'] : m['winfromHigherRanking']['player2']['number'],
-      fav1? m['winfromHigherRanking']['player2']['number'] : m['winfromHigherRanking']['player1']['number'],
-      fav1? m['lostToLowerRanking']['player1']['number'] : m['lostToLowerRanking']['player2']['number'],
-      fav1? m['lostToLowerRanking']['player2']['number'] : m['lostToLowerRanking']['player1']['number'],
+      fav1? _.get(m, "['winFromHigherRankingThanOpponent']['player1']['number']", 'not found'):
+        _.get(m, "['winFromHigherRankingThanOpponent']['player2']['number']", 'not found'),
+      fav1? _.get(m, "['lostToLowerRankingThanOpponent']['player2']['number']", 'not found'):
+        _.get(m, "['lostToLowerRankingThanOpponent']['player1']['number']", 'not found'),
+      fav1? _.get(m, "['winFromHigherRankingThanOpponent']['player2']['number']", 'not found'):
+        _.get(m, "['winFromHigherRankingThanOpponent']['player1']['number']", 'not found'),
+      fav1? _.get(m, "['winfromHigherRanking']['player1']['number']" , 'not found'):
+        _.get(m, "['winfromHigherRanking']['player2']['number']" , 'not found'),
+      fav1? _.get(m, "['winfromHigherRanking']['player2']['number']", 'not found') :
+        _.get(m, "['winfromHigherRanking']['player1']['number']", 'not found'),
+      fav1? _.get(m, "['lostToLowerRanking']['player1']['number']", 'not found') :
+       _.get(m, "['lostToLowerRanking']['player2']['number']", 'not found'),
+      fav1? _.get(m, "['lostToLowerRanking']['player2']['number']", 'not found') :
+        _.get(m, "['lostToLowerRanking']['player1']['number']", 'not found'),
       '',
       '', // f match-no lower
 
       '',
       '',
-      fav1? m['analysis']['win3setRate']['player1'] : m['analysis']['win3setRate']['player2'],
-      fav1? m['analysis']['win3setRate']['player2'] : m['analysis']['win3setRate']['player1'],
-      fav1? m['analysis']['benchmarkPlayer']['bothPlayed']['player1Score'] : m['analysis']['benchmarkPlayer']['bothPlayed']['player2Score'],
+      fav1? _.get(m, "['analysis']['win3setRate']['player1']", 'not found') :
+        _.get(m, "['analysis']['win3setRate']['player2']", 'not found')
+      ,
+      fav1? _.get(m, "['analysis']['win3setRate']['player2']", 'not found') :
+        _.get(m, "['analysis']['win3setRate']['player1']", 'not found')
+      ,
+      fav1? _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player1Score']", 'not found') :
+        _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player2Score']", 'not found'),
 
-      fav1? m['analysis']['benchmarkPlayer']['bothPlayed']['player2Score'] : m['analysis']['benchmarkPlayer']['bothPlayed']['player1Score'],
-      '',
-      fav1? m['player1']['name'] : m['player2']['name'],
-      '', // just won fin
-      fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player1'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player2'], // f just Lost From Lower Ranking
-      '',
-      fav1? m['winPercentage']['player1']['matchTotal'] : m['winPercentage']['player2']['matchTotal'],
+      // fav1? m['analysis']['benchmarkPlayer']['bothPlayed']['player2Score'] : m['analysis']['benchmarkPlayer']['bothPlayed']['player1Score'],
+      // '',
+      // fav1? m['player1']['name'] : m['player2']['name'],
+      // '',
+      // '', // just won fin
+      // fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player1'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player2'], // f just Lost From Lower Ranking
+      // '',
+      // fav1? m['winPercentage']['player1']['matchTotal'] : m['winPercentage']['player2']['matchTotal'],
 
-      fav1? m['winPercentage']['player1']['winPercentage'] : m['winPercentage']['player2']['winPercentage'],
-      '',
-      '',
-      fav1? m['player2']['name'] : m['player1']['name'],
-      fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player2'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player1'], // nf just Lost From Lower Ranking
-      '',
-      fav1? m['winPercentage']['player2']['matchTotal'] : m['winPercentage']['player1']['matchTotal'],
+      // fav1? m['winPercentage']['player1']['winPercentage'] : m['winPercentage']['player2']['winPercentage'],
+      // '',
+      // '',
+      // fav1? m['player2']['name'] : m['player1']['name'],
+      // fav1? m['analysis']['redFlag']['justLostFromLowerRanking']['player2'] : m['analysis']['redFlag']['justLostFromLowerRanking']['player1'], // nf just Lost From Lower Ranking
+      // '',
+      // fav1? m['winPercentage']['player2']['matchTotal'] : m['winPercentage']['player1']['matchTotal'],
 
-      fav1? m['winPercentage']['player2']['winPercentage'] : m['winPercentage']['player1']['winPercentage'],
-      '',
-      '',
-      '',
-      fav1? m['player1']['currentRanking'] : m['player2']['currentRanking'], // f c ranking
-      fav1? m['analysis']['highLowRanking']['player1']['winHighest'] : m['analysis']['highLowRanking']['player2']['winHighest'],
-      fav1? m['analysis']['highLowRanking']['player1']['lostLowest'] : m['analysis']['highLowRanking']['player2']['lostLowest'],
-      fav1? m['player2']['currentRanking'] : m['player1']['currentRanking'], // nf c ranking
+      // fav1? m['winPercentage']['player2']['winPercentage'] : m['winPercentage']['player1']['winPercentage'],
+      // '',
+      // '',
+      // '',
+      // fav1? m['player1']['currentRanking'] : m['player2']['currentRanking'], // f c ranking
+      // fav1? m['analysis']['highLowRanking']['player1']['winHighest'] : m['analysis']['highLowRanking']['player2']['winHighest'],
+      // fav1? m['analysis']['highLowRanking']['player1']['lostLowest'] : m['analysis']['highLowRanking']['player2']['lostLowest'],
+      // fav1? m['player2']['currentRanking'] : m['player1']['currentRanking'], // nf c ranking
 
-      fav1? m['player2']['highestRanking'] : m['player1']['highestRanking'],
-      fav1? m['analysis']['highLowRanking']['player2']['winHighest'] : m['analysis']['highLowRanking']['player1']['winHighest'],
-      fav1? m['analysis']['highLowRanking']['player2']['lostLowest'] : m['analysis']['highLowRanking']['player1']['lostLowest'],
-      '',
-      '',
-      '',
-      fav1? m['analysis']['winLoseRanking']['player1'] : m['analysis']['winLoseRanking']['player2'],
-      fav1? m['analysis']['winLoseRanking']['player2'] : m['analysis']['winLoseRanking']['player1'],
-      '',
+      // fav1? m['player2']['highestRanking'] : m['player1']['highestRanking'],
+      // fav1? m['analysis']['highLowRanking']['player2']['winHighest'] : m['analysis']['highLowRanking']['player1']['winHighest'],
+      // fav1? m['analysis']['highLowRanking']['player2']['lostLowest'] : m['analysis']['highLowRanking']['player1']['lostLowest'],
+      // '',
+      // '',
+      // '',
+      // fav1? m['analysis']['winLoseRanking']['player1'] : m['analysis']['winLoseRanking']['player2'],
+      // fav1? m['analysis']['winLoseRanking']['player2'] : m['analysis']['winLoseRanking']['player1'],
+      // '',
 
-      ''
+      // ''
     ].join(','))
   })
 

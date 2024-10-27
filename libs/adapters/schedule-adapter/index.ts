@@ -202,7 +202,7 @@ export default class ScheduleAdapter {
     const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
 
     if (resultFile) {
-        return toCsv(resultFile)
+      return toCsv(resultFile)
     }
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
@@ -211,80 +211,79 @@ export default class ScheduleAdapter {
     // const sportEvents = await new TennisliveClient().getSchedule()
     const events = await new BetapiClient().getEvents()
 
+    const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
+
     const sportEvents = []
 
-    // events.forEach(async event => {
-    for await (const event of events) {
-      const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
-      const eventDate = eventDateTime.split(',')[0].trim()
-
-      console.log('>>>>>eventDate')
-      console.log(eventDate)
-
-      if (event.player1.name.includes('/')) {
-        continue
+    if (fileList.length === 0 ){
+      for await (const event of events) {
+        const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
+        const eventDate = eventDateTime.split(',')[0].trim()
+  
+        console.log('>>>>>eventDate')
+        console.log(eventDate)
+  
+        if (event.player1.name.includes('/')) {
+          continue
+        }
+  
+        if (eventDate !== '27/10/2024') {
+          continue
+        }
+  
+        console.log('>>>continue to get player url')
+  
+        const query1 = {
+          KeyConditionExpression: '#id = :id',
+          ExpressionAttributeNames: {
+              '#id': 'id'
+          },
+          ExpressionAttributeValues: {
+              ':id': { S: event.player1.id }
+          },
+          ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+          TableName: 'tennis_players',
+        }
+        const result1 = await executeQuery(query1)
+  
+        const query2 = {
+          KeyConditionExpression: '#id = :id',
+          ExpressionAttributeNames: {
+              '#id': 'id'
+          },
+          ExpressionAttributeValues: {
+              ':id': { S: event.player2.id }
+          },
+          ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+          TableName: 'tennis_players',
+        }
+  
+        const result2 = await executeQuery(query2)
+  
+        const p1Record = result1.Items[0]
+        const p2Record = result2.Items[0]
+  
+        if (!(p1Record['url_found']['BOOL'] && p2Record['url_found']['BOOL'])) {
+          continue
+        }
+  
+        const sportEvent = playerNamesToSportEvent(event.player1.id,
+          p1Record['tennislive_url']['S'],
+          event.player1.name,
+          event.player2.id,
+          p2Record['tennislive_url']['S'],
+          event.player2.name,
+        )
+  
+        sportEvent.id = event.id
+        sportEvent.date = eventDateTime.split(',')[0].trim()
+        sportEvent.time = eventDateTime.split(',')[1].trim()
+        sportEvent.stage = event.stage
+  
+        sportEvents.push(sportEvent)
       }
-
-      if (eventDate !== '27/10/2024') {
-        continue
-      }
-
-      console.log('>>>continue to get player url')
-
-      const query1 = {
-        KeyConditionExpression: '#id = :id',
-        ExpressionAttributeNames: {
-            '#id': 'id'
-        },
-        ExpressionAttributeValues: {
-            ':id': { S: event.player1.id }
-        },
-        ProjectionExpression: 'id, full_name, url_found, tennislive_url',
-        TableName: 'tennis_players',
-      }
-      const result1 = await executeQuery(query1)
-
-      const query2 = {
-        KeyConditionExpression: '#id = :id',
-        ExpressionAttributeNames: {
-            '#id': 'id'
-        },
-        ExpressionAttributeValues: {
-            ':id': { S: event.player2.id }
-        },
-        ProjectionExpression: 'id, full_name, url_found, tennislive_url',
-        TableName: 'tennis_players',
-      }
-
-      const result2 = await executeQuery(query2)
-
-      const p1Record = result1.Items[0]
-      const p2Record = result2.Items[0]
-
-      if (!(p1Record['url_found']['BOOL'] && p2Record['url_found']['BOOL'])) {
-        continue
-      }
-
-      const sportEvent = playerNamesToSportEvent(event.player1.id,
-        p1Record['tennislive_url']['S'],
-        event.player1.name,
-        p2Record['tennislive_url']['S'],
-        event.player2.id,
-        event.player2.name,
-      )
-
-      console.log('>>>>>detail')
-      console.log(sportEvent)
-
-      sportEvent.id = event.id
-      sportEvent.date = eventDateTime.split(',')[0].trim()
-      sportEvent.time = eventDateTime.split(',')[1].trim()
-      sportEvent.stage = event.stage
-
-      sportEvents.push(sportEvent)
     }
 
-    const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
     const fileContent = []
 
     console.log('>>>>total schedule number: ', sportEvents.length)
@@ -310,25 +309,10 @@ export default class ScheduleAdapter {
         }
       })
 
-      /// by gap
-      const filtered = fileContent.filter(e => {
-        const wlP1 = _.get(e, 'analysis.winLoseRanking.player1', 0)
-        const wlP2 = _.get(e, 'analysis.winLoseRanking.player2', 0)
-
-        return wlP1 !== wlP2
-      })
-
-      const sorted = filtered.sort((a,b) => {
-        const gapA = _.get(a, 'analysis.gap', 0)
-        const gapB = _.get(b, 'analysis.gap', 0)
-
-        return gapB - gapA
-      })
-
       await new S3ClientCustom()
-        .putFile('tennis-match-schedule','result.json', JSON.stringify(sorted))
+        .putFile('tennis-match-schedule','result.json', JSON.stringify(fileContent))
 
-      return sorted
+      return fileContent
     }
 
 
@@ -347,8 +331,8 @@ export default class ScheduleAdapter {
       await Promise.all(
         sportEvents.map(async sporte => {
 
-          // console.log('>>>>push to sqs>>>')
-          // console.log(sporte)
+          console.log('>>>>push to sqs>>>')
+          console.log(sporte)
 
           const input = {
             QueueUrl: queueUrl,
