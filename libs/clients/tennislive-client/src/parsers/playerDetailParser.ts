@@ -18,12 +18,20 @@ export default class PlayerDetailParser {
       url: '',
       type: '',
       previousMatches: null,
+      incomingMatchUrl: null,
       parsedPreviousMatches: null
     }
 
+    var matchesTable = root.getElementsByTagName("table")
+      .filter(table => table.attributes.class === "table_pmatches")
+
     if (keepPreviousMatches) {
-      player['previousMatches'] = root.getElementsByTagName("table")
-        .findLast(table => table.attributes.class === "table_pmatches")
+      player['previousMatches'] = matchesTable.pop()
+
+      if (matchesTable.length > 0) {
+        //table, tbody, tr
+        player['incomingMatchUrl'] = matchesTable[0].childNodes[1].childNodes[5].childNodes[0].childNodes[0].parentNode.getAttribute('href')
+      }
     }
 
     let post=0

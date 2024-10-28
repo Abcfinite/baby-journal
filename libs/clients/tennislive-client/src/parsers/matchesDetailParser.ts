@@ -25,6 +25,7 @@ export default class MatchesDetailParser {
         matchesWon: 0,
         url: null,
         previousMatches: null,
+        incomingMatchUrl: null,
         parsedPreviousMatches: null,
       }
 
