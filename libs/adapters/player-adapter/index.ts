@@ -79,6 +79,7 @@ export default class PlayerAdapter {
 
     const player1 = await tennisLiveClient.getPlayer(sportEvent.player1.url)
     const player2 = await tennisLiveClient.getPlayer(sportEvent.player2.url)
+    // const currentMatch = await tennisLiveClient.getMatchDetail(sportEvent.player2.url)
 
     console.log('>>>player1Detail')
     console.log(player1)

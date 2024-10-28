@@ -13,5 +13,6 @@ export type Player = {
   type: string,
   previousMatches: HTMLElement | null,
   incomingMatchUrl: string | null,
-  parsedPreviousMatches: Array<Match> | null
+  parsedPreviousMatches: Array<Match> | null,
+  h2h: number
 }

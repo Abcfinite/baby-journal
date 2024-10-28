@@ -32,7 +32,9 @@ export const playerNamesToSportEvent = (player1Id: string, player1Url: string,
       url: player1Url,
       type: '',
       previousMatches: null,
-      parsedPreviousMatches: null
+      parsedPreviousMatches: null,
+      incomingMatchUrl: '',
+      h2h: 0,
     },
     player2: {
       id: player2Id,
@@ -46,7 +48,9 @@ export const playerNamesToSportEvent = (player1Id: string, player1Url: string,
       url: player2Url,
       type: '',
       previousMatches: null,
-      parsedPreviousMatches: null
+      parsedPreviousMatches: null,
+      incomingMatchUrl: '',
+      h2h: 0
     }
   }
 }
