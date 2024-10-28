@@ -328,10 +328,6 @@ export default class ScheduleAdapter {
       // this part will not timeout
       await Promise.all(
         sportEvents.map(async sporte => {
-
-          console.log('>>>>push to sqs>>>')
-          console.log(sporte)
-
           const input = {
             QueueUrl: queueUrl,
             MessageBody: JSON.stringify(sporte),

@@ -1,6 +1,4 @@
 import _ from 'lodash'
-import { Player } from '../types/player'
-import { Match } from '../types/match';
 import { parse } from 'node-html-parser';
 import { MatchDetail } from '@/types/matchDetail';
 
@@ -18,15 +16,17 @@ export default class MatchDetailParser {
 
     const parsedMatchHtml = parse(matchHtml)
 
-    const h2h = parsedMatchHtml.getElementsByTagName("div").find(div => div.attributes.class === 'players_h2h').text.trim()
-    const playerNames = parsedMatchHtml.getElementsByTagName("div").filter(div => div.attributes.class === 'players_name').map(el => el.getAttribute('title'))
+    var h2h = parsedMatchHtml.getElementsByTagName("div").find(div => div.attributes.class === 'players_h2h').text.trim()
+    const playerNames = parsedMatchHtml.getElementsByTagName("div").filter(div => div.attributes.class === 'players_name').map(el => el.getElementsByTagName('a')[0].getAttribute('title'))
 
-    console.log('>>>h2h score>>>', h2h)
-
-    console.log('>>>>playerNames')
-    for (const name in playerNames) {
-      console.log(name)
+    if (h2h === null || h2h === undefined) {
+      h2h = '0:0'
     }
+
+    matchDetail.p1Name = playerNames[0]
+    matchDetail.p2Name = playerNames[1]
+    matchDetail.p1H2h = Number(h2h.split(':')[0])
+    matchDetail.p2H2h = Number(h2h.split(':')[1])
 
     return matchDetail
   }
