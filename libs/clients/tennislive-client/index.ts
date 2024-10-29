@@ -2,12 +2,11 @@
 // fetch info on the sport event
 
 import { Player } from './src/types/player';
-import { SportEvent } from "@/types/sportEvent";
-import MatchesDetailParser from "./src/parsers/matchesDetailParser";
-import PlayerService from "./src/services/playerService";
-import ScheduleService from "./src/services/scheduleService";
+import { SportEvent } from './src/types/sportEvent';
+import MatchesParser from './src/parsers/matchesParser';
+import PlayerService from './src/services/playerService';
 import FinishedService from './src/services/finishedService';
-import BetapiClient from '../betapi-client';
+import MatchDetailService from './src/services/matchDetailService';
 
 export default class TennisliveClient {
 
@@ -19,11 +18,15 @@ export default class TennisliveClient {
   }
 
   async getPlayer(playerUrl?: string) : Promise<Player>{
-
     let playerDetailUrl = playerUrl
 
     const player = await new PlayerService().getPlayerDetailHtml(playerDetailUrl)
-    new MatchesDetailParser().parse(player)
+    new MatchesParser().parse(player)
+
+    if (player.incomingMatchUrl !== null) {
+      const matchDetail = await new MatchDetailService().getMatchDetail(player.incomingMatchUrl)
+      player.h2h = player.name === matchDetail.p1Name ? matchDetail.p1H2h : matchDetail.p2H2h
+    }
 
     await Promise.all(
       player.parsedPreviousMatches.map(async (prevMatch, index) => {
@@ -41,15 +44,6 @@ export default class TennisliveClient {
 
     return player
   }
-
-  // async getSchedule() : Promise<SportEvent[]> {
-  //   // const result = await new ScheduleService().getSchedule()
-  //   // const result = await new ScheduleService().getMatchstatCompareSchedule()
-
-  //   const events = await new BetapiClient().getEvents()
-
-  //   return result
-  // }
 
   async getFinished() : Promise<SportEvent[]> {
     const finishedSportEvents = await new FinishedService().getFinished()

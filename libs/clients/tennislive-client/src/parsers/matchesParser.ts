@@ -3,7 +3,7 @@ import { Player } from '../types/player'
 import { Match } from '../types/match';
 import { parse } from 'node-html-parser';
 
-export default class MatchesDetailParser {
+export default class MatchesParser {
 
   parse(startPlayerData: Player): Player {
 
@@ -25,7 +25,9 @@ export default class MatchesDetailParser {
         matchesWon: 0,
         url: null,
         previousMatches: null,
+        incomingMatchUrl: null,
         parsedPreviousMatches: null,
+        h2h: 0,
       }
 
       const match : Match = {

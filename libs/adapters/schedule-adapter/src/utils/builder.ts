@@ -77,8 +77,8 @@ export const toCsv = (jsonString: string) : string => {
       m['date'],
       m['time'],
       m['stage'],
-      '',
-      '',
+      fav1? _.get(m, "['player1']['h2h']", 'not found') : _.get(m, "['player2']['h2h']", 'not found'),
+      fav1? _.get(m, "['player2']['h2h']", 'not found') : _.get(m, "['player1']['h2h']", 'not found'),
       fav1? _.get(m, "['lostToLowerRankingThanOpponent']['player1']['number']", 'not found') :
         _.get(m, "['lostToLowerRankingThanOpponent']['player2']['number']", 'not found'),
 
