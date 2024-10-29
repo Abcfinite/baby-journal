@@ -12,6 +12,8 @@ export default class MatchDetailParser {
       p2Name: '',
       p1H2h: 0,
       p2H2h: 0,
+      p1Form: null,
+      p2Form: null,
     }
 
     const parsedMatchHtml = parse(matchHtml)
@@ -27,6 +29,14 @@ export default class MatchDetailParser {
     matchDetail.p2Name = playerNames[1]
     matchDetail.p1H2h = Number(h2h.split(':')[0])
     matchDetail.p2H2h = Number(h2h.split(':')[1])
+
+    var matchHtmlTrimmed = matchHtml.replace(/[\r\n]+/g,'')
+
+    const re = new RegExp(/,(-?\d+)]        \]\);/g)
+    var formTables = matchHtmlTrimmed.match(re)
+
+    matchDetail.p1Form = Number(formTables[0].replace(']        ]);', '').replace(',', ''))
+    matchDetail.p2Form = Number(formTables[1].replace(']        ]);', '').replace(',', ''))
 
     return matchDetail
   }

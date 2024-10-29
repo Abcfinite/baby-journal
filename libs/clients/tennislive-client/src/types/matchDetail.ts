@@ -5,4 +5,6 @@ export type MatchDetail = {
     p2Name: string,
     p1H2h: number,
     p2H2h: number,
+    p1Form: number | null,
+    p2Form: number | null,
   }

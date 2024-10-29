@@ -14,5 +14,6 @@ export type Player = {
   previousMatches: HTMLElement | null,
   incomingMatchUrl: string | null,
   parsedPreviousMatches: Array<Match> | null,
-  h2h: number
+  h2h: number,
+  form: number | null,
 }

@@ -20,7 +20,8 @@ export default class PlayerDetailParser {
       previousMatches: null,
       incomingMatchUrl: null,
       parsedPreviousMatches: null,
-      h2h: 0
+      h2h: 0,
+      form: null,
     }
 
     var matchesTable = root.getElementsByTagName("table")

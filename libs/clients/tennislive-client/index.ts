@@ -26,6 +26,7 @@ export default class TennisliveClient {
     if (player.incomingMatchUrl !== null) {
       const matchDetail = await new MatchDetailService().getMatchDetail(player.incomingMatchUrl)
       player.h2h = player.name === matchDetail.p1Name ? matchDetail.p1H2h : matchDetail.p2H2h
+      player.form = player.name === matchDetail.p1Name ? matchDetail.p1Form : matchDetail.p2Form
     }
 
     await Promise.all(

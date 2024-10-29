@@ -5,7 +5,6 @@
   "dependencies": {
     "@abcfinite/player-adapter": "0.0.1",
     "@abcfinite/schedule-adapter": "0.0.1",
-    "@abcfinite/finished-adapter": "0.0.1",
     "@abcfinite/betapi-client": "0.0.1",
     "lodash.get": "^4.4.2"
   },

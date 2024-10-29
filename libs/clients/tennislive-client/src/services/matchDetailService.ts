@@ -1,6 +1,5 @@
 
 import HttpApiClient from '@abcfinite/http-api-client'
-import { Player } from '../types/player'
 import MatchDetailParser from '../parsers/matchDetailParser';
 import { v4 as uuidv4 } from 'uuid';
 import { MatchDetail } from '@/types/matchDetail';

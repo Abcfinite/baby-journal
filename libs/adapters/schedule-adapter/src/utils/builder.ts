@@ -125,7 +125,8 @@ export const toCsv = (jsonString: string) : string => {
       fav1? _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found') :
         _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found'),
       '',
-      '',
+      fav1? _.get(m, "['player1']['form']", 'not found') :
+      _.get(m, "['player2']['form']", 'not found'), //fav form
       fav1? _.get(m, "['player2']['name']", 'not found') : _.get(m, "['player1']['name']", 'not found'),
       fav1? _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player2']", 'not found') :
         _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player1']", 'not found'), // nf just Lost From Lower Ranking
@@ -134,9 +135,10 @@ export const toCsv = (jsonString: string) : string => {
         _.get(m, "['winPercentage']['player1']['matchTotal']", 'not found'),
 
       fav1? _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found') :
-        _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found'),
+        _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found'), //nf win%
       '',
-      '',
+      fav1? _.get(m, "['player2']['form']", 'not found') :
+        _.get(m, "['player1']['form']", 'not found'), //non fav form
       '',
       fav1? _.get(m, "['player1']['currentRanking']", 'not found') :
         _.get(m, "['player2']['currentRanking']", 'not found'), // f c ranking
