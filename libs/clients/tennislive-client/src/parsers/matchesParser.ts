@@ -28,6 +28,7 @@ export default class MatchesParser {
         incomingMatchUrl: null,
         parsedPreviousMatches: null,
         h2h: 0,
+        form: null,
       }
 
       const match : Match = {

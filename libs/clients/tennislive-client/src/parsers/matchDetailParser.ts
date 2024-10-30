@@ -32,11 +32,18 @@ export default class MatchDetailParser {
 
     var matchHtmlTrimmed = matchHtml.replace(/[\r\n]+/g,'')
 
-    const re = new RegExp(/,(-?\d+)]        \]\);/g)
-    var formTables = matchHtmlTrimmed.match(re)
+    const re = new RegExp(/       \]\);/gm)
+    var formTables = [...matchHtmlTrimmed.matchAll(re)]
 
-    matchDetail.p1Form = Number(formTables[0].replace(']        ]);', '').replace(',', ''))
-    matchDetail.p2Form = Number(formTables[1].replace(']        ]);', '').replace(',', ''))
+    console.log('>>>>matchHtmlTrimmed')
+    console.log(matchHtmlTrimmed)
+
+
+    matchDetail.p1Form = Number(matchHtmlTrimmed.substring(formTables[0].index - 5,
+      formTables[0].index).replaceAll(',','').replaceAll(']',''));
+    matchDetail.p2Form = Number(matchHtmlTrimmed.substring(formTables[1].index - 5,
+      formTables[1].index).replaceAll(',','').replaceAll(']',''));
+
 
     return matchDetail
   }
