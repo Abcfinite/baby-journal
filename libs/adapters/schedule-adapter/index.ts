@@ -1,4 +1,8 @@
-import _ from "lodash"
+import _, { head } from "lodash"
+import assert from "node:assert";
+import { parse } from 'csv-parse';
+import { Readable } from 'stream';
+
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { putItem, executeScan, executeQuery } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
@@ -137,6 +141,66 @@ export default class ScheduleAdapter {
     return `${result['Count']} players on queue.`
   }
 
+  async getResults() {
+    // get all player names from csv file on s3
+    var fPlayers = []
+    const todayCsv = await new S3ClientCustom().getFile('tennis-match-finished', 'today.csv')
+    const processFile = async () => {
+      const records = []
+      const parser = Readable.from(todayCsv)
+        .pipe(parse())
+      for await (const record of parser) {
+        records.push(record)
+      }
+      return records
+    }
+
+    await (async () => {
+      const records = await processFile();
+
+      for (var i = 1; i < records.length; i++) {
+        fPlayers.push({ fp: records[i][24], nfp: records[i][33] })
+      }
+    })()
+
+    console.log('get url for each f player')
+    for (var i = 0; i < fPlayers.length; i++) {
+      console.log(fPlayers[i].fp)
+      const scanParam = {
+        FilterExpression: 'full_name = :nameValue',
+        ExpressionAttributeValues: {
+          ':nameValue': { S: fPlayers[i].fp }
+        },
+        ProjectionExpression: 'id, full_name, url_found, tennislive_url',
+        TableName: 'tennis_players',
+      }
+
+      const resultScan = await executeScan(scanParam)
+
+      if (resultScan.Items[0] !== undefined) {
+        fPlayers[i]['url'] = resultScan.Items[0]['tennislive_url']['S']
+      }
+    }
+
+    console.log('>>>>get latest result for each player')
+    for (var i = 0; i < fPlayers.length; i++) {
+      console.log(fPlayers[i].nfp)
+      try {
+        const player1 = await new TennisliveClient().getPlayer(fPlayers[i]['url'])
+        if (player1.parsedPreviousMatches[0].player.name === fPlayers[i].nfp) {
+          fPlayers[i]['result'] = player1.parsedPreviousMatches[0].result.toLowerCase() === 'win' ? 1 : -1
+        }
+      } catch (ex) {
+        console.error('>>>>>failed to get player result')
+        continue
+      }
+    }
+
+    // return csv file
+    return fPlayers.map(p => [p.fp, p.result]).join('\r\n')
+
+  }
+
   async getPlayersUrl() {
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-player-url-queue'
     const client = new SQSClient({ region: 'ap-southeast-2' });
@@ -234,7 +298,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '05/11/2024') {
+        if (eventDate !== '06/11/2024') {
           continue
         }
 
@@ -294,7 +358,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 146 === fileList.length) {
+    if (sqsMessageNumber === 0 && 238 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
