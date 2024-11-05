@@ -17,6 +17,7 @@ export default class PlayerDetailParser {
       matchesWon: 0,
       url: '',
       type: '',
+      prizeMoney: 0,
       previousMatches: null,
       incomingMatchUrl: null,
       parsedPreviousMatches: null,
@@ -29,7 +30,7 @@ export default class PlayerDetailParser {
     if (keepPreviousMatches) {
       player['previousMatches'] = matchesTable.pop()
 
-      if (matchesTable.length > 0) {
+      if (matchesTable.length > 1) {
         //table, tbody, tr
         player['incomingMatchUrl'] = matchesTable[0]
           .childNodes[1].childNodes[5].childNodes[0]
@@ -37,7 +38,7 @@ export default class PlayerDetailParser {
       }
     }
 
-    let post=0
+    let post = 0
     playerStatsElement.childNodes.forEach(element => {
       if (element.rawText.trim() === 'Name:') {
         player['name'] = playerStatsElement.childNodes[post + 1].rawText.trim()
@@ -70,6 +71,13 @@ export default class PlayerDetailParser {
 
       if (element.rawText.trim() === 'Matches total:') {
         player['matchesTotal'] = Number(playerStatsElement.childNodes[post + 1].rawText.trim())
+      }
+
+      if (element.rawText.trim() === 'Prize money:') {
+        player['prizeMoney'] = Number(playerStatsElement.childNodes[post + 1].rawText.trim()
+          .replace('$', '')
+          .replace(',', '')
+          .replace('.', ''))
       }
 
       if (element.rawText.trim() === 'Win:') {

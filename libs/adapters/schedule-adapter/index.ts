@@ -3,10 +3,12 @@ import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { putItem, executeScan, executeQuery } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
-import { SQSClient, SendMessageCommand,
+import {
+  SQSClient, SendMessageCommand,
   ReceiveMessageCommand, GetQueueAttributesCommand,
   DeleteMessageCommand,
-  PurgeQueueCommand} from "@aws-sdk/client-sqs";
+  PurgeQueueCommand
+} from "@aws-sdk/client-sqs";
 import { toCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
 import TennisliveClient from "@abcfinite/tennislive-client"
@@ -149,8 +151,8 @@ export default class ScheduleAdapter {
     var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
 
 
-    while(sqsMessageNumber > 0) {
-      const receiveMessageCommand  = new ReceiveMessageCommand({
+    while (sqsMessageNumber > 0) {
+      const receiveMessageCommand = new ReceiveMessageCommand({
         MaxNumberOfMessages: 1,
         MessageAttributeNames: ["All"],
         QueueUrl: queueUrl,
@@ -171,9 +173,9 @@ export default class ScheduleAdapter {
 
       // insert to dynamodb
       const player1 = {
-        id : player['id'],
-        full_name : player['full_name'],
-        url_found : urlFound,
+        id: player['id'],
+        full_name: player['full_name'],
+        url_found: urlFound,
         tennislive_url: tennisLiveUrl
       }
 
@@ -195,7 +197,7 @@ export default class ScheduleAdapter {
 
   async getSchedule() {
     const s3ClientCustom = new S3ClientCustom()
-    const currentDateTime = new Date().toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
+    const currentDateTime = new Date().toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
     const currentDate = currentDateTime.split(',')[0].trim()
 
     var requestResult = 'error'
@@ -214,7 +216,7 @@ export default class ScheduleAdapter {
 
     const sportEvents = []
 
-        // check queue in SQS
+    // check queue in SQS
     const getQueueAttrCommand = new GetQueueAttributesCommand({
       QueueUrl: queueUrl,
       AttributeNames: ['All']
@@ -223,26 +225,26 @@ export default class ScheduleAdapter {
     var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
     var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
 
-    if (sqsMessageNumber === 0 ){
+    if (sqsMessageNumber === 0) {
       for await (const event of events) {
-        const eventDateTime = new Date(parseInt(event.time)*1000).toLocaleString('en-GB', {timeZone: 'Australia/Sydney'})
+        const eventDateTime = new Date(parseInt(event.time) * 1000).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
         const eventDate = eventDateTime.split(',')[0].trim()
 
         if (event.player1.name.includes('/')) {
           continue
         }
 
-        if (eventDate !== '28/10/2024') {
+        if (eventDate !== '05/11/2024') {
           continue
         }
 
         const query1 = {
           KeyConditionExpression: '#id = :id',
           ExpressionAttributeNames: {
-              '#id': 'id'
+            '#id': 'id'
           },
           ExpressionAttributeValues: {
-              ':id': { S: event.player1.id }
+            ':id': { S: event.player1.id }
           },
           ProjectionExpression: 'id, full_name, url_found, tennislive_url',
           TableName: 'tennis_players',
@@ -252,10 +254,10 @@ export default class ScheduleAdapter {
         const query2 = {
           KeyConditionExpression: '#id = :id',
           ExpressionAttributeNames: {
-              '#id': 'id'
+            '#id': 'id'
           },
           ExpressionAttributeValues: {
-              ':id': { S: event.player2.id }
+            ':id': { S: event.player2.id }
           },
           ProjectionExpression: 'id, full_name, url_found, tennislive_url',
           TableName: 'tennis_players',
@@ -292,9 +294,9 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 179 === fileList.length) {
+    if (sqsMessageNumber === 0 && 146 === fileList.length) {
       await Promise.all(
-        fileList.map( async file => {
+        fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
           fileContent.push(JSON.parse(content))
         })
@@ -306,14 +308,14 @@ export default class ScheduleAdapter {
         try {
           parsed = JSON.parse(content)
           fileContent.push(parsed)
-        } catch(ex) {
+        } catch (ex) {
           console.error('>>>>>failed to parse content')
           return
         }
       })
 
       await new S3ClientCustom()
-        .putFile('tennis-match-schedule','result.json', JSON.stringify(fileContent))
+        .putFile('tennis-match-schedule', 'result.json', JSON.stringify(fileContent))
 
       return fileContent
     }
@@ -343,8 +345,8 @@ export default class ScheduleAdapter {
     } else {
       // loop while sqs has message
       // this part might timeout after 15mins
-      while(sqsMessageNumber > 0) {
-        const receiveMessageCommand  = new ReceiveMessageCommand({
+      while (sqsMessageNumber > 0) {
+        const receiveMessageCommand = new ReceiveMessageCommand({
           MaxNumberOfMessages: 1,
           MessageAttributeNames: ["All"],
           QueueUrl: queueUrl,
@@ -360,14 +362,14 @@ export default class ScheduleAdapter {
 
           await new S3ClientCustom()
             .putFile('tennis-match-schedule',
-            sportEvent.id+'.json',
+              sportEvent.id + '.json',
               JSON.stringify(checkPlayerResult))
-        } catch(ex) {
+        } catch (ex) {
           console.error('>>>>>check sport event parse error>>>', sportEvent.id)
           console.error(ex)
           await new S3ClientCustom()
             .putFile('tennis-match-schedule',
-            sportEvent.id+'.json',
+              sportEvent.id + '.json',
               JSON.stringify(sportEvent))
         }
 
