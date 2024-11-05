@@ -11,6 +11,7 @@ export type Player = {
   matchesWon: number,
   url: string | null,
   type: string,
+  prizeMoney: number,
   previousMatches: HTMLElement | null,
   incomingMatchUrl: string | null,
   parsedPreviousMatches: Array<Match> | null,
