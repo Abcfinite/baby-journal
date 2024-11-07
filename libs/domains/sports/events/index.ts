@@ -29,8 +29,8 @@ export const checkPlayer: Handler = async (event: any) => {
           2
         ),
       }
-    } catch (ex){
-      console.error('>>>>error>>',player1, '>>>', player2)
+    } catch (ex) {
+      console.error('>>>>error>>', player1, '>>>', player2)
       console.error(ex)
       response = {
         statusCode: 400,
@@ -47,6 +47,22 @@ export const checkPlayer: Handler = async (event: any) => {
 
 export const getSchedule: Handler = async (event: any) => {
   var result = await new ScheduleAdapter().getSchedule()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+
+export const getResults: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().getResults()
 
   var response = {
     statusCode: 200,
