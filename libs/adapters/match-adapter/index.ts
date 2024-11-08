@@ -35,6 +35,7 @@ export default class MatchAdapter {
       winLoseRanking: winLoseRanking,
       winLoseScore: this.winLoseScore(player1, player2),
       // knn: await new Analysis().knn(player1, player2, wlScore, winLoseRanking),
+      wonHighestRankingOnCurrentCompetition: this.wonHighestRankingOnCurrentCompetition(player1, player2),
       highLowRanking: this.highLowRanking(player1, player2),
       win3setRate: this.win3setRate(player1, player2),
       betAgainstOdd: {
@@ -73,8 +74,8 @@ export default class MatchAdapter {
     let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) !== index)
 
     return {
-      player1 : findDuplicates(player1.parsedPreviousMatches.map(p => p.player.name)),
-      Player2 : findDuplicates(player2.parsedPreviousMatches.map(p => p.player.name)),
+      player1: findDuplicates(player1.parsedPreviousMatches.map(p => p.player.name)),
+      Player2: findDuplicates(player2.parsedPreviousMatches.map(p => p.player.name)),
     }
   }
 
@@ -100,13 +101,13 @@ export default class MatchAdapter {
     const result = {}
 
     var pScore = 0
-    const realOrder = player.parsedPreviousMatches.slice(0,6)
+    const realOrder = player.parsedPreviousMatches.slice(0, 6)
 
     realOrder.reverse().forEach((pm, index) => {
 
       var matchScore = 0
       if (pm.result === 'win') {
-        if(pm.player.currentRanking === player.currentRanking) {
+        if (pm.player.currentRanking === player.currentRanking) {
           const wpPm = pm.player.matchesWon / pm.player.matchesTotal
           const wpP = player.matchesWon / player.matchesTotal
 
@@ -118,7 +119,7 @@ export default class MatchAdapter {
           }
         } else {
           // won, from higher ranking
-          if(pm.player.currentRanking < player.currentRanking) {
+          if (pm.player.currentRanking < player.currentRanking) {
             matchScore = 2
           } else {
             matchScore = 1
@@ -128,7 +129,7 @@ export default class MatchAdapter {
         matchScore = matchScore * this.stageMultiplier(pm, true)
         pScore = pScore + matchScore
       } else {
-        if(pm.player.currentRanking === player.currentRanking) {
+        if (pm.player.currentRanking === player.currentRanking) {
           const wpPm = pm.player.matchesWon / pm.player.matchesTotal
           const wpP = player.matchesWon / player.matchesTotal
 
@@ -141,7 +142,7 @@ export default class MatchAdapter {
         }
         else {
           // lost, from higher ranking
-          if(pm.player.currentRanking < player.currentRanking) {
+          if (pm.player.currentRanking < player.currentRanking) {
             matchScore = 1
           } else {
             matchScore = 2
@@ -158,25 +159,25 @@ export default class MatchAdapter {
     return result
   }
 
-  stageMultiplier(match: Match, won: boolean) : number {
-    switch(match.stage) {
-      case 'q 2' :
+  stageMultiplier(match: Match, won: boolean): number {
+    switch (match.stage) {
+      case 'q 2':
         return won ? 2 : 9
-      case 'qual.' :
+      case 'qual.':
         return won ? 3 : 8
-      case '1st round' :
+      case '1st round':
         return won ? 4 : 7
-      case '2nd round' :
+      case '2nd round':
         return won ? 5 : 6
-      case '3rd round' :
+      case '3rd round':
         return won ? 6 : 5
-      case '4th round' :
+      case '4th round':
         return won ? 7 : 4
-      case '1/4' :
+      case '1/4':
         return won ? 8 : 3
-      case '1/2' :
+      case '1/2':
         return won ? 9 : 2
-      case 'fin' :
+      case 'fin':
         return won ? 10 : 1
     }
 
@@ -192,6 +193,21 @@ export default class MatchAdapter {
     return {
       player1: p1Win / (p1Lost + p1Win),
       player2: p2Win / (p2Lost + p2Win)
+    }
+  }
+
+  wonHighestRankingOnCurrentCompetition(player1: Player, player2: Player) {
+    var currentTournament = ''
+    if (player1.parsedPreviousMatches[0].tournament === player2.parsedPreviousMatches[0].tournament) {
+      currentTournament = player1.parsedPreviousMatches[0].tournament
+    }
+
+    const p1WonHighestRanking = Math.min(...player1.parsedPreviousMatches.filter(pm => pm.tournament === currentTournament).map(pm => pm.player.currentRanking))
+    const p2WonHighestRanking = Math.min(...player2.parsedPreviousMatches.filter(pm => pm.tournament === currentTournament).map(pm => pm.player.currentRanking))
+
+    return {
+      player1: p1WonHighestRanking,
+      player2: p2WonHighestRanking
     }
   }
 
@@ -250,7 +266,7 @@ export default class MatchAdapter {
 
     return {
       names: intersection,
-      player1Score: p1WinUnique.length ,
+      player1Score: p1WinUnique.length,
       player2Score: p2WinUnique.length,
       total: uIntersection.length
     }
@@ -260,7 +276,7 @@ export default class MatchAdapter {
     const winningAge = {}
     const losingAge = {}
     const matchType = isATP ? 'atp' : 'wta'
-    const dataFileList = await  new S3ClientCustom().getFileList('tennis-match-data')
+    const dataFileList = await new S3ClientCustom().getFileList('tennis-match-data')
 
     await Promise.all(
       dataFileList.map(async data => {
@@ -269,7 +285,7 @@ export default class MatchAdapter {
 
         const dataFile = await new S3ClientCustom().getFile('tennis-match-data', data) as any
         const dataFileJson = JSON.parse(dataFile)
-        if (_.get(dataFileJson, 'type', '') === matchType ) {
+        if (_.get(dataFileJson, 'type', '') === matchType) {
           const player1Age = dobToAge(_.get(dataFileJson, 'player1.dob', ''))
           const player2Age = dobToAge(_.get(dataFileJson, 'player2.dob', ''))
           const winningPlayer = _.get(dataFileJson, 'winner', 0)

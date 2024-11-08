@@ -9,6 +9,7 @@ import {
 } from './src/utils/comparePlayer';
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent";
 import BetapiClient from "../../clients/betapi-client";
+import { Player } from "@abcfinite/tennislive-client/src/types/player";
 
 export default class PlayerAdapter {
   async checkPlayer(player1Name: string, player2Name: string, player1Odd: number, Player2Odd: number) {
@@ -72,6 +73,13 @@ export default class PlayerAdapter {
     return result
   }
 
+  currentTournament(player1: Player, player2: Player) {
+    if (player1.parsedPreviousMatches[0].tournament === player2.parsedPreviousMatches[0].tournament) {
+      return player1.parsedPreviousMatches[0].tournament
+    }
+    else return 'not on the same tournament'
+  }
+
   async matchesSummary(sportEvent: SportEvent, player1Odd: number, Player2Odd: number) {
     const tennisLiveClient = new TennisliveClient()
 
@@ -88,6 +96,7 @@ export default class PlayerAdapter {
       type: player1.type,
       date: sportEvent.date,
       time: sportEvent.time,
+      tournament: this.currentTournament(player1, player2),
       stage: sportEvent.stage,
       analysis: {},
       higherRanking: getHigherRanking(player1, player2),

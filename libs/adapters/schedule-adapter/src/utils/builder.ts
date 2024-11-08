@@ -6,6 +6,7 @@ export const toCsv = (jsonString: string): string => {
     'date',
     'time',
     'stage',
+    'highest ranking won current comp gap',
     'f h2h',
     'nf h2h',
     'f lostToLowerRankingThanOpponent',
@@ -80,6 +81,7 @@ export const toCsv = (jsonString: string): string => {
       m['date'],
       m['time'],
       m['stage'],
+      '',
       fav1 ? _.get(m, "['player1']['h2h']", 'not found') : _.get(m, "['player2']['h2h']", 'not found'),
       fav1 ? _.get(m, "['player2']['h2h']", 'not found') : _.get(m, "['player1']['h2h']", 'not found'),
       fav1 ? _.get(m, "['lostToLowerRankingThanOpponent']['player1']['number']", 'not found') :
@@ -102,14 +104,13 @@ export const toCsv = (jsonString: string): string => {
       '',
       '', // f match-no lower
 
-      '',
+      '', // nf has less than half match no f
       '',
       fav1 ? _.get(m, "['analysis']['win3setRate']['player1']", 'not found') :
         _.get(m, "['analysis']['win3setRate']['player2']", 'not found')
       ,
       fav1 ? _.get(m, "['analysis']['win3setRate']['player2']", 'not found') :
-        _.get(m, "['analysis']['win3setRate']['player1']", 'not found')
-      ,
+        _.get(m, "['analysis']['win3setRate']['player1']", 'not found'),
       fav1 ? _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player1Score']", 'not found') :
         _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player2Score']", 'not found'),
 
@@ -126,26 +127,29 @@ export const toCsv = (jsonString: string): string => {
         _.get(m, "['winPercentage']['player2']['matchTotal']", 'not found'),
 
       fav1 ? _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found') :
-        _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found'),
-      '',
+        _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found'), // f win%
+      fav1 ? _.get(m, "['analysis']['highestRankingOnCurrentCompetition']['player1']", 'not found') :
+        _.get(m, "['analysis']['highestRankingOnCurrentCompetition']['player2']", 'not found'), // highest win ranking current comp
       '',
       fav1 ? _.get(m, "['player2']['name']", 'not found') : _.get(m, "['player1']['name']", 'not found'),
       fav1 ? _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player2']", 'not found') :
         _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player1']", 'not found'), // nf just Lost From Lower Ranking
-      '',
+      '', // highest stage last 3 comp
       fav1 ? _.get(m, "['winPercentage']['player2']['matchTotal']", 'not found') :
-        _.get(m, "['winPercentage']['player1']['matchTotal']", 'not found'),
+        _.get(m, "['winPercentage']['player1']['matchTotal']", 'not found'), // nf match total
 
       fav1 ? _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found') :
-        _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found'),
+        _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found'), // nf win%
+      fav1 ? _.get(m, "['analysis']['highestRankingOnCurrentCompetition']['player2']", 'not found') :
+        _.get(m, "['analysis']['highestRankingOnCurrentCompetition']['player1']", 'not found'), // highest win ranking current comp
+
       '',
-      '',
+      '', // form gap
       fav1 ? _.get(m, "['player1']['prizeMoney']", 0) :
         _.get(m, "['player2']['prizeMoney']", 0),
       fav1 ? _.get(m, "['player2']['prizeMoney']", 0) :
         _.get(m, "['player1']['prizeMoney']", 0),
-      '',
-      '', // form gap
+      '', // prize gap
       fav1 ? _.get(m, "['player1']['currentRanking']", 'not found') :
         _.get(m, "['player2']['currentRanking']", 'not found'), // f c ranking
       fav1 ? _.get(m, "['analysis']['highLowRanking']['player1']['winHighest']", 'not found') :
