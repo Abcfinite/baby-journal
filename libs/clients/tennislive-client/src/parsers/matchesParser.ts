@@ -42,6 +42,8 @@ export default class MatchesParser {
       }
 
       element.childNodes.forEach((td, index) => {
+        match.tournament = previousTournament
+
         td.childNodes.forEach(content => {
           const attributes = (content as HTMLElement).attributes
           if (_.get(attributes, 'title', null) === '') {
@@ -55,7 +57,8 @@ export default class MatchesParser {
 
           if (_.get(attributes, 'title', '').includes('/')) {
             var currentTournament = (content as HTMLElement).textContent.trim()
-            match.tournament = currentTournament === '' ? previousTournament : currentTournament
+            previousTournament = currentTournament
+            match.tournament = currentTournament
           }
 
           if (content.textContent !== null) {
