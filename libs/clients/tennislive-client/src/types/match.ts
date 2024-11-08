@@ -5,5 +5,6 @@ export type Match = {
   player: Player,
   stage: string,
   score: string,
+  tournament: string,
   result: 'win' | 'lost',
 }
