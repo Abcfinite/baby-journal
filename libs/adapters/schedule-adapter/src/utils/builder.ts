@@ -29,6 +29,9 @@ export const toCsv = (jsonString: string): string => {
 
     'non fav BM',
     'BM gap',
+    'f age',
+    'nf age',
+    'age gap',
     'fav p',
     'just retired',
     'just won fin',
@@ -116,7 +119,10 @@ export const toCsv = (jsonString: string): string => {
 
       fav1 ? _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player2Score']", 'not found') :
         _.get(m, "['analysis']['benchmarkPlayer']['bothPlayed']['player1Score']", 'not found'),
-      '',
+      '',  // BM gap
+      fav1 ? _.get(m, "['analysis']['age']['player1']", 'not found') : _.get(m, "['analysis']['age']['player2']", 'not found'),
+      fav1 ? _.get(m, "['analysis']['age']['player2']", 'not found') : _.get(m, "['analysis']['age']['player1']", 'not found'),
+      '', // age gap
       fav1 ? _.get(m, "['player1']['name']", 'not found') : _.get(m, "['player2']['name']", 'not found'),
       '',
       '', // just won fin
@@ -128,8 +134,8 @@ export const toCsv = (jsonString: string): string => {
 
       fav1 ? _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found') :
         _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found'), // f win%
-      fav1 ? _.get(m, "['analysis']['highestRankingOnCurrentCompetition']['player1']", 'not found') :
-        _.get(m, "['analysis']['highestRankingOnCurrentCompetition']['player2']", 'not found'), // highest win ranking current comp
+      fav1 ? _.get(m, "['analysis']['wonHighestRankingOnCurrentCompetition']['player1']", 'not found') :
+        _.get(m, "['analysis']['wonHighestRankingOnCurrentCompetition']['player2']", 'not found'), // highest win ranking current comp
       '',
       fav1 ? _.get(m, "['player2']['name']", 'not found') : _.get(m, "['player1']['name']", 'not found'),
       fav1 ? _.get(m, "['analysis']['redFlag']['justLostFromLowerRanking']['player2']", 'not found') :
@@ -140,8 +146,8 @@ export const toCsv = (jsonString: string): string => {
 
       fav1 ? _.get(m, "['winPercentage']['player2']['winPercentage']", 'not found') :
         _.get(m, "['winPercentage']['player1']['winPercentage']", 'not found'), // nf win%
-      fav1 ? _.get(m, "['analysis']['highestRankingOnCurrentCompetition']['player2']", 'not found') :
-        _.get(m, "['analysis']['highestRankingOnCurrentCompetition']['player1']", 'not found'), // highest win ranking current comp
+      fav1 ? _.get(m, "['analysis']['wonHighestRankingOnCurrentCompetition']['player2']", 'not found') :
+        _.get(m, "['analysis']['wonHighestRankingOnCurrentCompetition']['player1']", 'not found'), // highest win ranking current comp
 
       '',
       '', // form gap

@@ -80,6 +80,13 @@ functions:
       - http:
           path: /schedule
           method: get
+  getPrediction:
+    handler: index.getPredictions
+    timeout: 900
+    events:
+      - http:
+          path: /predictions
+          method: get
   result:
     handler: index.getResults
     timeout: 900
