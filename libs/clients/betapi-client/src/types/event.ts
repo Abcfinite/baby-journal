@@ -18,6 +18,7 @@ export type Event = {
 
 // round
 // 14 - q1
+// 19 - qual
 // 24 - 1st round
 // 25 - 1st round
 // 26 - 2nd round

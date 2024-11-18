@@ -10,10 +10,11 @@ export default class MatchesParser {
     const matchesShown = startPlayerData.previousMatches.getElementsByTagName("tr")
     startPlayerData.previousMatches = null
     const matchesShownLength = matchesShown.length < 20 ? matchesShown.length : 20
+    var previousTournament = ''
     const matches = []
 
     Array.from(matchesShown).slice(0, matchesShownLength).forEach(element => {
-      const player : Player = {
+      const player: Player = {
         id: '',
         type: '',
         name: '',
@@ -28,26 +29,36 @@ export default class MatchesParser {
         incomingMatchUrl: null,
         parsedPreviousMatches: null,
         h2h: 0,
+        prizeMoney: 0
       }
 
-      const match : Match = {
+      const match: Match = {
         date: '',
         player: player,
         stage: '',
+        tournament: '',
         score: '',
         result: 'lost'
       }
 
       element.childNodes.forEach((td, index) => {
+        match.tournament = previousTournament
+
         td.childNodes.forEach(content => {
           const attributes = (content as HTMLElement).attributes
-          if ( _.get(attributes, 'title', null) === '') {
+          if (_.get(attributes, 'title', null) === '') {
             player.url = (content as HTMLElement).attributes['href']
           }
 
           const alt = _.get(attributes, 'alt', null)
-          if ( alt !== null && (alt === 'win' || alt === 'lost')) {
-              match.result = (content as HTMLElement).attributes['alt']
+          if (alt !== null && (alt === 'win' || alt === 'lost')) {
+            match.result = (content as HTMLElement).attributes['alt']
+          }
+
+          if (_.get(attributes, 'title', '').includes('/')) {
+            var currentTournament = (content as HTMLElement).textContent.trim()
+            previousTournament = currentTournament
+            match.tournament = currentTournament
           }
 
           if (content.textContent !== null) {
@@ -57,7 +68,7 @@ export default class MatchesParser {
             }
 
             if (content.textContent.includes(',')) {
-              match.score = content.textContent.replaceAll(' ','')
+              match.score = content.textContent.replaceAll(' ', '')
             }
 
             ['q 1', 'q 2', 'qual.', 'round', '1/2', '1/4', 'fin'].forEach(r => {

@@ -159,7 +159,7 @@ export default class ScheduleAdapter {
       const records = await processFile();
 
       for (var i = 1; i < records.length; i++) {
-        fPlayers.push({ fp: records[i][24], nfp: records[i][33] })
+        fPlayers.push({ fp: records[i][32], nfp: records[i][43] })
       }
     })()
 
@@ -298,7 +298,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '06/11/2024') {
+        if (eventDate !== '18/11/2024') {
           continue
         }
 
@@ -358,7 +358,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 238 === fileList.length) {
+    if (sqsMessageNumber === 0 && 108 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
