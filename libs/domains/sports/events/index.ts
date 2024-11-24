@@ -44,6 +44,21 @@ export const checkPlayer: Handler = async (event: any) => {
   })
 }
 
+export const getPredictions: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().getPredictions()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
 
 export const getSchedule: Handler = async (event: any) => {
   var result = await new ScheduleAdapter().getSchedule()

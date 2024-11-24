@@ -1,7 +1,11 @@
 import _, { head } from "lodash"
-import assert from "node:assert";
-import { parse } from 'csv-parse';
-import { Readable } from 'stream';
+import assert from "node:assert"
+import { parse } from 'csv-parse'
+import { Readable } from 'stream'
+
+import { Client } from 'pg'
+import { toQuery, formatResult, prediction } from './src/utils/helper'
+
 
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { putItem, executeScan, executeQuery } from '@abcfinite/dynamodb-client'
@@ -92,6 +96,78 @@ export default class ScheduleAdapter {
 
     // return number of matches
     return `number of matches : ${events.length}`
+  }
+
+  async getPredictions() {
+    var data = []
+    const todayCsv = await new S3ClientCustom().getFile('tennis-match-schedule', 'today.csv')
+    const processFile = async () => {
+      const records = []
+      const parser = Readable.from(todayCsv)
+        .pipe(parse())
+      for await (const record of parser) {
+        records.push(record)
+      }
+      return records
+    }
+
+    await (async () => {
+      const records = await processFile();
+
+      for (var i = 1; i < records.length; i++) {
+        data.push({
+          fp: records[i][32],
+          highest_ranking_won_current_comp_gap: Number(records[i][8]),
+          nf_highest_win_v_f_ranking: Number(records[i][9]),
+          f_highest_win_vs_nf_ranking: Number(records[i][10]),
+          prize_gap: Number(records[i][52]),
+          f_lost_lowest_v_nf_current_ranking: Number(records[i][60]),
+          nf_highest_won_v_f_current_ranking: Number(records[i][61]),
+          nf_highest_won_v_f_lowest_lost_ranking: Number(records[i][62]),
+        })
+      }
+    })()
+
+    console.log('>>>>query-1')
+    const connection = new Client({
+      connectionString: 'postgres://postgres:AWqasde321!@database-1.cs5ztqximrwk.ap-southeast-2.rds.amazonaws.com/tennis',
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+
+    await connection.connect();
+
+    await Promise.all(
+      data.map(async d => {
+        var matchResultQuery = `SELECT match_result
+          FROM matches 
+          WHERE highest_ranking_won_current_comp_gap ${toQuery(d.highest_ranking_won_current_comp_gap)}
+            AND nf_highest_win_v_f_ranking ${toQuery(d.nf_highest_win_v_f_ranking)}
+            AND f_highest_win_vs_nf_ranking ${toQuery(d.f_highest_win_vs_nf_ranking)}
+            AND prize_gap ${toQuery(d.prize_gap)}
+            AND f_lost_lowest_v_nf_current_ranking ${toQuery(d.f_lost_lowest_v_nf_current_ranking)}
+            AND nf_highest_won_v_f_current_ranking ${toQuery(d.nf_highest_won_v_f_current_ranking)}
+            AND nf_highest_won_v_f_lowest_lost ${toQuery(d.nf_highest_won_v_f_lowest_lost_ranking)}`
+
+        const queryResult = await connection.query(matchResultQuery)
+
+        if (queryResult.rowCount === 0) {
+          d['result'] = 'no-data'
+        } else if (queryResult.rowCount === 1) {
+          d['result'] = 'query-1 (only1)'
+        } else {
+          d['result'] = formatResult(queryResult)
+        }
+
+        d['prediction'] = prediction(queryResult)
+      })
+    )
+
+    await connection.end();
+
+    // return csv file
+    return data.map(p => [p.fp, p.result, p.prediction]).join('\r\n')
   }
 
   async getPlayersName() {
@@ -298,7 +374,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '18/11/2024') {
+        if (eventDate !== '25/11/2024') {
           continue
         }
 
@@ -358,7 +434,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 108 === fileList.length) {
+    if (sqsMessageNumber === 0 && 72 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)

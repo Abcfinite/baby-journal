@@ -80,7 +80,7 @@ functions:
       - http:
           path: /schedule
           method: get
-  getPrediction:
+  getPredictions:
     handler: index.getPredictions
     timeout: 900
     events:
