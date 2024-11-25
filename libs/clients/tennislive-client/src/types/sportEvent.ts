@@ -35,6 +35,7 @@ export const playerNamesToSportEvent = (player1Id: string, player1Url: string,
       parsedPreviousMatches: null,
       incomingMatchUrl: '',
       h2h: 0,
+      prizeMoney: 0
     },
     player2: {
       id: player2Id,
@@ -50,7 +51,8 @@ export const playerNamesToSportEvent = (player1Id: string, player1Url: string,
       previousMatches: null,
       parsedPreviousMatches: null,
       incomingMatchUrl: '',
-      h2h: 0
+      h2h: 0,
+      prizeMoney: 0
     }
   }
 }

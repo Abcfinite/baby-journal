@@ -45,52 +45,52 @@ functions:
       - http:
           path: /removeAllCache
           method: delete
-  cacheBetAPI:
-    handler: index.cacheBetAPI
-    timeout: 900
-    events:
-      - http:
-          path: /cacheBetApi
-          method: get
-  playersName:
-    handler: index.getPlayersName
-    timeout: 900
-    events:
-      - http:
-          path: /playersName
-          method: get
-  playersUrl:
-    handler: index.getPlayersUrl
-    timeout: 900
-    events:
-      - http:
-          path: /playersUrl
-          method: get
-  checkPlayer:
-    handler: index.checkPlayer
-    timeout: 900
-    events:
-      - http:
-          path: /checkPlayer
-          method: get
-  schedule:
-    handler: index.getSchedule
-    timeout: 900
-    events:
-      - http:
-          path: /schedule
-          method: get
-  getPredictions:
-    handler: index.getPredictions
-    timeout: 900
-    events:
-      - http:
-          path: /predictions
-          method: get
-  result:
-    handler: index.getResults
-    timeout: 900
-    events:
-      - http:
-          path: /results
-          method: get
+  # cacheBetAPI:
+  #   handler: index.cacheBetAPI
+  #   timeout: 900
+  #   events:
+  #     - http:
+  #         path: /cacheBetApi
+  #         method: get
+  # playersName:
+  #   handler: index.getPlayersName
+  #   timeout: 900
+  #   events:
+  #     - http:
+  #         path: /playersName
+  #         method: get
+  # playersUrl:
+  #   handler: index.getPlayersUrl
+  #   timeout: 900
+  #   events:
+  #     - http:
+  #         path: /playersUrl
+  #         method: get
+  # checkPlayer:
+  #   handler: index.checkPlayer
+  #   timeout: 900
+  #   events:
+  #     - http:
+  #         path: /checkPlayer
+  #         method: get
+  # schedule:
+  #   handler: index.getSchedule
+  #   timeout: 900
+  #   events:
+  #     - http:
+  #         path: /schedule
+  #         method: get
+  # getPredictions:
+  #   handler: index.getPredictions
+  #   timeout: 900
+  #   events:
+  #     - http:
+  #         path: /predictions
+  #         method: get
+  # result:
+  #   handler: index.getResults
+  #   timeout: 900
+  #   events:
+  #     - http:
+  #         path: /results
+  #         method: get

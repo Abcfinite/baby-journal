@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import { Player } from '../types/player'
 import { Match } from '../types/match';
-import { parse } from 'node-html-parser';
 
 export default class MatchesParser {
 
@@ -41,7 +40,7 @@ export default class MatchesParser {
         result: 'lost'
       }
 
-      element.childNodes.forEach((td, index) => {
+      element.childNodes.forEach((td) => {
         match.tournament = previousTournament
 
         td.childNodes.forEach(content => {

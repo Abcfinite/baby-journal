@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { parse } from 'node-html-parser';
 
 export default class PlayerListParser {
-  static parse(html: string, playerName: string): string {
+  static parse(html: string): string {
     const root = parse(html);
     const links = root.querySelectorAll("a")
 

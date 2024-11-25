@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { parse } from 'node-html-parser';
-import { MatchDetail } from '@/types/matchDetail';
+import { MatchDetail } from '../types/matchDetail';
 
 export default class MatchDetailParser {
 

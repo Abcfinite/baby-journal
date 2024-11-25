@@ -1,5 +1,4 @@
-import _, { head } from "lodash"
-import assert from "node:assert"
+import _ from "lodash"
 import { parse } from 'csv-parse'
 import { Readable } from 'stream'
 
@@ -9,7 +8,7 @@ import { toQuery, formatResult, prediction } from './src/utils/helper'
 
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { putItem, executeScan, executeQuery } from '@abcfinite/dynamodb-client'
-import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
+import { playerNamesToSportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import {
   SQSClient, SendMessageCommand,
@@ -337,8 +336,8 @@ export default class ScheduleAdapter {
 
   async getSchedule() {
     const s3ClientCustom = new S3ClientCustom()
-    const currentDateTime = new Date().toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
-    const currentDate = currentDateTime.split(',')[0].trim()
+    // const currentDateTime = new Date().toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
+    // const currentDate = currentDateTime.split(',')[0].trim()
 
     var requestResult = 'error'
     const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')

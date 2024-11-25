@@ -1,20 +1,15 @@
-import PagingParser from './src/parsers/pagingParser';
+import PagingParser from './src/parsers/pagingParser'
 import HttpApiClient from '../http-api-client'
-import { Event } from './src/types/event';
-import EventParser from './src/parsers/eventParser';
-import CacheService from './src/services/cache-service';
-import EndedService from './src/services/ended-service';
+import { Event } from './src/types/event'
+import EventParser from './src/parsers/eventParser'
+import CacheService from './src/services/cache-service'
 
 export default class BetapiClient {
 
   constructor() {
   }
 
-  async getPlayerEndedMatches(playerId: string): Promise<Array<Event>> {
-    return await new EndedService().getEndedEventBasedOnPlayerId(playerId)
-  }
-
-  async getEvents() : Promise<Array<Event>> {
+  async getEvents(): Promise<Array<Event>> {
     const eventCache = await new CacheService().getEventCache()
 
     if (eventCache !== null && eventCache !== undefined) {
@@ -43,7 +38,7 @@ export default class BetapiClient {
     fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents)
 
 
-    for (let page=0; page < numberOfPageTurn; page++) {
+    for (let page = 0; page < numberOfPageTurn; page++) {
       fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
     }
 
@@ -59,7 +54,7 @@ export default class BetapiClient {
       'api.b365api.com',
       '/v3/events/upcoming',
       null,
-      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', page: `${2+pageNo}` }
+      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', page: `${2 + pageNo}` }
     )
 
     const data = JSON.parse(loopResult.value.toString())

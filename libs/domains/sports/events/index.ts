@@ -44,7 +44,7 @@ export const checkPlayer: Handler = async (event: any) => {
   })
 }
 
-export const getPredictions: Handler = async (event: any) => {
+export const getPredictions: Handler = async () => {
   var result = await new ScheduleAdapter().getPredictions()
 
   var response = {
@@ -60,7 +60,7 @@ export const getPredictions: Handler = async (event: any) => {
   })
 }
 
-export const getSchedule: Handler = async (event: any) => {
+export const getSchedule: Handler = async () => {
   var result = await new ScheduleAdapter().getSchedule()
 
   var response = {
@@ -76,7 +76,7 @@ export const getSchedule: Handler = async (event: any) => {
   })
 }
 
-export const getResults: Handler = async (event: any) => {
+export const getResults: Handler = async () => {
   var result = await new ScheduleAdapter().getResults()
 
   var response = {
@@ -92,7 +92,7 @@ export const getResults: Handler = async (event: any) => {
   })
 }
 
-export const getPlayersName: Handler = async (event: any) => {
+export const getPlayersName: Handler = async () => {
   var result = await new ScheduleAdapter().getPlayersName()
 
   var response = {
@@ -108,7 +108,7 @@ export const getPlayersName: Handler = async (event: any) => {
   })
 }
 
-export const getPlayersUrl: Handler = async (event: any) => {
+export const getPlayersUrl: Handler = async () => {
   var result = await new ScheduleAdapter().getPlayersUrl()
 
   var response = {
@@ -124,7 +124,7 @@ export const getPlayersUrl: Handler = async (event: any) => {
   })
 }
 
-export const cacheBetAPI: Handler = async (event: any) => {
+export const cacheBetAPI: Handler = async () => {
   var result = await new ScheduleAdapter().cacheBetAPI()
 
   var response = {
@@ -140,7 +140,7 @@ export const cacheBetAPI: Handler = async (event: any) => {
   })
 }
 
-export const removeAllCache: Handler = async (event: any) => {
+export const removeAllCache: Handler = async () => {
   var result = await new ScheduleAdapter().removeAllCache()
 
   var response = {
