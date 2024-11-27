@@ -4,7 +4,7 @@ import { parse } from 'csv-parse'
 import { Readable } from 'stream'
 
 import { Client } from 'pg'
-import { toQuery, formatResult, prediction } from './src/utils/helper'
+import { toQuery, formatResult, prediction, probability } from './src/utils/helper'
 
 
 import S3ClientCustom from '@abcfinite/s3-client-custom'
@@ -161,13 +161,14 @@ export default class ScheduleAdapter {
         }
 
         d['prediction'] = prediction(queryResult)
+        d['probability'] = probability(queryResult)
       })
     )
 
     await connection.end();
 
     // return csv file
-    return data.map(p => [p.fp, p.result, p.prediction]).join('\r\n')
+    return data.map(p => [p.fp, p.result, p.prediction, p.probability]).join('\r\n')
   }
 
   async getPlayersName() {
@@ -374,7 +375,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '25/11/2024') {
+        if (eventDate !== '27/11/2024') {
           continue
         }
 
@@ -434,7 +435,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 72 === fileList.length) {
+    if (sqsMessageNumber === 0 && 261 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)

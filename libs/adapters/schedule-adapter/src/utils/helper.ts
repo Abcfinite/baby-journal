@@ -23,3 +23,10 @@ export const prediction = (result: any): any => {
   const nfp = result.rows.filter((row: any) => row['match_result'] === '-1').length
   return fp > nfp ? 1 : -1
 }
+
+export const probability = (result: any): any => {
+  const fp = result.rows.filter((row: any) => row['match_result'] === '1').length
+  const nfp = result.rows.filter((row: any) => row['match_result'] === '-1').length
+  const more = fp > nfp ? fp : nfp
+  return more / result.rowCount
+}
