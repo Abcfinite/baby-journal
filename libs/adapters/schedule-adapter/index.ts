@@ -117,9 +117,9 @@ export default class ScheduleAdapter {
       for (var i = 1; i < records.length; i++) {
         data.push({
           fp: records[i][36],
-          highest_ranking_won_current_comp_gap: Number(records[i][12]),
-          nf_highest_win_v_f_ranking: Number(records[i][13]),
-          f_highest_win_vs_nf_ranking: Number(records[i][14]),
+          highest_ranking_won_current_comp_gap: Number(records[i][10]),
+          nf_highest_win_v_f_ranking: Number(records[i][11]),
+          f_highest_win_vs_nf_ranking: Number(records[i][12]),
           prize_gap: Number(records[i][56]),
           f_lost_lowest_v_nf_current_ranking: Number(records[i][64]),
           nf_highest_won_v_f_current_ranking: Number(records[i][65]),
@@ -375,7 +375,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '01/12/2024') {
+        if (eventDate !== '02/12/2024') {
           continue
         }
 
@@ -435,7 +435,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 46 === fileList.length) {
+    if (sqsMessageNumber === 0 && 41 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
