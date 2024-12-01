@@ -116,14 +116,14 @@ export default class ScheduleAdapter {
 
       for (var i = 1; i < records.length; i++) {
         data.push({
-          fp: records[i][32],
-          highest_ranking_won_current_comp_gap: Number(records[i][8]),
-          nf_highest_win_v_f_ranking: Number(records[i][9]),
-          f_highest_win_vs_nf_ranking: Number(records[i][10]),
-          prize_gap: Number(records[i][52]),
-          f_lost_lowest_v_nf_current_ranking: Number(records[i][60]),
-          nf_highest_won_v_f_current_ranking: Number(records[i][61]),
-          nf_highest_won_v_f_lowest_lost_ranking: Number(records[i][62]),
+          fp: records[i][36],
+          highest_ranking_won_current_comp_gap: Number(records[i][12]),
+          nf_highest_win_v_f_ranking: Number(records[i][13]),
+          f_highest_win_vs_nf_ranking: Number(records[i][14]),
+          prize_gap: Number(records[i][56]),
+          f_lost_lowest_v_nf_current_ranking: Number(records[i][64]),
+          nf_highest_won_v_f_current_ranking: Number(records[i][65]),
+          nf_highest_won_v_f_lowest_lost_ranking: Number(records[i][66]),
         })
       }
     })()
@@ -236,7 +236,7 @@ export default class ScheduleAdapter {
       const records = await processFile();
 
       for (var i = 1; i < records.length; i++) {
-        fPlayers.push({ fp: records[i][32], nfp: records[i][43] })
+        fPlayers.push({ fp: records[i][36], nfp: records[i][47] })
       }
     })()
 
@@ -375,7 +375,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '27/11/2024') {
+        if (eventDate !== '01/12/2024') {
           continue
         }
 
@@ -435,7 +435,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 261 === fileList.length) {
+    if (sqsMessageNumber === 0 && 46 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
