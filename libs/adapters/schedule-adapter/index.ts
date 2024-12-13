@@ -1,10 +1,9 @@
-import _, { head } from "lodash"
-import assert from "node:assert"
+import _ from "lodash"
 import { parse } from 'csv-parse'
 import { Readable } from 'stream'
 
 import { Client } from 'pg'
-import { toQuery, formatResult, prediction } from './src/utils/helper'
+import { toQuery, formatResult, prediction, probability } from './src/utils/helper'
 
 
 import S3ClientCustom from '@abcfinite/s3-client-custom'
@@ -116,14 +115,15 @@ export default class ScheduleAdapter {
 
       for (var i = 1; i < records.length; i++) {
         data.push({
-          fp: records[i][32],
-          highest_ranking_won_current_comp_gap: Number(records[i][8]),
-          nf_highest_win_v_f_ranking: Number(records[i][9]),
-          f_highest_win_vs_nf_ranking: Number(records[i][10]),
-          prize_gap: Number(records[i][52]),
-          f_lost_lowest_v_nf_current_ranking: Number(records[i][60]),
-          nf_highest_won_v_f_current_ranking: Number(records[i][61]),
-          nf_highest_won_v_f_lowest_lost_ranking: Number(records[i][62]),
+          fp: records[i][36],
+          highest_ranking_won_current_comp_gap: Number(records[i][10]),
+          nf_highest_win_v_f_ranking: Number(records[i][11]),
+          f_highest_win_vs_nf_ranking: Number(records[i][12]),
+          prize_gap: Number(records[i][56]),
+          fp_win_highest_v_nf_win_highest: Number(records[i][64]),
+          f_lost_lowest_v_nf_current_ranking: Number(records[i][65]),
+          nf_highest_won_v_f_current_ranking: Number(records[i][66]),
+          nf_highest_won_v_f_lowest_lost_ranking: Number(records[i][67]),
         })
       }
     })()
@@ -146,6 +146,7 @@ export default class ScheduleAdapter {
             AND nf_highest_win_v_f_ranking ${toQuery(d.nf_highest_win_v_f_ranking)}
             AND f_highest_win_vs_nf_ranking ${toQuery(d.f_highest_win_vs_nf_ranking)}
             AND prize_gap ${toQuery(d.prize_gap)}
+            AND fp_win_highest_v_nf_win_highest ${toQuery(d.fp_win_highest_v_nf_win_highest)}
             AND f_lost_lowest_v_nf_current_ranking ${toQuery(d.f_lost_lowest_v_nf_current_ranking)}
             AND nf_highest_won_v_f_current_ranking ${toQuery(d.nf_highest_won_v_f_current_ranking)}
             AND nf_highest_won_v_f_lowest_lost ${toQuery(d.nf_highest_won_v_f_lowest_lost_ranking)}`
@@ -161,13 +162,14 @@ export default class ScheduleAdapter {
         }
 
         d['prediction'] = prediction(queryResult)
+        d['probability'] = probability(queryResult)
       })
     )
 
     await connection.end();
 
     // return csv file
-    return data.map(p => [p.fp, p.result, p.prediction]).join('\r\n')
+    return data.map(p => [p.fp, p.result, p.prediction, p.probability]).join('\r\n')
   }
 
   async getPlayersName() {
@@ -235,7 +237,7 @@ export default class ScheduleAdapter {
       const records = await processFile();
 
       for (var i = 1; i < records.length; i++) {
-        fPlayers.push({ fp: records[i][32], nfp: records[i][43] })
+        fPlayers.push({ fp: records[i][36], nfp: records[i][47] })
       }
     })()
 
@@ -374,7 +376,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '25/11/2024') {
+        if (eventDate !== '13/12/2024') {
           continue
         }
 
@@ -434,7 +436,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 72 === fileList.length) {
+    if (sqsMessageNumber === 0 && 47 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
