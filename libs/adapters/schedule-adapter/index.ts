@@ -1,5 +1,4 @@
-import _, { head } from "lodash"
-import assert from "node:assert"
+import _ from "lodash"
 import { parse } from 'csv-parse'
 import { Readable } from 'stream'
 
@@ -121,9 +120,10 @@ export default class ScheduleAdapter {
           nf_highest_win_v_f_ranking: Number(records[i][11]),
           f_highest_win_vs_nf_ranking: Number(records[i][12]),
           prize_gap: Number(records[i][56]),
-          f_lost_lowest_v_nf_current_ranking: Number(records[i][64]),
-          nf_highest_won_v_f_current_ranking: Number(records[i][65]),
-          nf_highest_won_v_f_lowest_lost_ranking: Number(records[i][66]),
+          fp_win_highest_v_nf_win_highest: Number(records[i][64]),
+          f_lost_lowest_v_nf_current_ranking: Number(records[i][65]),
+          nf_highest_won_v_f_current_ranking: Number(records[i][66]),
+          nf_highest_won_v_f_lowest_lost_ranking: Number(records[i][67]),
         })
       }
     })()
@@ -146,6 +146,7 @@ export default class ScheduleAdapter {
             AND nf_highest_win_v_f_ranking ${toQuery(d.nf_highest_win_v_f_ranking)}
             AND f_highest_win_vs_nf_ranking ${toQuery(d.f_highest_win_vs_nf_ranking)}
             AND prize_gap ${toQuery(d.prize_gap)}
+            AND fp_win_highest_v_nf_win_highest ${toQuery(d.fp_win_highest_v_nf_win_highest)}
             AND f_lost_lowest_v_nf_current_ranking ${toQuery(d.f_lost_lowest_v_nf_current_ranking)}
             AND nf_highest_won_v_f_current_ranking ${toQuery(d.nf_highest_won_v_f_current_ranking)}
             AND nf_highest_won_v_f_lowest_lost ${toQuery(d.nf_highest_won_v_f_lowest_lost_ranking)}`
@@ -375,7 +376,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '02/12/2024') {
+        if (eventDate !== '13/12/2024') {
           continue
         }
 
@@ -435,7 +436,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 41 === fileList.length) {
+    if (sqsMessageNumber === 0 && 47 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)

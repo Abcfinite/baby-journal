@@ -15,7 +15,7 @@ export const formatResult = (result: any): any => {
   const fp = result.rows.filter((row: any) => row['match_result'] === '1').length
   const nfp = result.rows.filter((row: any) => row['match_result'] === '-1').length
   const more = fp > nfp ? fp : nfp
-  return `query-1 (${more}of${result.rowCount})`
+  return result.rowCount
 }
 
 export const prediction = (result: any): any => {
