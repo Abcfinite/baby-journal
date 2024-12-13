@@ -29,8 +29,8 @@ export type Value =
   | number
   | Array<Value>
   | {
-      [key in string | number]: string | number | object | boolean | null | undefined | Array<Value>
-    }
+    [key in string | number]: string | number | object | boolean | null | undefined | Array<Value>
+  }
 
 export const httpResponseSchema = ObjectParser({
   status: NumberParser({ nullable: true }),
