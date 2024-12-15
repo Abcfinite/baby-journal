@@ -20,3 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: make _deps
+
+      - name: Determine changed folders
+        id: changes
+        run: |
+          echo "CHANGED_FOLDERS=$(git diff --name-only origin/main...HEAD | grep '^libs/' | cut -d/ -f2 | sort -u)" >> $GITHUB_ENV
