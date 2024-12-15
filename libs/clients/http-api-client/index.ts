@@ -7,7 +7,7 @@ import querystring from 'querystring';
 
 export default class HttpApiClient {
 
-  constructor() {}
+  constructor() { }
 
   async getNative(
     baseUrl: string,
@@ -17,12 +17,12 @@ export default class HttpApiClient {
   ): Promise<HttpResponse> {
 
     dns.setServers(['8.8.8.8', '8.8.4.4'])
-    const queryParams = '?'+querystring.stringify(params)
+    const queryParams = '?' + querystring.stringify(params)
 
-    var options = {
+    const options = {
       'method': 'GET',
       'hostname': baseUrl,
-      'path': encodeURI(path+queryParams),
+      'path': encodeURI(path + queryParams),
       'headers': headers,
       'maxRedirects': 20,
       'timeout': 20000,
@@ -68,10 +68,10 @@ export default class HttpApiClient {
     path?: string,
     headers?: object,
     params: object = {},
-  ):  Promise<HttpResponse> {
+  ): Promise<HttpResponse> {
     let axiosResponse: AxiosResponse
 
-    let response: HttpResponse = {
+    const response: HttpResponse = {
       value: null,
       status: null,
       statusText: null,
@@ -86,12 +86,11 @@ export default class HttpApiClient {
     });
 
     try {
-      let instance = axios.create()
+      const instance = axios.create()
       instance.defaults.timeout = 60000
-      instance.defaults.signal = AbortSignal.timeout(60000),
 
       axiosResponse = await instance.get(
-        baseUrl+path,
+        baseUrl + path,
         { httpsAgent: agent, timeout: 60000, headers, params }
       )
 
