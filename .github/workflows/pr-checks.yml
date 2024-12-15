@@ -29,4 +29,6 @@ jobs:
       - name: Determine changed folders
         id: changes
         run: |
-          echo "CHANGED_FOLDERS=$(git diff --name-only origin/main...HEAD | grep '^libs/' | cut -d/ -f3 | sort -u)" >> $GITHUB_ENV
+          CHANGED_FOLDERS=$(git diff --name-only origin/main...HEAD | grep '^libs/' | cut -d/ -f3 | sort -u)
+          echo "Changed folders: $CHANGED_FOLDERS"
+          echo "CHANGED_FOLDERS=$CHANGED_FOLDERS" >> $GITHUB_ENV
