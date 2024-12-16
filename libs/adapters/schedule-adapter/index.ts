@@ -376,7 +376,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '14/12/2024') {
+        if (eventDate !== '13/12/2024') {
           continue
         }
 
@@ -436,7 +436,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 32 === fileList.length) {
+    if (sqsMessageNumber === 0 && 47 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
