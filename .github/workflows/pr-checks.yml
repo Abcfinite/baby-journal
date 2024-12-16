@@ -29,6 +29,12 @@ jobs:
       - name: Determine changed folders
         id: changes
         run: |
-          CHANGED_FOLDERS=$(git diff --name-only origin/main...HEAD | grep '^libs/' | cut -d/ -f3 | sort -u | tr '\n' ' ')
+          CHANGED_FOLDERS=$(git diff --name-only origin/main...HEAD | grep '^libs/' | awk -F/ '{print $2 "/" $3}' | sort -u | tr '\n' ' ')
           echo "Changed folders: $CHANGED_FOLDERS"
           echo "CHANGED_FOLDERS=$CHANGED_FOLDERS" >> $GITHUB_ENV
+
+      - name: Run ESLint for changed folders
+        run: |
+          for folder in $CHANGED_FOLDERS; do
+            (cd libs/$folder && make _lint)
+          done
