@@ -38,3 +38,9 @@ jobs:
           for folder in $CHANGED_FOLDERS; do
             (cd libs/$folder && make _lint)
           done
+
+      - name: Run Jest for changed folders
+        run: |
+          for folder in $CHANGED_FOLDERS; do
+            (cd libs/$folder && make _testUnit)
+          done
