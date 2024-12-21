@@ -21,7 +21,7 @@ _testUnitWithCoverage:
 	$(NODE_MODULES_DIR)/jest/bin/jest.js test/unit --runInBand --passWithNoTests  --coverage
 
 _lintFix:
-	$(NODE_MODULES_DIR)/eslint/bin/eslint.js lib test --ext ts --ext js --_lintFix
+	$(NODE_MODULES_DIR)/eslint/bin/eslint.js src test --fix
 
 _testIntegration:
 	$(NODE_MODULES_DIR)/jest/bin/jest.js test/integration --runInBand --passWithNoTests

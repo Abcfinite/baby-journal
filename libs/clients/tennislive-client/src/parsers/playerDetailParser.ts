@@ -1,10 +1,9 @@
-import _ from 'lodash'
 import { Player } from '../types/player'
-import { parse } from 'node-html-parser';
+import { parse } from 'node-html-parser'
 
 export default class PlayerDetailParser {
-  static parse(html: string, keepPreviousMatches: boolean = true): Player {
-    const root = parse(html);
+  static parse(html: string, keepPreviousMatches = true): Player {
+    const root = parse(html)
     const playerStatsElement = root.getElementsByTagName("div").find(div => div.attributes.class === "player_stats")
     const player = {
       id: '',
@@ -24,7 +23,7 @@ export default class PlayerDetailParser {
       h2h: 0
     }
 
-    var matchesTable = root.getElementsByTagName("table")
+    const matchesTable = root.getElementsByTagName("table")
       .filter(table => table.attributes.class === "table_pmatches")
 
     if (keepPreviousMatches) {
@@ -84,7 +83,7 @@ export default class PlayerDetailParser {
         player['matchesWon'] = Number(playerStatsElement.childNodes[post + 1].rawText.trim())
       }
       ++post
-    });
+    })
 
     player['id'] = player['name'].toLocaleLowerCase().replaceAll(' ', '') + '#' + player['dob']
 

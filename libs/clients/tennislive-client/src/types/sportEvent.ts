@@ -1,6 +1,6 @@
-import { Player } from "./player";
+import { Player } from "./player"
 
-export type SportEvent = {
+export interface SportEvent {
   id: string,
   date: string,
   time: string,
@@ -31,6 +31,7 @@ export const playerNamesToSportEvent = (player1Id: string, player1Url: string,
       matchesWon: 0,
       url: player1Url,
       type: '',
+      prizeMoney: 0,
       previousMatches: null,
       parsedPreviousMatches: null,
       incomingMatchUrl: '',
@@ -47,6 +48,7 @@ export const playerNamesToSportEvent = (player1Id: string, player1Url: string,
       matchesWon: 0,
       url: player2Url,
       type: '',
+      prizeMoney: 0,
       previousMatches: null,
       parsedPreviousMatches: null,
       incomingMatchUrl: '',

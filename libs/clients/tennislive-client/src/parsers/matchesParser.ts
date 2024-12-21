@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import { Player } from '../types/player'
-import { Match } from '../types/match';
-import { parse } from 'node-html-parser';
+import { Match } from '../types/match'
 
 export default class MatchesParser {
 
@@ -10,7 +9,7 @@ export default class MatchesParser {
     const matchesShown = startPlayerData.previousMatches.getElementsByTagName("tr")
     startPlayerData.previousMatches = null
     const matchesShownLength = matchesShown.length < 20 ? matchesShown.length : 20
-    var previousTournament = ''
+    let previousTournament = ''
     const matches = []
 
     Array.from(matchesShown).slice(0, matchesShownLength).forEach(element => {
@@ -41,7 +40,7 @@ export default class MatchesParser {
         result: 'lost'
       }
 
-      element.childNodes.forEach((td, index) => {
+      element.childNodes.forEach((td,) => {
         match.tournament = previousTournament
 
         td.childNodes.forEach(content => {
@@ -56,7 +55,7 @@ export default class MatchesParser {
           }
 
           if (_.get(attributes, 'title', '').includes('/')) {
-            var currentTournament = (content as HTMLElement).textContent.trim()
+            const currentTournament = (content as HTMLElement).textContent.trim()
             previousTournament = currentTournament
             match.tournament = currentTournament
           }

@@ -4,13 +4,9 @@ import ScheduleParser from "../parsers/sportEventParser"
 import { SportEvent } from "../types/sportEvent"
 
 export default class ScheduleService {
-
-  constructor() {
-  }
-
-  async getSchedule() : Promise<SportEvent[]> {
+  async getSchedule(): Promise<SportEvent[]> {
     const scheduleHtmlfileList = await new S3ClientCustom().getFileList('tennis-match-schedule-html')
-    var htmlResult = ''
+    let htmlResult = ''
 
     if (scheduleHtmlfileList.length === 0) {
       const headers = {
@@ -19,12 +15,11 @@ export default class ScheduleService {
       }
 
       const httpApiClient = new HttpApiClient()
-
-      let result = await httpApiClient.get(
-          process.env.TENNISLIVE_HOST!,
-          '/tennis_livescore.php?t=np' ,
-          headers,
-        )
+      const result = await httpApiClient.get(
+        process.env.TENNISLIVE_HOST!,
+        '/tennis_livescore.php?t=np',
+        headers,
+      )
 
       htmlResult = result.value as string
       await new S3ClientCustom().putFile('tennis-match-schedule-html', 'schedule.html', htmlResult)
@@ -35,7 +30,7 @@ export default class ScheduleService {
     return ScheduleParser.parse(htmlResult)
   }
 
-  async getMatchstatCompareSchedule() : Promise<SportEvent[]> {
+  async getMatchstatCompareSchedule(): Promise<SportEvent[]> {
     const csv = await new S3ClientCustom().getFile('tennis-match-schedule-html', 'matchstat_compare.csv')
 
     return ScheduleParser.parseMatchstatCompare(csv)

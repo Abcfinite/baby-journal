@@ -1,6 +1,6 @@
-import { Player } from './player';
+import { Player } from './player'
 
-export type Match = {
+export interface Match {
   date: string,
   player: Player,
   stage: string,

@@ -5,7 +5,6 @@ import { Readable } from 'stream'
 import { Client } from 'pg'
 import { toQuery, formatResult, prediction, probability } from './src/utils/helper'
 
-
 import S3ClientCustom from '@abcfinite/s3-client-custom'
 import { putItem, executeScan, executeQuery } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
@@ -376,7 +375,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '21/12/2024') {
+        if (eventDate !== '22/12/2024') {
           continue
         }
 
@@ -436,7 +435,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 25 === fileList.length) {
+    if (sqsMessageNumber === 0 && 17 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
