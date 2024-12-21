@@ -36,11 +36,19 @@ jobs:
       - name: Run ESLint for changed folders
         run: |
           for folder in $CHANGED_FOLDERS; do
-            (cd libs/$folder && make _lint)
+            if [ -d "libs/$folder" ]; then
+              (cd libs/$folder && make _lint)
+            else
+              echo "Folder libs/$folder does not exist, skipping..."
+            fi
           done
 
       - name: Run Jest for changed folders
         run: |
           for folder in $CHANGED_FOLDERS; do
-            (cd libs/$folder && make _testUnit)
+            if [ -d "libs/$folder" ]; then
+              (cd libs/$folder && make _testUnit)
+            else
+              echo "Folder libs/$folder does not exist, skipping..."
+            fi
           done
