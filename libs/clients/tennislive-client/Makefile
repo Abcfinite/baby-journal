@@ -6,7 +6,7 @@ NODE_MODULES_DIR=../../../node_modules
 ################
 
 _lint:
-	$(NODE_MODULES_DIR)/eslint/bin/eslint.js lib test
+	$(NODE_MODULES_DIR)/eslint/bin/eslint.js src test
 
 _tsc:
 	$(NODE_MODULES_DIR)/typescript/bin/tsc --noEmit true
