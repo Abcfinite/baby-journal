@@ -1,6 +1,6 @@
-import { Player } from "./player";
+import { Player } from "./player"
 
-export type Event = {
+export interface Event {
   id: string,
   time: string,
   player1: Player,

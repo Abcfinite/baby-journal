@@ -1,9 +1,10 @@
 {
   "name": "@abcfinite/http-api-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "main": ".index.ts",
   "dependencies": {
+    "@types/follow-redirects": "^1.14.4",
     "axios": "^1.7.7",
     "type-safe-validator": "^1.0.32"
   },

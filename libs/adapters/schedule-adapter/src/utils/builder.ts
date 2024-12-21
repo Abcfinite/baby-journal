@@ -72,12 +72,12 @@ export const toCsv = (jsonString: string): string => {
     'r',
   ].join(',')
 
-  var resultArray = [csvHeader]
+  const resultArray = [csvHeader]
 
-  var jsonArray = JSON.parse(jsonString)
+  const jsonArray = JSON.parse(jsonString)
 
   jsonArray.forEach(m => {
-    var fav1 = m['player1']['currentRanking'] < m['player2']['currentRanking']
+    const fav1 = m['player1']['currentRanking'] < m['player2']['currentRanking']
 
     resultArray.push([
       '',
