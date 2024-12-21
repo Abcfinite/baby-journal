@@ -1,18 +1,14 @@
 import HttpApiClient from '@abcfinite/http-api-client'
 import EventParser from '../parsers/eventParser'
 import { Bet, Event } from '../types/responses'
-import { category } from '../types/category';
+import { category } from '../types/category'
 
 export default class EventService {
-
-  constructor() {
-  }
-
-  async getFutureEvents(requestCategory: string) : Promise<Array<Event>>{
+  async getFutureEvents(requestCategory: string): Promise<Event[]> {
     const headers = {
       'Content-Type': 'application/json'
     }
-    const categoryIds = Object.entries(category).find(([_key, value]) => value == requestCategory)[0]
+    const categoryIds = Object.entries(category).find(([, value]) => value == requestCategory)[0]
     const params = {
       category_ids: `["${categoryIds}"]`,
       include_any_team_vs_any_team_events: true
@@ -42,7 +38,7 @@ export default class EventService {
     return events
   }
 
-  async getEvent(eventId: string) : Promise<Event | null> {
+  async getEvent(eventId: string): Promise<Event | null> {
     console.log('>> getEvent for : ', eventId)
     const headers = {
       'Content-Type': 'application/json'
@@ -64,7 +60,7 @@ export default class EventService {
     return event
   }
 
-  async getEvents(bets: Array<Bet>) : Promise<Array<Bet>> {
+  async getEvents(bets: Bet[]): Promise<Bet[]> {
     const betsResult = Promise.all(
       bets.map(async bet => {
         bet.event = await this.getEvent(bet.event.id)

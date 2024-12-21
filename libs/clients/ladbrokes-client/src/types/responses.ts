@@ -1,8 +1,8 @@
-export type PendingBets = {
+export interface PendingBets {
   pendingBetCounts: number
 }
 
-export type Event = {
+export interface Event {
   id: string,
   player1: string,
   player2: string,
@@ -13,7 +13,7 @@ export type Event = {
   advertisedStart: Date
 }
 
-export type Bet = {
+export interface Bet {
   id: string
   event: Event | null
 }

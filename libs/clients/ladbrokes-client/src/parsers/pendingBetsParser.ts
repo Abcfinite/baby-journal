@@ -1,5 +1,5 @@
-import _ from "lodash";
-import { PendingBets } from "../types/responses";
+import _ from "lodash"
+import { PendingBets } from "../types/responses"
 
 export default class PendingBetsParser {
   static parse(bodyJson: object): PendingBets {

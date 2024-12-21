@@ -3,11 +3,7 @@ import BetCollectionParser from '../parsers/betCollectionParser'
 import { Bet } from '../types/responses'
 
 export default class Socket {
-
-  constructor() {
-  }
-
-  async getPendingBetDetails() : Promise<Array<Bet>>{
+  async getPendingBetDetails(): Promise<Bet[]> {
     console.log('>>>>>getPendingBetDetails>>>1')
     const headers = {
       'Content-Type': 'application/json',

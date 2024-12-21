@@ -1,5 +1,5 @@
-export type Paging = {
-    page: number,
-    perPage: number,
-    total: number,
-  }
+export interface Paging {
+  page: number,
+  perPage: number,
+  total: number,
+}
