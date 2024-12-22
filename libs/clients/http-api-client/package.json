@@ -1,6 +1,6 @@
 {
   "name": "@abcfinite/http-api-client",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "abraham cole finite <abrahamfinite@gmail.com>",
   "main": ".index.ts",
   "dependencies": {
