@@ -10,6 +10,15 @@
     d "1"
     es5-ext "^0.10.47"
 
+"@abcfinite/http-api-client@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.npmjs.org/@abcfinite/http-api-client/-/http-api-client-0.0.3.tgz#5c74785333d6af00a6b97cf7d70cd6c2d1630c76"
+  integrity sha512-Oce0zY3N82JIlHoGTZPlEowHGnRpHTsCg6nEqRBAgY9YGa4lisTLQJEC3sY0D3PsskzxxzBtv12xSlTwQth23g==
+  dependencies:
+    "@types/follow-redirects" "^1.14.4"
+    axios "^1.7.7"
+    type-safe-validator "^1.0.32"
+
 "@ampproject/remapping@^2.2.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.3.0.tgz#ed441b6fa600072520ce18b43d2c8cc8caecc7f4"
