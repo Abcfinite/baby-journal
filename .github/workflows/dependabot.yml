@@ -1,6 +1,5 @@
 version: 2
 updates:
-  # adapters
   - package-ecosystem: "npm"
     directory: "/libs/adapters/match-adapter"
     schedule:
@@ -17,73 +16,6 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "npm"
     directory: "/libs/adapters/schedule-adapter"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10
-
-  # clients
-  - package-ecosystem: "npm"
-    directory: "/libs/clients/betapi-client"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10
- - package-ecosystem: "npm"
-    directory: "/libs/clients/dynamodb-client"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10 
- - package-ecosystem: "npm"
-    directory: "/libs/clients/http-api-client"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10
- - package-ecosystem: "npm"
-    directory: "/libs/clients/ladbrokes-client"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10
- - package-ecosystem: "npm"
-    directory: "/libs/clients/s3-client-custom"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10
- - package-ecosystem: "npm"
-    directory: "/libs/clients/tennislive-client"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10
-
-  # domains
-  - package-ecosystem: "npm"
-    directory: "/libs/domains/baby/weight"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10
-  - package-ecosystem: "npm"
-    directory: "/libs/domains/sports/events"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    open-pull-requests-limit: 10
-  - package-ecosystem: "npm"
-    directory: "/libs/domains/sports/players"
     schedule:
       interval: "daily"
     commit-message:
