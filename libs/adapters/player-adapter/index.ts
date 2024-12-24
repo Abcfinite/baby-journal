@@ -5,7 +5,8 @@ import {
   getHigherRanking, getRankingDiff,
   winPercentage, wonL20, wonL10, wonL5, lostToLowerRanking,
   lostToLowerRankingThanOpponent, winFromHigherRankingThanOpponent,
-  winfromHigherRanking
+  winfromHigherRanking,
+  wonAfterLost
 } from './src/utils/comparePlayer';
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent";
 import BetapiClient from "../../clients/betapi-client";
@@ -113,6 +114,7 @@ export default class PlayerAdapter {
         player1: player1Odd,
         player2: Player2Odd
       },
+      wonAfterLost: wonAfterLost(player1, player2),
       player1: player1,
       player2: player2
     }
