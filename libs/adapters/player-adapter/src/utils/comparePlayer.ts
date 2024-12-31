@@ -92,23 +92,6 @@ export const lostToLowerRanking = (player1: Player, player2: Player): any => {
   }
 }
 
-export const wonAfterLost = (player1: Player, player2: Player): any => {
-  const p1W = player1.parsedPreviousMatches.filter(m => m.result === 'win')
-  const p2W = player2.parsedPreviousMatches.filter(m => m.result === 'win')
-  const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
-  const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
-
-  const p1Wnames = p1W.map(m => m.player.name)
-  const p2Wnames = p2W.map(m => m.player.name)
-  const p1Lnames = p1L.map(m => m.player.name)
-  const p2Lnames = p2L.map(m => m.player.name)
-
-  return {
-    player1: p1Wnames.filter(n => p1Lnames.includes(n)),
-    player2: p2Wnames.filter(n => p2Lnames.includes(n))
-  }
-}
-
 export const winfromHigherRanking = (player1: Player, player2: Player): any => {
   const p1MW = player1.parsedPreviousMatches.filter(m => m.result === 'win' && m.player.currentRanking < player1.currentRanking)
   const p2MW = player2.parsedPreviousMatches.filter(m => m.result === 'win' && m.player.currentRanking < player2.currentRanking)
