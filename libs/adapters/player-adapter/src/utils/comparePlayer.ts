@@ -1,5 +1,5 @@
 import _ from "lodash"
-import { Player } from "@abcfinite/tennislive-client/src/types/player";
+import { Player } from "@abcfinite/tennislive-client/src/types/player"
 
 export const getHigherRanking = (player1: Player, player2: Player): string => {
   if (player1.currentRanking === 0 && player2.currentRanking > 0) {
