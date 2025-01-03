@@ -180,7 +180,7 @@ export const toCsv = (jsonString: string): string => {
         _.get(m, "['analysis']['winLoseRanking']['player1']", 'not found'),
       '',
 
-      ''
+      '',
     ].join(','))
   })
 

@@ -1,7 +1,7 @@
 import _ from "lodash"
-import { Player } from "@abcfinite/tennislive-client/src/types/player";
+import { Player } from "@abcfinite/tennislive-client/src/types/player"
 
-export const getHigherRanking = (player1: Player, player2: Player) : string => {
+export const getHigherRanking = (player1: Player, player2: Player): string => {
   if (player1.currentRanking === 0 && player2.currentRanking > 0) {
     return player2.name
   } else if (player1.currentRanking > 0 && player2.currentRanking === 0) {
@@ -18,12 +18,12 @@ export const getHigherRanking = (player1: Player, player2: Player) : string => {
 }
 
 
-export const getRankingDiff = (player1: Player, player2: Player) : number =>
+export const getRankingDiff = (player1: Player, player2: Player): number =>
   Math.abs(player1.currentRanking - player2.currentRanking)
 
-export const winPercentage = (player1: Player, player2: Player) : any => {
-  const player1winPercentage = ( player1.matchesWon / player1.matchesTotal ) * 100
-  const player2winPercentage = ( player2.matchesWon / player2.matchesTotal ) * 100
+export const winPercentage = (player1: Player, player2: Player): any => {
+  const player1winPercentage = (player1.matchesWon / player1.matchesTotal) * 100
+  const player2winPercentage = (player2.matchesWon / player2.matchesTotal) * 100
   return {
     player1: { matchTotal: player1.matchesTotal, winPercentage: player1winPercentage },
     player2: { matchTotal: player2.matchesTotal, winPercentage: player2winPercentage },
@@ -31,7 +31,7 @@ export const winPercentage = (player1: Player, player2: Player) : any => {
   }
 }
 
-export const wonL20 = (player1: Player, player2: Player) : any => {
+export const wonL20 = (player1: Player, player2: Player): any => {
   const p1w = _.get(player1, 'parsedPreviousMatches', []).filter(m => m.result === 'win')
   const p2w = _.get(player2, 'parsedPreviousMatches', []).filter(m => m.result === 'win')
   return {
@@ -40,7 +40,7 @@ export const wonL20 = (player1: Player, player2: Player) : any => {
   }
 }
 
-export const wonL10 = (player1: Player, player2: Player) : any => {
+export const wonL10 = (player1: Player, player2: Player): any => {
   const p1w = _.get(player1, 'parsedPreviousMatches', []).filter((m, idx) => m.result === 'win' && idx < 10)
   const p2w = _.get(player2, 'parsedPreviousMatches', []).filter((m, idx) => m.result === 'win' && idx < 10)
   return {
@@ -49,7 +49,7 @@ export const wonL10 = (player1: Player, player2: Player) : any => {
   }
 }
 
-export const wonL5 = (player1: Player, player2: Player) : any => {
+export const wonL5 = (player1: Player, player2: Player): any => {
   const p1w = _.get(player1, 'parsedPreviousMatches', []).filter((m, idx) => m.result === 'win' && idx < 5)
   const p2w = _.get(player2, 'parsedPreviousMatches', []).filter((m, idx) => m.result === 'win' && idx < 5)
   return {
@@ -58,7 +58,7 @@ export const wonL5 = (player1: Player, player2: Player) : any => {
   }
 }
 
-export const lostToLowerRanking = (player1: Player, player2: Player) : any => {
+export const lostToLowerRanking = (player1: Player, player2: Player): any => {
   const p1ML = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p2ML = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p1LMLower = player1.currentRanking === 1000 ? [] : p1ML.filter(m => m.player.currentRanking > player1.currentRanking)
@@ -92,7 +92,7 @@ export const lostToLowerRanking = (player1: Player, player2: Player) : any => {
   }
 }
 
-export const winfromHigherRanking = (player1: Player, player2: Player) : any => {
+export const winfromHigherRanking = (player1: Player, player2: Player): any => {
   const p1MW = player1.parsedPreviousMatches.filter(m => m.result === 'win' && m.player.currentRanking < player1.currentRanking)
   const p2MW = player2.parsedPreviousMatches.filter(m => m.result === 'win' && m.player.currentRanking < player2.currentRanking)
 
@@ -124,7 +124,7 @@ export const winfromHigherRanking = (player1: Player, player2: Player) : any => 
   }
 }
 
-export const lostToLowerRankingThanOpponent = (player1: Player, player2: Player) : any => {
+export const lostToLowerRankingThanOpponent = (player1: Player, player2: Player): any => {
   const p1L = player1.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p2L = player2.parsedPreviousMatches.filter(m => m.result === 'lost')
   const p1LMLower = p1L.filter(p => p.player.currentRanking >= player2.currentRanking)
@@ -158,7 +158,7 @@ export const lostToLowerRankingThanOpponent = (player1: Player, player2: Player)
   }
 }
 
-export const winFromHigherRankingThanOpponent = (player1: Player, player2: Player) : any => {
+export const winFromHigherRankingThanOpponent = (player1: Player, player2: Player): any => {
   const m1W = player1.parsedPreviousMatches.filter(m => m.result === 'win')
   const m2W = player2.parsedPreviousMatches.filter(m => m.result === 'win')
   const mp1WHigher = m1W.filter(m => m.player.currentRanking < player2.currentRanking)
