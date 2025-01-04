@@ -1,4 +1,4 @@
-export interface tableTennis {
+export interface TableTennis {
     p1Name: string
     p2Name: string
     h2hP1: number

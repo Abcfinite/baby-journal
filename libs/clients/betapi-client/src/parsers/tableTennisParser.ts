@@ -53,13 +53,27 @@ export default class TableTennisParser {
             }
         })
 
+        console.log('>>>>p1History - before')
+        console.log(p1History)
+        console.log('>>>>p2History - before')
+        console.log(p2History)
+
+
+        // make history unique
+        p1History = this.uniqueHistory(p1History)
+        p2History = this.uniqueHistory(p2History)
+
+        console.log('>>>>p1History')
+        console.log(p1History)
+        console.log('>>>>p2History')
+        console.log(p2History)
+
+
         // player1 bench mark
         p1History.reverse().forEach(history => {
             if (p2History.map(p2H => p2H[0]).includes(history[0])) {
                 if (history[1][0] > history[1][1]) {
                     bmP1++
-                } else {
-                    bmP1--
                 }
             }
         })
@@ -70,8 +84,6 @@ export default class TableTennisParser {
             if (p1History.map(p1H => p1H[0]).includes(history[0])) {
                 if (history[1][0] > history[1][1]) {
                     bmP2++
-                } else {
-                    bmP2--
                 }
             }
         })
@@ -119,5 +131,29 @@ export default class TableTennisParser {
 
         const opponentName = pNames.replace(pNameTrimmed, '').replace(/.$/, '')
         return [opponentName, [scores[1], scores[0]]]
+    }
+
+    uniqueHistory(history: Array<Array<string>>) {
+        history.forEach(h => {
+            const pName = h[0]
+            const indexes = this.getAllIndexes(history.map(h => h[0]), pName)
+
+            indexes.sort((a, b) => b - a)
+            indexes.pop()
+
+            indexes.forEach(i => {
+                history.splice(i, 1)
+            })
+        })
+
+        return history
+    }
+
+    getAllIndexes(arr, val) {
+        var indexes = [], i = -1;
+        while ((i = arr.indexOf(val, i + 1)) != -1) {
+            indexes.push(i);
+        }
+        return indexes;
     }
 }
