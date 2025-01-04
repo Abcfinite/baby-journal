@@ -530,7 +530,12 @@ export default class ScheduleAdapter {
   }
 
   async getTennisTableSchedule() {
-    console.log('>>>>getTennisTableSchedule')
-    const response = await new BetapiClient().parseTableTennisEvent('')
+    const fileName = await new S3ClientCustom().getLatestModified('table-tennis-match-schedule')
+    const content = await new S3ClientCustom().getFile('table-tennis-match-schedule', fileName)
+
+    const response = await new BetapiClient().parseTableTennisEvent(content)
+
+
+    return response
   }
 }

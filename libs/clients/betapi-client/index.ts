@@ -1,4 +1,5 @@
 import PagingParser from './src/parsers/pagingParser';
+import TableTennisParser from './src/parsers/tableTennisParser';
 import HttpApiClient from '../http-api-client'
 import { Event } from './src/types/event';
 import EventParser from './src/parsers/eventParser';
@@ -70,25 +71,6 @@ export default class BetapiClient {
     return parsedEvents
   }
 
-  async parseTableTennisEvent(url: string) {
-    console.log('>>>>>parseTableTennisEvent - start')
+  parseTableTennisEvent = async (htmlResponse: string) => new TableTennisParser().parse(htmlResponse)
 
-    const httpApiClient = new HttpApiClient()
-    const response = await httpApiClient.getNative(
-      'betsapi.com',
-      '/rh/9322982/Roman-Konkulovskyi-vs-Oleh-Napirko',
-      null,
-      {}
-    )
-
-    console.log(response)
-
-    console.log('>>>>>parseTableTennisEvent - end')
-    // const data = JSON.parse(loopResult.value.toString())
-    // const parsedEvents = data['results'].map(r => {
-    //   return new EventParser().parse(r)
-    // })
-
-    // return parsedEvents
-  }
 }
