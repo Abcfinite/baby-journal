@@ -156,4 +156,20 @@ export const removeAllCache: Handler = async (event: any) => {
   })
 }
 
+export const getTableTennisCheck: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().getTennisTableSchedule()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+
 

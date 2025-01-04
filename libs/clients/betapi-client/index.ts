@@ -14,7 +14,7 @@ export default class BetapiClient {
     return await new EndedService().getEndedEventBasedOnPlayerId(playerId)
   }
 
-  async getEvents() : Promise<Array<Event>> {
+  async getEvents(): Promise<Array<Event>> {
     const eventCache = await new CacheService().getEventCache()
 
     if (eventCache !== null && eventCache !== undefined) {
@@ -43,7 +43,7 @@ export default class BetapiClient {
     fullIncomingEvents = fullIncomingEvents.concat(pageOneEvents)
 
 
-    for (let page=0; page < numberOfPageTurn; page++) {
+    for (let page = 0; page < numberOfPageTurn; page++) {
       fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
     }
 
@@ -59,7 +59,7 @@ export default class BetapiClient {
       'api.b365api.com',
       '/v3/events/upcoming',
       null,
-      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', page: `${2+pageNo}` }
+      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', page: `${2 + pageNo}` }
     )
 
     const data = JSON.parse(loopResult.value.toString())
@@ -68,5 +68,27 @@ export default class BetapiClient {
     })
 
     return parsedEvents
+  }
+
+  async parseTableTennisEvent(url: string) {
+    console.log('>>>>>parseTableTennisEvent - start')
+
+    const httpApiClient = new HttpApiClient()
+    const response = await httpApiClient.getNative(
+      'betsapi.com',
+      '/rh/9322982/Roman-Konkulovskyi-vs-Oleh-Napirko',
+      null,
+      {}
+    )
+
+    console.log(response)
+
+    console.log('>>>>>parseTableTennisEvent - end')
+    // const data = JSON.parse(loopResult.value.toString())
+    // const parsedEvents = data['results'].map(r => {
+    //   return new EventParser().parse(r)
+    // })
+
+    // return parsedEvents
   }
 }

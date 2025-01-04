@@ -94,3 +94,11 @@ functions:
       - http:
           path: /results
           method: get
+  # table tennis functions
+  tableTennisCheck:
+    handler: index.getTableTennisCheck
+    timeout: 900
+    events:
+      - http:
+          path: /tableTennisCheck
+          method: get

@@ -528,4 +528,9 @@ export default class ScheduleAdapter {
 
     return requestResult
   }
+
+  async getTennisTableSchedule() {
+    console.log('>>>>getTennisTableSchedule')
+    const response = await new BetapiClient().parseTableTennisEvent('')
+  }
 }
