@@ -15,8 +15,8 @@ export default class BetapiClient {
     return await new EndedService().getEndedEventBasedOnPlayerId(playerId)
   }
 
-  async getEvents(): Promise<Array<Event>> {
-    const eventCache = await new CacheService().getEventCache()
+  async getEvents(sportId: string): Promise<Array<Event>> {
+    const eventCache = await new CacheService().getEventCache(sportId)
 
     if (eventCache !== null && eventCache !== undefined) {
       return JSON.parse(eventCache)
@@ -28,7 +28,7 @@ export default class BetapiClient {
       'api.b365api.com',
       '/v3/events/upcoming',
       null,
-      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu' }
+      { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu' }
     )
 
     let fullIncomingEvents: Array<Event> = []
@@ -45,22 +45,22 @@ export default class BetapiClient {
 
 
     for (let page = 0; page < numberOfPageTurn; page++) {
-      fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page))
+      fullIncomingEvents = fullIncomingEvents.concat(await this.getEveryPage(page, sportId))
     }
 
 
-    await new CacheService().setEventCache(JSON.stringify(fullIncomingEvents))
+    await new CacheService().setEventCache(sportId, JSON.stringify(fullIncomingEvents))
 
     return fullIncomingEvents
   }
 
-  async getEveryPage(pageNo: number) {
+  async getEveryPage(pageNo: number, sportId: string) {
     const httpApiClient = new HttpApiClient()
     const loopResult = await httpApiClient.getNative(
       'api.b365api.com',
       '/v3/events/upcoming',
       null,
-      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', page: `${2 + pageNo}` }
+      { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu', page: `${2 + pageNo}` }
     )
 
     const data = JSON.parse(loopResult.value.toString())

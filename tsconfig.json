@@ -38,6 +38,9 @@
       // "@abcfinite/http-api-client": [
       //   "./libs/client/http-api-client"
       // ],
+      "@abcfinite/betapi-client": [
+        "./libs/client/betapi-client"
+      ],
       "@abcfinite/tennislive-client": [
         "./libs/client/tennislive-client"
       ],

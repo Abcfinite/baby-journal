@@ -18,6 +18,7 @@ import {
 import { toCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
 import TennisliveClient from "@abcfinite/tennislive-client"
+import { put } from "@abcfinite/dynamodb-client/src/items"
 
 export default class ScheduleAdapter {
 
@@ -46,13 +47,13 @@ export default class ScheduleAdapter {
     return 'all cache removed and sqs queue purged'
   }
 
-  async cacheBetAPI() {
+  async cacheTennisBetAPI() {
     // get latest schedule
     // todo : why need to get result first ??? Is it to warm up the lambda ???
     const s3ClientCustom = new S3ClientCustom()
     await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
 
-    const events = await new BetapiClient().getEvents()
+    const events = await new BetapiClient().getEvents('13')
 
     // safe all main players in dynamodb
     if (events.length === 0) { return 'no match scheduled' }
@@ -93,7 +94,13 @@ export default class ScheduleAdapter {
     await Promise.all(player2s)
 
     // return number of matches
-    return `number of matches : ${events.length}`
+    return events.length
+  }
+
+  async cacheTableTennisBetAPI() {
+    const events = await new BetapiClient().getEvents('92')
+
+    return events.length
   }
 
   async getPredictions() {
@@ -338,8 +345,6 @@ export default class ScheduleAdapter {
 
   async getSchedule() {
     const s3ClientCustom = new S3ClientCustom()
-    const currentDateTime = new Date().toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
-    const currentDate = currentDateTime.split(',')[0].trim()
 
     var requestResult = 'error'
     const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
@@ -352,7 +357,7 @@ export default class ScheduleAdapter {
     const client = new SQSClient({ region: 'ap-southeast-2' });
 
     // const sportEvents = await new TennisliveClient().getSchedule()
-    const events = await new BetapiClient().getEvents()
+    const events = await new BetapiClient().getEvents('13')
     const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
 
     const sportEvents = []
@@ -375,7 +380,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '03/01/2025') {
+        if (eventDate !== '05/01/2025') {
           continue
         }
 
@@ -435,7 +440,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 44 === fileList.length) {
+    if (sqsMessageNumber === 0 && 54 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
@@ -529,7 +534,7 @@ export default class ScheduleAdapter {
     return requestResult
   }
 
-  async getTennisTableSchedule() {
+  async getTableTennisSchedule() {
     const fileName = await new S3ClientCustom().getLatestModified('table-tennis-match-schedule')
     const content = await new S3ClientCustom().getFile('table-tennis-match-schedule', fileName)
 
@@ -537,5 +542,18 @@ export default class ScheduleAdapter {
 
 
     return response
+  }
+
+  async getTableTennisNext() {
+    const events = await new BetapiClient().getEvents('92')
+
+    const sorted = events.sort((a, b) => parseInt(a.time) - parseInt(b.time))
+
+    sorted.map(event => {
+      const eventDateTime = new Date(parseInt(event.time) * 1000).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
+      event.time = eventDateTime
+    })
+
+    return sorted
   }
 }

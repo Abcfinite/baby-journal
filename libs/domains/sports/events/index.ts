@@ -125,11 +125,18 @@ export const getPlayersUrl: Handler = async (event: any) => {
 }
 
 export const cacheBetAPI: Handler = async (event: any) => {
-  var result = await new ScheduleAdapter().cacheBetAPI()
+  // let tennisBetAPIResult = await new ScheduleAdapter().cacheTennisBetAPI()
+  let tableTennisBetAPIResult = await new ScheduleAdapter().cacheTableTennisBetAPI()
 
-  var response = {
+  // const responseText = `tennis events : ${tennisBetAPIResult} \n 
+  //   table tennis events : ${tableTennisBetAPIResult}`
+
+  const responseText = `table tennis events: ${tableTennisBetAPIResult}`
+
+
+  const response = {
     statusCode: 200,
-    body: JSON.stringify(result,
+    body: JSON.stringify(responseText,
       null,
       2
     ),
@@ -157,7 +164,23 @@ export const removeAllCache: Handler = async (event: any) => {
 }
 
 export const getTableTennisCheck: Handler = async (event: any) => {
-  var result = await new ScheduleAdapter().getTennisTableSchedule()
+  var result = await new ScheduleAdapter().getTableTennisSchedule()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+
+export const getTableTennisNext: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().getTableTennisNext()
 
   var response = {
     statusCode: 200,

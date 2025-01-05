@@ -5,9 +5,10 @@ export const put = async (tableName: string,
   item: object,
   replaceWhenExist: boolean = false) => {
 
-
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client)
+
+  console.log('putting item:', item)
 
   if (!replaceWhenExist) {
     const getResult = await get(tableName,
@@ -20,7 +21,9 @@ export const put = async (tableName: string,
 
   const command = new PutCommand({
     TableName: tableName,
-    Item: item
+    Item: {
+      id: '123'
+    }
   })
 
   const response = await docClient.send(command)
@@ -63,8 +66,8 @@ export const query = async (params: QueryCommandInput) => {
 }
 
 export const get = async (tableName: string,
-    itemId: string,
-    itemName: string | null = null) => {
+  itemId: string,
+  itemName: string | null = null) => {
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client);
 
