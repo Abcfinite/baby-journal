@@ -5,20 +5,27 @@ import CacheService from './cache-service'
 import { Event } from '../types/event'
 
 export default class EndedService {
-  getEndedEventBasedOnPlayerId = async (playerId: string) => {
+  getEndedEventBasedOnPlayerId = async (playerId: string, sportId: string) => {
     const httpApiClient = new HttpApiClient()
     const resultFirstPage = await httpApiClient.get(
       'https://api.b365api.com',
       '/v3/events/ended',
       null,
-      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 1 }
+      { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 1 }
     )
 
-    // console.log('>>>>resultFirstPage')
-    // console.log(resultFirstPage)
+    console.log('>>>>playerId')
+    console.log(playerId)
+    console.log('>>>>resultFirstPage')
+    console.log(resultFirstPage)
 
     const paging = PagingParser.parse(resultFirstPage.value['pager'])
     const numberOfPageTurn = Math.floor(paging.total / paging.perPage)
+
+    console.log('>>>>numberOfPageTurn')
+    console.log(paging.total)
+    console.log(paging.perPage)
+    console.log(numberOfPageTurn)
 
     let fullEndedEvents: Event[] = []
 
@@ -34,7 +41,7 @@ export default class EndedService {
 
     for (let page = 0; page < numberOfPageTurn; page++) {
       // fetchPageActions.push(this.getEveryPage(page, playerId))
-      fullEndedEvents = fullEndedEvents.concat(await this.getEveryPage(page, playerId))
+      fullEndedEvents = fullEndedEvents.concat(await this.getEveryPage(page, playerId, sportId))
     }
 
     // console.log('>>>>fetchPageActions')
@@ -52,13 +59,13 @@ export default class EndedService {
     return fullEndedEvents
   }
 
-  async getEveryPage(pageNo: number, playerId: string) {
+  async getEveryPage(pageNo: number, playerId: string, sportId: string) {
     const httpApiClient = new HttpApiClient()
     const loopResult = await httpApiClient.get(
       'https://api.b365api.com',
       '/v3/events/ended',
       null,
-      { sport_id: '13', token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 2 + pageNo }
+      { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 2 + pageNo }
     )
 
     const parsedEvents = loopResult.value['results'].map(r => {

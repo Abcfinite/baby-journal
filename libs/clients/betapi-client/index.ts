@@ -11,8 +11,8 @@ export default class BetapiClient {
   constructor() {
   }
 
-  async getPlayerEndedMatches(playerId: string): Promise<Array<Event>> {
-    return await new EndedService().getEndedEventBasedOnPlayerId(playerId)
+  async getPlayerEndedMatches(playerId: string, sportId: string): Promise<Array<Event>> {
+    return await new EndedService().getEndedEventBasedOnPlayerId(playerId, sportId)
   }
 
   async getEvents(sportId: string): Promise<Array<Event>> {

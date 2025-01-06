@@ -74,6 +74,12 @@ export default class ScheduleAdapter {
           "url_found": true,
         }
 
+        if (player1.full_name === undefined || player1.full_name === null) {
+          console.error('>>>>>player2.full_name is null')
+          console.error(player1)
+          return
+        }
+
         return putItem('tennis_players', player1)
       })
 
@@ -84,6 +90,12 @@ export default class ScheduleAdapter {
           "id": event.player2.id,
           "full_name": event.player2.name,
           "url_found": true,
+        }
+
+        if (player2.full_name === undefined || player2.full_name === null) {
+          console.error('>>>>>player2.full_name is null')
+          console.error(player2)
+          return
         }
 
         return putItem('tennis_players', player2)
@@ -380,7 +392,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '05/01/2025') {
+        if (eventDate !== '06/01/2025') {
           continue
         }
 
@@ -440,7 +452,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 54 === fileList.length) {
+    if (sqsMessageNumber === 0 && 166 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
@@ -547,7 +559,8 @@ export default class ScheduleAdapter {
   async getTableTennisNext() {
     const events = await new BetapiClient().getEvents('92')
 
-    const sorted = events.sort((a, b) => parseInt(a.time) - parseInt(b.time))
+    const latestEvents = events.filter(event => parseInt(event.time) > Date.now() / 1000)
+    const sorted = latestEvents.sort((a, b) => parseInt(a.time) - parseInt(b.time))
 
     sorted.map(event => {
       const eventDateTime = new Date(parseInt(event.time) * 1000).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
