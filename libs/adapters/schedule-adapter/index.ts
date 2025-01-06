@@ -392,7 +392,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '06/01/2025') {
+        if (eventDate !== '07/01/2025') {
           continue
         }
 

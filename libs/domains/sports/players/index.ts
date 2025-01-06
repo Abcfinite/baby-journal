@@ -38,18 +38,48 @@ export const getPlayer: Handler = async (event: any) => {
     .filter(arrayItem => arrayItem !== player2Id)
 
   console.log(bmPlayerIdsClean)
-  console.log('>>>>>P1 BM :')
-  console.log(player1Last8.filter(p1l8 => (bmPlayerIdsClean.includes(p1l8.player1.id) && !p1l8.player1won) || (bmPlayerIdsClean.includes(p1l8.player2.id) && p1l8.player1won)).length)
-  console.log('>>>>>P2 BM :')
-  console.log(player2Last8.filter(p2l8 => (bmPlayerIdsClean.includes(p2l8.player1.id) && !p2l8.player1won) || (bmPlayerIdsClean.includes(p2l8.player2.id) && p2l8.player1won)).length)
 
+
+  // unique win-lost history
+  let p1BM = []
+  player1Last8.forEach(p1l8 => {
+    const opponentId = p1l8.player1.id === player1Id ? p1l8.player2.id : p1l8.player1.id
+    const playerWon = p1l8.player1.id === player1Id ? p1l8.player1won : !p1l8.player1won
+
+    console.log('>>>>>opponentId : ', opponentId, playerWon)
+
+    if (!playerWon && p1BM.find(p => p.opponentId === opponentId)) {
+      console.log('>>>>>filtering : ', opponentId)
+      p1BM = p1BM.filter(p => p.opponentId !== opponentId)
+    }
+
+    if (playerWon && bmPlayerIdsClean.includes(opponentId)) {
+      p1BM.push(opponentId)
+    }
+  })
+
+  let p2BM = []
+  player2Last8.forEach(p2l8 => {
+    const opponentId = p2l8.player1.id === player2Id ? p2l8.player2.id : p2l8.player1.id
+    const playerWon = p2l8.player1.id === player2Id ? p2l8.player1won : !p2l8.player1won
+
+    if (!playerWon && p2BM.find(p => p.opponentId === opponentId)) {
+      p2BM = p2BM.filter(p => p.opponentId !== opponentId)
+    }
+
+    if (playerWon && bmPlayerIdsClean.includes(opponentId)) {
+      p2BM.push(opponentId)
+    }
+  })
+
+  console.log('>>>>>P1 BM : ', p1BM.length)
+  console.log('>>>>>P2 BM : ', p2BM.length)
 
   const response = {
     statusCode: 200,
     body: JSON.stringify(
       {
         message: responseText,
-        input: event,
       },
       null,
       2
