@@ -5,7 +5,7 @@ import CacheService from './cache-service'
 import { Event } from '../types/event'
 
 export default class EndedService {
-  getEndedEventBasedOnPlayerId = async (playerId: string, sportId: string) => {
+  getEndedEventBasedOnPlayerId = async (playerId: string, sportId: string, fullPages = false) => {
     const httpApiClient = new HttpApiClient()
     const resultFirstPage = await httpApiClient.get(
       'https://api.b365api.com',
@@ -14,18 +14,8 @@ export default class EndedService {
       { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 1 }
     )
 
-    console.log('>>>>playerId')
-    console.log(playerId)
-    console.log('>>>>resultFirstPage')
-    console.log(resultFirstPage)
-
     const paging = PagingParser.parse(resultFirstPage.value['pager'])
-    const numberOfPageTurn = Math.floor(paging.total / paging.perPage)
-
-    console.log('>>>>numberOfPageTurn')
-    console.log(paging.total)
-    console.log(paging.perPage)
-    console.log(numberOfPageTurn)
+    let numberOfPageTurn = Math.floor(paging.total / paging.perPage)
 
     let fullEndedEvents: Event[] = []
 
@@ -39,10 +29,17 @@ export default class EndedService {
 
     fullEndedEvents = fullEndedEvents.concat(pageOneEvents)
 
+    if (!fullPages) {
+      if (numberOfPageTurn > 3) {
+        numberOfPageTurn = 3
+      }
+    }
+
     for (let page = 0; page < numberOfPageTurn; page++) {
       // fetchPageActions.push(this.getEveryPage(page, playerId))
       fullEndedEvents = fullEndedEvents.concat(await this.getEveryPage(page, playerId, sportId))
     }
+
 
     // console.log('>>>>fetchPageActions')
     // console.log(fetchPageActions)
