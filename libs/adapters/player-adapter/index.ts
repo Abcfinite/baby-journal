@@ -22,17 +22,102 @@ export default class PlayerAdapter {
   }
 
   async checkSportEvent(sportEvent: SportEvent) {
-    // const result = await this.matchesSummaryBySportEvent(sportEvent)
     const result = await this.matchesSummary(sportEvent, 1, 1.1)
-
-    // bet-api temporary
-    // console.log(`>>bet-api temporary>>${sportEvent.player1.id}>>>>${sportEvent.player1.name}>>>${sportEvent.player2.id}>>>${sportEvent.player2.name}`)
-    // await new BetapiClient().getPlayerEndedMatches(sportEvent.player1.id)
-    // await new BetapiClient().getPlayerEndedMatches(sportEvent.player2.id)
-
     result.analysis = await new MatchAdapter().similarMatch(result)
 
     return result
+  }
+
+  async checkSportEventTT(sportEvent: SportEvent) {
+
+    const player1Id = sportEvent.player1.id
+    const player2Id = sportEvent.player2.id
+
+    const player1Matches = await new BetapiClient().getPlayerEndedMatches(player1Id, '92')
+    const player2Matches = await new BetapiClient().getPlayerEndedMatches(player2Id, '92')
+
+    const h2hAll = player1Matches.filter(p1m => p1m.player1.id === player2Id || p1m.player2.id === player2Id)
+
+    if (h2hAll.length === 0) {
+      return {}
+    }
+
+    const h2h = h2hAll.splice(0, 8)
+
+    const player1Name = player1Matches.find(p => p.player1.id === player1Id).player1.name
+    const player2Name = player2Matches.find(p => p.player1.id === player2Id).player1.name
+
+    const h2hNo = h2h.length
+    const h2hP1Won = h2h.filter(h => (h.player1.id === player1Id && h.player1won) || (h.player2.id === player1Id && !h.player1won)).length
+
+    const h2hP1WonLast = h2h[0].player1.id === player1Id ? h2h[0].player1won : !h2h[0].player1won
+
+    const player1Last8 = player1Matches.slice(0, 8)
+    const player2Last8 = player2Matches.slice(0, 8)
+
+    // console.log('>>>>>>>BM')
+    const player1matchesP1ids = player1Last8.map(p1l8 => p1l8.player1.id)
+    const player1matchesP2ids = player1Last8.map(p1l8 => p1l8.player2.id)
+    const player2matchesP1ids = player2Last8.map(p1l8 => p1l8.player1.id)
+    const player2matchesP2ids = player2Last8.map(p1l8 => p1l8.player2.id)
+
+    const uniquePlayerIds1 = player1matchesP1ids.concat(player1matchesP2ids).filter((e, i, self) => i === self.indexOf(e))
+    const uniquePlayerIds2 = player2matchesP1ids.concat(player2matchesP2ids).filter((e, i, self) => i === self.indexOf(e))
+
+    const bmPlayerIds = uniquePlayerIds1.filter(
+      (element) => uniquePlayerIds2.includes(element))
+
+    const bmPlayerIdsClean = bmPlayerIds.filter(arrayItem => arrayItem !== player1Id)
+      .filter(arrayItem => arrayItem !== player2Id)
+
+
+    // unique win-lost history
+    let p1BM = []
+    player1Last8.forEach(p1l8 => {
+      const opponentId = p1l8.player1.id === player1Id ? p1l8.player2.id : p1l8.player1.id
+      const playerWon = p1l8.player1.id === player1Id ? p1l8.player1won : !p1l8.player1won
+
+      if (!playerWon && p1BM.find(p => p.opponentId === opponentId)) {
+        p1BM = p1BM.filter(p => p.opponentId !== opponentId)
+      }
+
+      if (playerWon && bmPlayerIdsClean.includes(opponentId)) {
+        p1BM.push(opponentId)
+      }
+    })
+
+    let p2BM = []
+    player2Last8.forEach(p2l8 => {
+      const opponentId = p2l8.player1.id === player2Id ? p2l8.player2.id : p2l8.player1.id
+      const playerWon = p2l8.player1.id === player2Id ? p2l8.player1won : !p2l8.player1won
+
+      if (!playerWon && p2BM.find(p => p.opponentId === opponentId)) {
+        p2BM = p2BM.filter(p => p.opponentId !== opponentId)
+      }
+
+      if (playerWon && bmPlayerIdsClean.includes(opponentId)) {
+        p2BM.push(opponentId)
+      }
+    })
+
+    const p1BMF = p1BM.filter((e, i, self) => i === self.indexOf(e)).length
+    const p2BMF = p2BM.filter((e, i, self) => i === self.indexOf(e)).length
+
+    return {
+      "id": sportEvent.id,
+      "date": sportEvent.date,
+      "time": sportEvent.time,
+      "p1Name": player1Name,
+      "p2Name": player2Name,
+      "h2hP1": h2hP1Won,
+      "h2hP2": h2hNo - h2hP1Won,
+      "h2hLastWinner": h2hP1WonLast ? 1 : 2,
+      "bmP1": p1BMF,
+      "bmP2": p2BMF,
+      "betOn": '',
+      "odd": '',
+      "result": ''
+    }
   }
 
   async matchesSummaryBySportEvent(sportEvent: SportEvent) {
