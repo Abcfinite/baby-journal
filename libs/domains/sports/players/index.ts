@@ -15,9 +15,9 @@ export const getPlayer: Handler = async (event: any) => {
   console.log('p2 name : ', player2Matches.find(p => p.player1.id === player2Id).player1.name)
 
   console.log('>>>h2h matches : ', h2h.length)
-  console.log('p1 won : ', h2h.filter(h => h.player1won).length)
+  console.log('p1 won : ', h2h.filter(h => (h.player1.id === player1Id && h.player1won) || (h.player2.id === player1Id && !h.player1won)).length)
 
-  console.log('>>>>>last h2h P1 won : ', h2h[0].player1won)
+  console.log('>>>>>last h2h P1 won : ', h2h[0].player1.id === player1Id ? h2h[0].player1won : !h2h[0].player1won)
 
   const player1Last8 = player1Matches.slice(0, 8)
   const player2Last8 = player2Matches.slice(0, 8)
@@ -46,10 +46,7 @@ export const getPlayer: Handler = async (event: any) => {
     const opponentId = p1l8.player1.id === player1Id ? p1l8.player2.id : p1l8.player1.id
     const playerWon = p1l8.player1.id === player1Id ? p1l8.player1won : !p1l8.player1won
 
-    console.log('>>>>>opponentId : ', opponentId, playerWon)
-
     if (!playerWon && p1BM.find(p => p.opponentId === opponentId)) {
-      console.log('>>>>>filtering : ', opponentId)
       p1BM = p1BM.filter(p => p.opponentId !== opponentId)
     }
 
@@ -72,8 +69,8 @@ export const getPlayer: Handler = async (event: any) => {
     }
   })
 
-  console.log('>>>>>P1 BM : ', p1BM.length)
-  console.log('>>>>>P2 BM : ', p2BM.length)
+  console.log('>>>>>P1 BM : ', p1BM.filter((e, i, self) => i === self.indexOf(e)).length)
+  console.log('>>>>>P2 BM : ', p2BM.filter((e, i, self) => i === self.indexOf(e)).length)
 
   const response = {
     statusCode: 200,
