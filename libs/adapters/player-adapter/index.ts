@@ -28,29 +28,34 @@ export default class PlayerAdapter {
     return result
   }
 
-  async checkSportEventTT(sportEvent: SportEvent) {
+  async compareSportEvent(sportEvent: SportEvent) {
 
     const player1Id = sportEvent.player1.id
     const player2Id = sportEvent.player2.id
 
-    const player1Matches = await new BetapiClient().getPlayerEndedMatches(player1Id, '92')
-    const player2Matches = await new BetapiClient().getPlayerEndedMatches(player2Id, '92')
-
-    const h2hAll = player1Matches.filter(p1m => p1m.player1.id === player2Id || p1m.player2.id === player2Id)
-
-    if (h2hAll.length === 0) {
-      return {}
-    }
-
-    const h2h = h2hAll.splice(0, 8)
+    const player1Matches = await new BetapiClient().getPlayerEndedMatches(player1Id, sportEvent.type)
+    const player2Matches = await new BetapiClient().getPlayerEndedMatches(player2Id, sportEvent.type)
 
     const player1Name = player1Matches.find(p => p.player1.id === player1Id).player1.name
     const player2Name = player2Matches.find(p => p.player1.id === player2Id).player1.name
 
-    const h2hNo = h2h.length
-    const h2hP1Won = h2h.filter(h => (h.player1.id === player1Id && h.player1won) || (h.player2.id === player1Id && !h.player1won)).length
+    const h2hAll = player1Matches.filter(p1m => p1m.player1.id === player2Id || p1m.player2.id === player2Id)
 
-    const h2hP1WonLast = h2h[0].player1.id === player1Id ? h2h[0].player1won : !h2h[0].player1won
+    let h2hP1Won = 0
+    let h2hNo = 0
+    let h2hP1WonLast
+
+
+    if (h2hAll.length !== 0) {
+      const h2h = h2hAll.splice(0, 8)
+
+      h2hNo = h2h.length
+      h2hP1Won = h2h.filter(h => (h.player1.id === player1Id && h.player1won) || (h.player2.id === player1Id && !h.player1won)).length
+
+      h2hP1WonLast = h2h[0].player1.id === player1Id ? h2h[0].player1won : !h2h[0].player1won
+
+    }
+
 
     const player1Last8 = player1Matches.slice(0, 8)
     const player2Last8 = player2Matches.slice(0, 8)

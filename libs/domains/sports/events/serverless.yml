@@ -80,12 +80,26 @@ functions:
       - http:
           path: /schedule
           method: get
+  scheduleTennis:
+    handler: index.getScheduleTennis
+    timeout: 900
+    events:
+      - http:
+          path: /scheduleTennis
+          method: get
   scheduleTT:
     handler: index.getScheduleTT
     timeout: 900
     events:
       - http:
           path: /scheduleTT
+          method: get
+  scheduleEsports:
+    handler: index.getScheduleEsports
+    timeout: 900
+    events:
+      - http:
+          path: /scheduleEsports
           method: get
   getPredictions:
     handler: index.getPredictions

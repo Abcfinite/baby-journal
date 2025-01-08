@@ -15,7 +15,7 @@ import {
   DeleteMessageCommand,
   PurgeQueueCommand
 } from "@aws-sdk/client-sqs";
-import { toCsv } from "./src/utils/builder"
+import { toCsv, toTTCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
 import TennisliveClient from "@abcfinite/tennislive-client"
 import { put } from "@abcfinite/dynamodb-client/src/items"
@@ -28,6 +28,7 @@ export default class ScheduleAdapter {
     await s3ClientCustom.deleteAllFiles('betapi-cache')
     await s3ClientCustom.deleteAllFiles('tennis-match-schedule')
     await s3ClientCustom.deleteAllFiles('table-tennis-match-schedule')
+    await s3ClientCustom.deleteAllFiles('esports-match-schedule')
 
     const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
     const client = new SQSClient({ region: 'ap-southeast-2' });
@@ -112,6 +113,12 @@ export default class ScheduleAdapter {
 
   async cacheTableTennisBetAPI() {
     const events = await new BetapiClient().getEvents('92')
+
+    return events.length
+  }
+
+  async cacheEsportsBetAPI() {
+    const events = await new BetapiClient().getEvents('151')
 
     return events.length
   }
@@ -393,7 +400,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '07/01/2025') {
+        if (eventDate !== '08/01/2025') {
           continue
         }
 
@@ -453,7 +460,7 @@ export default class ScheduleAdapter {
     console.log('>>>>total schedule number: ', sportEvents.length)
     console.log('>>>>checked number: ', fileList.length)
 
-    if (sqsMessageNumber === 0 && 227 === fileList.length) {
+    if (sqsMessageNumber === 0 && 271 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
@@ -547,20 +554,20 @@ export default class ScheduleAdapter {
     return requestResult
   }
 
-  async getScheduleTT() {
+  async getScheduleTennis() {
     const s3ClientCustom = new S3ClientCustom()
 
     var requestResult = 'error'
-    const resultFile = await s3ClientCustom.getFile('table-tennis-match-schedule', 'result.json')
+    const resultFile = await s3ClientCustom.getFile('tennis-match-schedule', 'result.json')
 
     if (resultFile) {
-      return toCsv(resultFile)
+      return toTTCsv(resultFile)
     }
 
-    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/table-tennis-match-schedule-queue'
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/tennis-match-schedule-queue'
     const client = new SQSClient({ region: 'ap-southeast-2' });
 
-    const events = await new BetapiClient().getEvents('92')
+    const events = await new BetapiClient().getEvents('13')
 
     const sportEvents = []
 
@@ -570,7 +577,7 @@ export default class ScheduleAdapter {
       AttributeNames: ['All']
     })
 
-    const fileList = await new S3ClientCustom().getFileList('table-tennis-match-schedule')
+    const fileList = await new S3ClientCustom().getFileList('tennis-match-schedule')
 
     var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
     var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
@@ -584,7 +591,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '07/01/2025') {
+        if (eventDate !== '09/01/2025') {
           continue
         }
 
@@ -594,6 +601,7 @@ export default class ScheduleAdapter {
           time: eventDateTime.split(',')[1].trim(),
           stage: '',
           url: '',
+          type: '13',
           competitionName: '',
           player1: {
             id: event.player1.id,
@@ -640,7 +648,196 @@ export default class ScheduleAdapter {
 
     console.log('>>>>total schedule number: ', sportEvents.length)
 
-    if (sqsMessageNumber === 0 && 340 === fileList.length) {
+    if (sqsMessageNumber === 0 && 201 === fileList.length) {
+      await Promise.all(
+        fileList.map(async file => {
+          const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
+          fileContent.push(JSON.parse(content))
+        })
+      )
+
+      fileContent.forEach(content => {
+        var parsed = null
+
+        try {
+          parsed = JSON.parse(content)
+          fileContent.push(parsed)
+        } catch (ex) {
+          console.error('>>>>>failed to parse content')
+          return
+        }
+      })
+
+      await new S3ClientCustom()
+        .putFile('tennis-match-schedule', 'result.json', JSON.stringify(fileContent))
+
+      return fileContent
+    }
+
+
+    // check queue in SQS
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+    if (sqsMessageNumber === 0) {
+      // get schedule and put it in the SQS
+      // this part will not timeout
+      await Promise.all(
+        sportEvents.map(async sporte => {
+          const input = {
+            QueueUrl: queueUrl,
+            MessageBody: JSON.stringify(sporte),
+            DelaySeconds: 10,
+          };
+          const command = new SendMessageCommand(input);
+          await client.send(command);
+        })
+      )
+
+      return 'message queue successfully'
+
+    }
+    else {
+      // loop while sqs has message
+      // this part might timeout after 15mins
+      while (sqsMessageNumber > 0) {
+        const receiveMessageCommand = new ReceiveMessageCommand({
+          MaxNumberOfMessages: 1,
+          MessageAttributeNames: ["All"],
+          QueueUrl: queueUrl,
+          WaitTimeSeconds: 20,
+          VisibilityTimeout: 20,
+        })
+
+        const receiveMessageCommandResult = await client.send(receiveMessageCommand);
+        var sportEvent = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
+
+        try {
+          var checkPlayerResult = await new PlayerAdapter().compareSportEvent(sportEvent)
+
+          await new S3ClientCustom()
+            .putFile('tennis-match-schedule',
+              sportEvent.id + '.json',
+              JSON.stringify(checkPlayerResult))
+        } catch (ex) {
+          console.error('>>>>>check sport event parse error>>>', sportEvent.id)
+          console.error(ex)
+          await new S3ClientCustom()
+            .putFile('tennis-match-schedule',
+              sportEvent.id + '.json',
+              JSON.stringify(sportEvent))
+        }
+
+        await client.send(
+          new DeleteMessageCommand({
+            QueueUrl: queueUrl,
+            ReceiptHandle: receiveMessageCommandResult.Messages[0].ReceiptHandle,
+          }),
+        );
+
+        getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+        sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+      }
+    }
+
+    return requestResult
+  }
+
+  async getScheduleTT() {
+    const s3ClientCustom = new S3ClientCustom()
+
+    var requestResult = 'error'
+    const resultFile = await s3ClientCustom.getFile('table-tennis-match-schedule', 'result.json')
+
+    if (resultFile) {
+      return toTTCsv(resultFile)
+    }
+
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/table-tennis-match-schedule-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
+
+    const events = await new BetapiClient().getEvents('92')
+
+    const sportEvents = []
+
+    // check queue in SQS
+    const getQueueAttrCommand = new GetQueueAttributesCommand({
+      QueueUrl: queueUrl,
+      AttributeNames: ['All']
+    })
+
+    const fileList = await new S3ClientCustom().getFileList('table-tennis-match-schedule')
+
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+    if (sqsMessageNumber === 0) {
+      for await (const event of events) {
+        const eventDateTime = new Date(parseInt(event.time) * 1000).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
+        const eventDate = eventDateTime.split(',')[0].trim()
+
+        if (event.player1.name.includes('/')) {
+          continue
+        }
+
+        if (eventDate !== '09/01/2025') {
+          continue
+        }
+
+        const sportEvent = {
+          id: event.id,
+          date: eventDateTime.split(',')[0].trim(),
+          time: eventDateTime.split(',')[1].trim(),
+          stage: '',
+          url: '',
+          type: '92',
+          competitionName: '',
+          player1: {
+            id: event.player1.id,
+            name: event.player1.name,
+            country: '',
+            dob: '',
+            currentRanking: 0,
+            highestRanking: 0,
+            matchesTotal: 0,
+            matchesWon: 0,
+            url: '',
+            type: '',
+            prizeMoney: 0,
+            previousMatches: null,
+            parsedPreviousMatches: null,
+            incomingMatchUrl: '',
+            h2h: 0,
+          },
+          player2: {
+            id: event.player2.id,
+            name: event.player2.name,
+            country: '',
+            dob: '',
+            currentRanking: 0,
+            highestRanking: 0,
+            matchesTotal: 0,
+            matchesWon: 0,
+            url: '',
+            type: '',
+            prizeMoney: 0,
+            previousMatches: null,
+            parsedPreviousMatches: null,
+            incomingMatchUrl: '',
+            h2h: 0
+          }
+        }
+
+
+        sportEvents.push(sportEvent)
+      }
+    }
+
+    const fileContent = []
+
+    console.log('>>>>total schedule number: ', sportEvents.length)
+
+    if (sqsMessageNumber === 0 && 418 === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('table-tennis-match-schedule', file)
@@ -705,7 +902,7 @@ export default class ScheduleAdapter {
         var sportEvent = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
 
         try {
-          var checkPlayerResult = await new PlayerAdapter().checkSportEventTT(sportEvent)
+          var checkPlayerResult = await new PlayerAdapter().compareSportEvent(sportEvent)
 
           await new S3ClientCustom()
             .putFile('table-tennis-match-schedule',
@@ -716,6 +913,195 @@ export default class ScheduleAdapter {
           console.error(ex)
           await new S3ClientCustom()
             .putFile('table-tennis-match-schedule',
+              sportEvent.id + '.json',
+              JSON.stringify(sportEvent))
+        }
+
+        await client.send(
+          new DeleteMessageCommand({
+            QueueUrl: queueUrl,
+            ReceiptHandle: receiveMessageCommandResult.Messages[0].ReceiptHandle,
+          }),
+        );
+
+        getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+        sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+      }
+    }
+
+    return requestResult
+  }
+
+  async getScheduleEsports() {
+    const s3ClientCustom = new S3ClientCustom()
+
+    var requestResult = 'error'
+    const resultFile = await s3ClientCustom.getFile('esports-match-schedule', 'result.json')
+
+    if (resultFile) {
+      return toTTCsv(resultFile)
+    }
+
+    const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/146261234111/esports-match-schedule-queue'
+    const client = new SQSClient({ region: 'ap-southeast-2' });
+
+    const events = await new BetapiClient().getEvents('151')
+
+    const sportEvents = []
+
+    // check queue in SQS
+    const getQueueAttrCommand = new GetQueueAttributesCommand({
+      QueueUrl: queueUrl,
+      AttributeNames: ['All']
+    })
+
+    const fileList = await new S3ClientCustom().getFileList('esports-match-schedule')
+
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+    if (sqsMessageNumber === 0) {
+      for await (const event of events) {
+        const eventDateTime = new Date(parseInt(event.time) * 1000).toLocaleString('en-GB', { timeZone: 'Australia/Sydney' })
+        const eventDate = eventDateTime.split(',')[0].trim()
+
+        if (event.player1.name.includes('/')) {
+          continue
+        }
+
+        if (eventDate !== '09/01/2025') {
+          continue
+        }
+
+        const sportEvent = {
+          id: event.id,
+          date: eventDateTime.split(',')[0].trim(),
+          time: eventDateTime.split(',')[1].trim(),
+          stage: '',
+          url: '',
+          type: '151',
+          competitionName: '',
+          player1: {
+            id: event.player1.id,
+            name: event.player1.name,
+            country: '',
+            dob: '',
+            currentRanking: 0,
+            highestRanking: 0,
+            matchesTotal: 0,
+            matchesWon: 0,
+            url: '',
+            type: '',
+            prizeMoney: 0,
+            previousMatches: null,
+            parsedPreviousMatches: null,
+            incomingMatchUrl: '',
+            h2h: 0,
+          },
+          player2: {
+            id: event.player2.id,
+            name: event.player2.name,
+            country: '',
+            dob: '',
+            currentRanking: 0,
+            highestRanking: 0,
+            matchesTotal: 0,
+            matchesWon: 0,
+            url: '',
+            type: '',
+            prizeMoney: 0,
+            previousMatches: null,
+            parsedPreviousMatches: null,
+            incomingMatchUrl: '',
+            h2h: 0
+          }
+        }
+
+
+        sportEvents.push(sportEvent)
+      }
+    }
+
+    const fileContent = []
+
+    console.log('>>>>total schedule number: ', sportEvents.length)
+
+    if (sqsMessageNumber === 0 && 28 === fileList.length) {
+      await Promise.all(
+        fileList.map(async file => {
+          const content = await new S3ClientCustom().getFile('esports-match-schedule', file)
+          fileContent.push(JSON.parse(content))
+        })
+      )
+
+      fileContent.forEach(content => {
+        var parsed = null
+
+        try {
+          parsed = JSON.parse(content)
+          fileContent.push(parsed)
+        } catch (ex) {
+          console.error('>>>>>failed to parse content')
+          return
+        }
+      })
+
+      await new S3ClientCustom()
+        .putFile('esports-match-schedule', 'result.json', JSON.stringify(fileContent))
+
+      return fileContent
+    }
+
+
+    // check queue in SQS
+    var getQueueAttrCommandResponse = await client.send(getQueueAttrCommand);
+    var sqsMessageNumber = Number(getQueueAttrCommandResponse.Attributes.ApproximateNumberOfMessages)
+
+    if (sqsMessageNumber === 0) {
+      // get schedule and put it in the SQS
+      // this part will not timeout
+      await Promise.all(
+        sportEvents.map(async sporte => {
+          const input = {
+            QueueUrl: queueUrl,
+            MessageBody: JSON.stringify(sporte),
+            DelaySeconds: 10,
+          };
+          const command = new SendMessageCommand(input);
+          await client.send(command);
+        })
+      )
+
+      return 'message queue successfully'
+
+    }
+    else {
+      // loop while sqs has message
+      // this part might timeout after 15mins
+      while (sqsMessageNumber > 0) {
+        const receiveMessageCommand = new ReceiveMessageCommand({
+          MaxNumberOfMessages: 1,
+          MessageAttributeNames: ["All"],
+          QueueUrl: queueUrl,
+          WaitTimeSeconds: 20,
+          VisibilityTimeout: 20,
+        })
+
+        const receiveMessageCommandResult = await client.send(receiveMessageCommand);
+        var sportEvent = JSON.parse(receiveMessageCommandResult.Messages[0].Body)
+
+        try {
+          var checkPlayerResult = await new PlayerAdapter().compareSportEvent(sportEvent)
+
+          await new S3ClientCustom()
+            .putFile('esports-match-schedule',
+              sportEvent.id + '.json',
+              JSON.stringify(checkPlayerResult))
+        } catch (ex) {
+          console.error('>>>>>check sport event parse error>>>', sportEvent.id)
+          console.error(ex)
+          await new S3ClientCustom()
+            .putFile('esports-match-schedule',
               sportEvent.id + '.json',
               JSON.stringify(sportEvent))
         }

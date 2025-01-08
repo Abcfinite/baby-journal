@@ -12,7 +12,7 @@ export default class BetapiClient {
   }
 
   async getPlayerEndedMatches(playerId: string, sportId: string, fullPages = false): Promise<Array<Event>> {
-    return await new EndedService().getEndedEventBasedOnPlayerId(playerId, sportId)
+    return await new EndedService().getEndedEventBasedOnPlayerId(playerId, sportId, fullPages)
   }
 
   async getEvents(sportId: string): Promise<Array<Event>> {

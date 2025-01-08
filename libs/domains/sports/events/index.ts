@@ -143,9 +143,11 @@ export const getPlayersUrl: Handler = async (event: any) => {
 export const cacheBetAPI: Handler = async (event: any) => {
   let tennisBetAPIResult = await new ScheduleAdapter().cacheTennisBetAPI()
   let tableTennisBetAPIResult = await new ScheduleAdapter().cacheTableTennisBetAPI()
+  let cacheEsportsBetAPIResult = await new ScheduleAdapter().cacheEsportsBetAPI()
 
   const responseText = `tennis events : ${tennisBetAPIResult}
-    table tennis events : ${tableTennisBetAPIResult}`
+    table tennis events : ${tableTennisBetAPIResult}
+    esports events : ${cacheEsportsBetAPIResult}`
 
   // const responseText = `table tennis events: ${tableTennisBetAPIResult}`
 
@@ -197,6 +199,38 @@ export const getTableTennisCheck: Handler = async (event: any) => {
 
 export const getTableTennisNext: Handler = async (event: any) => {
   var result = await new ScheduleAdapter().getTableTennisNext()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+
+export const getScheduleEsports: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().getScheduleEsports()
+
+  var response = {
+    statusCode: 200,
+    body: JSON.stringify(result,
+      null,
+      2
+    ),
+  }
+
+  return new Promise((resolve) => {
+    resolve(response)
+  })
+}
+
+export const getScheduleTennis: Handler = async (event: any) => {
+  var result = await new ScheduleAdapter().getScheduleTennis()
 
   var response = {
     statusCode: 200,
