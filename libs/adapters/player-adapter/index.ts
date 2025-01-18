@@ -28,12 +28,14 @@ export default class PlayerAdapter {
     return result
   }
 
-  async compareSportEvent(sportEvent: SportEvent) {
+  async getResult(sportEvent: SportEvent) {
 
     const player1Id = sportEvent.player1.id
     const player2Id = sportEvent.player2.id
 
     const player1Matches = await new BetapiClient().getPlayerEndedMatches(player1Id, sportEvent.type)
+
+    console.log('>>>>>player1Matches : ', player1Matches.length)
 
     const match = player1Matches.find(p => p.player2.id === player2Id)
 
@@ -46,7 +48,7 @@ export default class PlayerAdapter {
   }
 
 
-  async getResult(sportEvent: SportEvent) {
+  async compareSportEvent(sportEvent: SportEvent) {
 
     const player1Id = sportEvent.player1.id
     const player2Id = sportEvent.player2.id

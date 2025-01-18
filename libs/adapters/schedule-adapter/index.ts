@@ -1198,7 +1198,7 @@ export default class ScheduleAdapter {
         time: '',
         stage: '',
         url: '',
-        type: '151',
+        type: '92',
         competitionName: '',
         player1: {
           id: event.p1Id.S,
@@ -1238,14 +1238,11 @@ export default class ScheduleAdapter {
     })
 
     const ttEventCollection = ttEvents.map(async ttEvent => {
-      return await new PlayerAdapter().compareSportEvent(ttEvent)
+      return await new PlayerAdapter().getResult(ttEvent)
     })
 
-    const ttEventCollectionResult = Promise.all(ttEventCollection)
+    const ttEventCollectionResult = await Promise.all(ttEventCollection)
 
-    console.log('>>>>ttEventCollectionResult: ', ttEventCollectionResult)
-
-
-    return result
+    return ttEventCollectionResult.length
   }
 }

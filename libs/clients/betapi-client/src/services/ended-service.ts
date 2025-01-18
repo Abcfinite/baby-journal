@@ -7,19 +7,20 @@ import { Event } from '../types/event'
 export default class EndedService {
   getEndedEventBasedOnPlayerId = async (playerId: string, sportId: string, fullPages = false) => {
     const httpApiClient = new HttpApiClient()
-    const resultFirstPage = await httpApiClient.get(
-      'https://api.b365api.com',
+    const resultFirstPage = await httpApiClient.getNative(
+      'api.b365api.com',
       '/v3/events/ended',
       null,
-      { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 1 }
+      { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: '1' }
     )
 
-    const paging = PagingParser.parse(resultFirstPage.value['pager'])
+    const data = JSON.parse(resultFirstPage.value.toString())
+    const paging = PagingParser.parse(data['pager'])
     let numberOfPageTurn = Math.floor(paging.total / paging.perPage)
 
     let fullEndedEvents: Event[] = []
 
-    const pageOneEvents = resultFirstPage.value['results'].map(r => {
+    const pageOneEvents = data['results'].map(r => {
       return new EventParser().parse(r)
     })
 
@@ -58,14 +59,15 @@ export default class EndedService {
 
   async getEveryPage(pageNo: number, playerId: string, sportId: string) {
     const httpApiClient = new HttpApiClient()
-    const loopResult = await httpApiClient.get(
-      'https://api.b365api.com',
+    const loopResult = await httpApiClient.getNative(
+      'api.b365api.com',
       '/v3/events/ended',
       null,
-      { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: 2 + pageNo }
+      { sport_id: sportId, token: '196561-oNn4lPf9A9Hwcu', team_id: playerId, page: `${2 + pageNo}` }
     )
 
-    const parsedEvents = loopResult.value['results'].map(r => {
+    const data = JSON.parse(loopResult.value.toString())
+    const parsedEvents = data['results'].map(r => {
       return new EventParser().parse(r)
     })
 
