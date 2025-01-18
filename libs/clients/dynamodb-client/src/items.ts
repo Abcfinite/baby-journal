@@ -58,6 +58,17 @@ export const scan = async (params: ScanCommandInput) => {
   return response;
 }
 
+export const queryIndex = async (params: QueryCommandInput) => {
+  const client = new DynamoDBClient({});
+
+  const command = new QueryCommand(params)
+
+  const response = await client.send(command);
+
+  return response;
+}
+
+
 export const query = async (params: QueryCommandInput) => {
   const client = new DynamoDBClient({});
 

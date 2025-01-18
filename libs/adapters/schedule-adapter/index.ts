@@ -6,7 +6,7 @@ import { Client } from 'pg'
 import { toQuery, formatResult, prediction, probability } from './src/utils/helper'
 
 import S3ClientCustom from '@abcfinite/s3-client-custom'
-import { putItem, executeScan, executeQuery } from '@abcfinite/dynamodb-client'
+import { putItem, executeScan, executeQuery, executeQueryIndex } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import {
@@ -22,6 +22,9 @@ import { put } from "@abcfinite/dynamodb-client/src/items"
 
 export default class ScheduleAdapter {
 
+  currentCheckDate = '18/01/2025'
+  matchNoTennis = 170
+  matchNoEsports = 40
 
   async removeAllCache() {
     const s3ClientCustom = new S3ClientCustom()
@@ -591,7 +594,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '09/01/2025') {
+        if (eventDate !== this.currentCheckDate) {
           continue
         }
 
@@ -648,7 +651,7 @@ export default class ScheduleAdapter {
 
     console.log('>>>>total schedule number: ', sportEvents.length)
 
-    if (sqsMessageNumber === 0 && 201 === fileList.length) {
+    if (sqsMessageNumber === 0 && this.matchNoTennis === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('tennis-match-schedule', file)
@@ -750,6 +753,7 @@ export default class ScheduleAdapter {
     const resultFile = await s3ClientCustom.getFile('table-tennis-match-schedule', 'result.json')
 
     if (resultFile) {
+      await this.storeToDynamoDB(resultFile)
       return toTTCsv(resultFile)
     }
 
@@ -780,7 +784,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '09/01/2025') {
+        if (eventDate !== this.currentCheckDate) {
           continue
         }
 
@@ -833,11 +837,23 @@ export default class ScheduleAdapter {
       }
     }
 
+    console.log('>>>>sportEvents: ', sportEvents.length)
+
     const fileContent = []
 
-    console.log('>>>>total schedule number: ', sportEvents.length)
+    let matchNoTT = 0
+    let content = await new S3ClientCustom().getFile('table-tennis-match-schedule', 'number.txt')
+    matchNoTT = Number(content)
+    if (content === null || content === undefined) {
+      await new S3ClientCustom()
+        .putFile('table-tennis-match-schedule', 'number.txt', `${sportEvents.length}`)
+    }
 
-    if (sqsMessageNumber === 0 && 418 === fileList.length) {
+    console.log('>>>>sqsMessageNumber: ', sqsMessageNumber)
+    console.log('>>>>matchNoTT: ', matchNoTT)
+    console.log('>>>>fileList.length: ', fileList.length - 1)
+
+    if (sqsMessageNumber === 0 && matchNoTT === (fileList.length - 1)) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('table-tennis-match-schedule', file)
@@ -969,7 +985,7 @@ export default class ScheduleAdapter {
           continue
         }
 
-        if (eventDate !== '09/01/2025') {
+        if (eventDate !== this.currentCheckDate) {
           continue
         }
 
@@ -1026,7 +1042,7 @@ export default class ScheduleAdapter {
 
     console.log('>>>>total schedule number: ', sportEvents.length)
 
-    if (sqsMessageNumber === 0 && 28 === fileList.length) {
+    if (sqsMessageNumber === 0 && this.matchNoEsports === fileList.length) {
       await Promise.all(
         fileList.map(async file => {
           const content = await new S3ClientCustom().getFile('esports-match-schedule', file)
@@ -1143,5 +1159,93 @@ export default class ScheduleAdapter {
     })
 
     return sorted
+  }
+
+  async storeToDynamoDB(resultFile: any) {
+    const events = JSON.parse(resultFile)
+
+    const putEvents = events.map(event => {
+      if (event.p1Name !== null && event.p1Name !== undefined && event.p1Name !== '' &&
+        event.p2Name !== null && event.p2Name !== undefined && event.p2Name !== '') {
+        return putItem('table_tennis_h2h_bm', event, true)
+      }
+    })
+
+    console.log('>>>>put table tennis Events: ', putEvents.length)
+
+    await Promise.all(putEvents)
+  }
+
+  async getTableTennisResults() {
+
+    const query1 = {
+      TableName: 'table_tennis_h2h_bm',
+      IndexName: 'waiting',
+      KeyConditionExpression: 'winner = :winner',
+      ExpressionAttributeValues: {
+        ':winner': { S: 'waiting' },
+      },
+    }
+
+    const result = await executeQueryIndex(query1)
+
+    // build sport event
+
+    const ttEvents = result['Items'].map(event => {
+      return {
+        id: event.id.S,
+        date: '',
+        time: '',
+        stage: '',
+        url: '',
+        type: '151',
+        competitionName: '',
+        player1: {
+          id: event.p1Id.S,
+          name: event.p1Name.S,
+          country: '',
+          dob: '',
+          currentRanking: 0,
+          highestRanking: 0,
+          matchesTotal: 0,
+          matchesWon: 0,
+          url: '',
+          type: '',
+          prizeMoney: 0,
+          previousMatches: null,
+          parsedPreviousMatches: null,
+          incomingMatchUrl: '',
+          h2h: 0,
+        },
+        player2: {
+          id: event.p2Id.S,
+          name: event.p2Name.S,
+          country: '',
+          dob: '',
+          currentRanking: 0,
+          highestRanking: 0,
+          matchesTotal: 0,
+          matchesWon: 0,
+          url: '',
+          type: '',
+          prizeMoney: 0,
+          previousMatches: null,
+          parsedPreviousMatches: null,
+          incomingMatchUrl: '',
+          h2h: 0
+        }
+      }
+    })
+
+    const ttEventCollection = ttEvents.map(async ttEvent => {
+      return await new PlayerAdapter().compareSportEvent(ttEvent)
+    })
+
+    const ttEventCollectionResult = Promise.all(ttEventCollection)
+
+    console.log('>>>>ttEventCollectionResult: ', ttEventCollectionResult)
+
+
+    return result
   }
 }

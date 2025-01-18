@@ -130,3 +130,10 @@ functions:
       - http:
           path: /tableTennisNext
           method: get
+  tableTennisResults:
+    handler: index.getTableTennisResults
+    timeout: 900
+    events:
+      - http:
+          path: /tableTennisResults
+          method: get

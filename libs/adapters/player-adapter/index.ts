@@ -34,6 +34,24 @@ export default class PlayerAdapter {
     const player2Id = sportEvent.player2.id
 
     const player1Matches = await new BetapiClient().getPlayerEndedMatches(player1Id, sportEvent.type)
+
+    const match = player1Matches.find(p => p.player2.id === player2Id)
+
+    console.log('>>>>>match : ', match)
+
+    return {
+      "setScore": match.score,
+      "winner": match.player1won ? '1' : '2'
+    }
+  }
+
+
+  async getResult(sportEvent: SportEvent) {
+
+    const player1Id = sportEvent.player1.id
+    const player2Id = sportEvent.player2.id
+
+    const player1Matches = await new BetapiClient().getPlayerEndedMatches(player1Id, sportEvent.type)
     const player2Matches = await new BetapiClient().getPlayerEndedMatches(player2Id, sportEvent.type)
 
     const player1Name = player1Matches.find(p => p.player1.id === player1Id).player1.name
@@ -45,7 +63,6 @@ export default class PlayerAdapter {
     let h2hNo = 0
     let h2hP1WonLast
 
-
     if (h2hAll.length !== 0) {
       const h2h = h2hAll.splice(0, 8)
 
@@ -53,9 +70,7 @@ export default class PlayerAdapter {
       h2hP1Won = h2h.filter(h => (h.player1.id === player1Id && h.player1won) || (h.player2.id === player1Id && !h.player1won)).length
 
       h2hP1WonLast = h2h[0].player1.id === player1Id ? h2h[0].player1won : !h2h[0].player1won
-
     }
-
 
     const player1Last8 = player1Matches.slice(0, 8)
     const player2Last8 = player2Matches.slice(0, 8)
@@ -107,21 +122,26 @@ export default class PlayerAdapter {
 
     const p1BMF = p1BM.filter((e, i, self) => i === self.indexOf(e)).length
     const p2BMF = p2BM.filter((e, i, self) => i === self.indexOf(e)).length
+    const h2hP2 = h2hNo - h2hP1Won
+    const h2hLastWinner = h2hP1WonLast ? 1 : 2
 
     return {
       "id": sportEvent.id,
       "date": sportEvent.date,
       "time": sportEvent.time,
+      "p1Id": player1Id,
+      "p2Id": player2Id,
       "p1Name": player1Name,
       "p2Name": player2Name,
       "h2hP1": h2hP1Won,
-      "h2hP2": h2hNo - h2hP1Won,
-      "h2hLastWinner": h2hP1WonLast ? 1 : 2,
+      h2hP2,
+      h2hLastWinner,
       "bmP1": p1BMF,
       "bmP2": p2BMF,
-      "betOn": '',
-      "odd": '',
-      "result": ''
+      "h2hBm": `${h2hP1Won}#${h2hP2}#${p1BMF}#${p2BMF}`,
+      "h2hBmLastWinner": `${h2hP1Won}#${h2hP2}#${h2hLastWinner}#${p1BMF}#${p2BMF}`,
+      "setScore": 'waiting',
+      "winner": 'waiting'
     }
   }
 
