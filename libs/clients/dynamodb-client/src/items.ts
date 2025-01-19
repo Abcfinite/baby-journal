@@ -1,5 +1,5 @@
-import { DynamoDBClient, ScanCommand, DeleteTableCommand, CreateTableCommand, CreateTableCommandInput, ListTablesCommand, ScanCommandInput, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { PutCommand, DeleteCommand, GetCommand, DynamoDBDocumentClient, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBClient, ScanCommand, DeleteTableCommand, CreateTableCommand, CreateTableCommandInput, ListTablesCommand, ScanCommandInput, QueryCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { PutCommand, DeleteCommand, GetCommand, DynamoDBDocumentClient, QueryCommandInput, UpdateCommandInput } from "@aws-sdk/lib-dynamodb";
 
 export const put = async (tableName: string,
   item: object,
@@ -8,18 +8,10 @@ export const put = async (tableName: string,
   const client = new DynamoDBClient({});
   const docClient = DynamoDBDocumentClient.from(client)
 
-  if (!replaceWhenExist) {
-    const getResult = await get(tableName,
-      item['id'],
-      item['full_name'])
-    if (getResult.Item) {
-      return
-    }
-  }
-
   const command = new PutCommand({
     TableName: tableName,
-    Item: item
+    Item: item,
+    ConditionExpression: replaceWhenExist ? '' : 'attribute_not_exists(id)'
   })
 
   let response
@@ -100,8 +92,14 @@ export const get = async (tableName: string,
   return response;
 }
 
-export const update = async () => {
+export const update = async (params: UpdateCommandInput) => {
+  const client = new DynamoDBClient({});
 
+  const command = new UpdateItemCommand(params)
+
+  const response = await client.send(command);
+
+  return response;
 }
 
 export const remove = async (tableName: string, itemId: string) => {

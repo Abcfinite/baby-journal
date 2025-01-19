@@ -31,20 +31,23 @@ export default class PlayerAdapter {
   async getResult(sportEvent: SportEvent) {
 
     const player1Id = sportEvent.player1.id
-    const player2Id = sportEvent.player2.id
 
     const player1Matches = await new BetapiClient().getPlayerEndedMatches(player1Id, sportEvent.type)
+    const match = player1Matches.find(m => m.id === sportEvent.id)
 
-    console.log('>>>>>player1Matches : ', player1Matches.length)
+    console.log('>>>>match : ', match)
 
-    const match = player1Matches.find(p => p.player2.id === player2Id)
-
-    console.log('>>>>>match : ', match)
-
-    return {
-      "setScore": match.score,
-      "winner": match.player1won ? '1' : '2'
+    if (match !== undefined && match !== null &&
+      match.score !== undefined && match.score !== null &&
+      match.player1won !== undefined && match.player1won !== null) {
+      return {
+        "id": match.id,
+        "setScore": match.score,
+        "winner": match.player1won ? '1' : '2'
+      }
     }
+
+    return null
   }
 
 

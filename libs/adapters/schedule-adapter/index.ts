@@ -6,7 +6,7 @@ import { Client } from 'pg'
 import { toQuery, formatResult, prediction, probability } from './src/utils/helper'
 
 import S3ClientCustom from '@abcfinite/s3-client-custom'
-import { putItem, executeScan, executeQuery, executeQueryIndex } from '@abcfinite/dynamodb-client'
+import { putItem, executeScan, executeQuery, executeQueryIndex, updateItem, removeItem } from '@abcfinite/dynamodb-client'
 import { playerNamesToSportEvent, SportEvent } from "@abcfinite/tennislive-client/src/types/sportEvent"
 import PlayerAdapter from '@abcfinite/player-adapter'
 import {
@@ -1167,7 +1167,7 @@ export default class ScheduleAdapter {
     const putEvents = events.map(event => {
       if (event.p1Name !== null && event.p1Name !== undefined && event.p1Name !== '' &&
         event.p2Name !== null && event.p2Name !== undefined && event.p2Name !== '') {
-        return putItem('table_tennis_h2h_bm', event, true)
+        return putItem('table_tennis_h2h_bm', event)
       }
     })
 
@@ -1177,6 +1177,8 @@ export default class ScheduleAdapter {
   }
 
   async getTableTennisResults() {
+
+    console.log('>>>>>get table tennis results')
 
     const query1 = {
       TableName: 'table_tennis_h2h_bm',
@@ -1189,7 +1191,11 @@ export default class ScheduleAdapter {
 
     const result = await executeQueryIndex(query1)
 
-    // build sport event
+    console.log('>>>>>get table tennis results: ', result['Items'].length)
+
+    // // build sport event
+
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
     const ttEvents = result['Items'].map(event => {
       return {
@@ -1237,12 +1243,66 @@ export default class ScheduleAdapter {
       }
     })
 
-    const ttEventCollection = ttEvents.map(async ttEvent => {
-      return await new PlayerAdapter().getResult(ttEvent)
-    })
+    console.log('>>>>>ttEvents: ', ttEvents)
+
+    const ttEventCollection = [];
+    for (const ttEvent of ttEvents) {
+      const result = await new PlayerAdapter().getResult(ttEvent);
+      if (result !== null) {
+        ttEventCollection.push(result);
+      }
+      await delay(500); // Wait for 1 second
+    }
+
+    console.log('>>>>>ttEventCollection : ', ttEventCollection.length)
 
     const ttEventCollectionResult = await Promise.all(ttEventCollection)
 
-    return ttEventCollectionResult.length
+    console.log('>>>>prepare update dynamodb : ', ttEventCollectionResult.length)
+
+    // const ttEventCollectionResult = [
+    //   {
+    //     id: '9388151',
+    //     setScore: '3-1',
+    //     winner: '1',
+    //   }
+    // ]
+
+    const updateItemCollections = ttEventCollectionResult.map(async ttEvent => {
+      const item = {
+        TableName: 'table_tennis_h2h_bm',
+        Key: {
+          'id': { S: ttEvent.id },
+        },
+        UpdateExpression: 'SET #winner = :winner, #setScore = :setScore',
+        ExpressionAttributeNames: {
+          '#winner': 'winner',
+          '#setScore': 'setScore',
+        },
+        ExpressionAttributeValues: {
+          ':winner': { S: `${ttEvent.winner}` },
+          ':setScore': { S: `${ttEvent.setScore}` },
+        },
+      }
+
+      return await updateItem(item)
+    })
+
+    await Promise.all(updateItemCollections)
+
+
+    // remove the still waiting
+
+    const stillWaiting = await executeQueryIndex(query1)
+
+    console.log('>>>>>still waiting: ', stillWaiting['Items'].length)
+
+    const deleteEvents = result['Items'].map(event => {
+      return removeItem('table_tennis_h2h_bm', event.id.S)
+    })
+
+    await Promise.all(deleteEvents)
+
+    return 'test'
   }
 }
