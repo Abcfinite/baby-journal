@@ -137,3 +137,17 @@ functions:
       - http:
           path: /tableTennisResults
           method: get
+  getPredictionsTT:
+    handler: index.getPredictionsTT
+    timeout: 900
+    events:
+      - http:
+          path: /predictionsTT
+          method: get
+  getCurrentPredictionsTT:
+    handler: index.getCurrentPredictionsTT
+    timeout: 900
+    events:
+      - http:
+          path: /predictionsTTCurrent
+          method: get

@@ -15,14 +15,14 @@ import {
   DeleteMessageCommand,
   PurgeQueueCommand
 } from "@aws-sdk/client-sqs";
-import { toCsv, toTTCsv } from "./src/utils/builder"
+import { toCsv, toTTCsv, toTTPredCsv } from "./src/utils/builder"
 import BetapiClient from "@abcfinite/betapi-client"
 import TennisliveClient from "@abcfinite/tennislive-client"
 import { put } from "@abcfinite/dynamodb-client/src/items"
 
 export default class ScheduleAdapter {
 
-  currentCheckDate = '18/01/2025'
+  currentCheckDate = '20/01/2025'
   matchNoTennis = 170
   matchNoEsports = 40
 
@@ -199,6 +199,107 @@ export default class ScheduleAdapter {
 
     // return csv file
     return data.map(p => [p.fp, p.result, p.prediction, p.probability]).join('\r\n')
+  }
+
+
+  async getPredictionsTT() {
+    const waitingQuery = {
+      TableName: 'table_tennis_h2h_bm',
+      IndexName: 'waiting',
+      KeyConditionExpression: 'winner = :winner',
+      ExpressionAttributeValues: {
+        ':winner': { S: 'waiting' },
+      },
+    }
+
+    const waitingQueryResult = await executeQueryIndex(waitingQuery)
+
+    console.log('>>>>>get table tennis results: ', waitingQueryResult['Items'].length)
+
+    const itemUpdateStatements = []
+
+    for await (const item of waitingQueryResult['Items']) {
+      const h2hBmQuery = {
+        TableName: 'table_tennis_h2h_bm',
+        IndexName: 'h2hBm',
+        KeyConditionExpression: 'h2hBm = :h2hBm',
+        ExpressionAttributeValues: {
+          ':h2hBm': { S: item.h2hBm.S },
+        },
+      }
+
+      const h2hBmQueryResult = await executeQueryIndex(h2hBmQuery)
+
+      const p1Won = h2hBmQueryResult['Items'].filter(item => item.winner.S === '1').length
+      const p2Won = h2hBmQueryResult['Items'].filter(item => item.winner.S === '2').length
+
+      const p1prediction = p1Won + p2Won > 0 ? (p1Won / (p1Won + p2Won)).toFixed(2) : '0'
+      const p2prediction = p1Won + p2Won > 0 ? (p2Won / (p1Won + p2Won)).toFixed(2) : '0'
+
+      // console.log('>>>id : ', item.id)
+      // console.log('>>>p2prediction : ', p1prediction)
+      // console.log('>>>p1prediction : ', p2prediction)
+
+      const itemUpdateStatement = {
+        TableName: 'table_tennis_h2h_bm',
+        Key: {
+          'id': { S: item.id.S },
+        },
+        UpdateExpression: 'SET #p1prediction = :p1prediction, #p2prediction = :p2prediction, #predMatchNo = :predMatchNo',
+        ExpressionAttributeNames: {
+          '#p1prediction': 'p1prediction',
+          '#p2prediction': 'p2prediction',
+          '#predMatchNo': 'predMatchNo',
+        },
+        ExpressionAttributeValues: {
+          ':p1prediction': { S: `${p1prediction}` },
+          ':p2prediction': { S: `${p2prediction}` },
+          ':predMatchNo': { S: `${p1Won + p2Won}` },
+        },
+      }
+
+      itemUpdateStatements.push(updateItem(itemUpdateStatement))
+    }
+
+    console.log('>>>>>itemUpdateStatements: ', itemUpdateStatements.length)
+
+    await Promise.all(itemUpdateStatements)
+
+    console.log('>>>>>update completed')
+
+    return 'please run getPredictionsTT'
+  }
+
+  async getCurrentPredictionsTT() {
+    const waitingQuery = {
+      TableName: 'table_tennis_h2h_bm',
+      IndexName: 'waiting',
+      KeyConditionExpression: 'winner = :winner',
+      ExpressionAttributeValues: {
+        ':winner': { S: 'waiting' },
+      },
+    }
+
+    const waitingQueryResultAfterPrediction = await executeQueryIndex(waitingQuery)
+
+    //toCSV
+    const forCsv = waitingQueryResultAfterPrediction['Items'].map(item => {
+
+      return {
+        date: item.date.S,
+        time: item.time.S,
+        p1Name: item.p1Name.S,
+        p2Name: item.p2Name.S,
+        h2hBmLastWinner: item.h2hBmLastWinner.S,
+        p1prediction: item.p1prediction.S,
+        p2prediction: item.p2prediction.S,
+        predMatchNo: item.predMatchNo.S,
+      }
+    })
+
+
+
+    return toTTPredCsv(forCsv)
   }
 
   async getPlayersName() {
@@ -1251,7 +1352,7 @@ export default class ScheduleAdapter {
       if (result !== null) {
         ttEventCollection.push(result);
       }
-      await delay(500); // Wait for 1 second
+      await delay(100); // Wait for 1 second
     }
 
     console.log('>>>>>ttEventCollection : ', ttEventCollection.length)
@@ -1259,14 +1360,6 @@ export default class ScheduleAdapter {
     const ttEventCollectionResult = await Promise.all(ttEventCollection)
 
     console.log('>>>>prepare update dynamodb : ', ttEventCollectionResult.length)
-
-    // const ttEventCollectionResult = [
-    //   {
-    //     id: '9388151',
-    //     setScore: '3-1',
-    //     winner: '1',
-    //   }
-    // ]
 
     const updateItemCollections = ttEventCollectionResult.map(async ttEvent => {
       const item = {
@@ -1293,15 +1386,15 @@ export default class ScheduleAdapter {
 
     // remove the still waiting
 
-    const stillWaiting = await executeQueryIndex(query1)
+    // const stillWaiting = await executeQueryIndex(query1)
 
-    console.log('>>>>>still waiting: ', stillWaiting['Items'].length)
+    // console.log('>>>>>still waiting: ', stillWaiting['Items'].length)
 
-    const deleteEvents = result['Items'].map(event => {
-      return removeItem('table_tennis_h2h_bm', event.id.S)
-    })
+    // const deleteEvents = result['Items'].map(event => {
+    //   return removeItem('table_tennis_h2h_bm', event.id.S)
+    // })
 
-    await Promise.all(deleteEvents)
+    // await Promise.all(deleteEvents)
 
     return 'test'
   }

@@ -230,3 +230,48 @@ export const toTTCsv = (jsonString: string): string => {
 
   return resultArray.join('\r\n')
 }
+
+export const toTTPredCsv = (items: any): string => {
+  const csvHeader = [
+    'odd',
+    'bet on',
+    'result',
+    'date',
+    'time',
+
+    'p1 name',
+    'p2 name',
+    'h2hBmLastWinner',
+    'p1prediction',
+    'p2prediction',
+
+    'h2h gap',
+    'BM gap',
+    'predMatchNo',
+
+  ].join(',')
+
+  const resultArray = [csvHeader]
+
+  items.forEach(m => {
+    resultArray.push([
+      '',
+      '',
+      '',
+      m['date'],
+      m['time'],
+
+      m['p1Name'],
+      m['p2Name'],
+      m['h2hBmLastWinner'],
+      m['p1prediction'],
+      m['p2prediction'],
+
+      Number(m['h2hBmLastWinner'].split('#')[0]) - Number(m['h2hBmLastWinner'].split('#')[1]),
+      Number(m['h2hBmLastWinner'].split('#')[3]) - Number(m['h2hBmLastWinner'].split('#')[4]),
+      m['predMatchNo'],
+    ].join(','))
+  })
+
+  return resultArray.join('\r\n')
+}
